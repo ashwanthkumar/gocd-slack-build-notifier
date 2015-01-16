@@ -58,10 +58,21 @@ public class EmailNotificationPluginImpl implements GoPlugin {
         Map<String, Object> response = new HashMap<String, Object>();
         List<String> messages = new ArrayList<String>();
         try {
-            LOGGER.warn(dataMap.get("pipeline-name") + " " + dataMap.get("pipeline-counter") + " " + dataMap.get("stage-name") + " " + dataMap.get("stage-counter"));
-            LOGGER.warn(dataMap.get("stage-state") + " " + dataMap.get("stage-result") + " " + dataMap.get("create-time") + " " + dataMap.get("last-transition-time"));
+            String subject = "Stage: " + dataMap.get("pipeline-name") + "/" + dataMap.get("pipeline-counter") + "/" + dataMap.get("stage-name") + "/" + dataMap.get("stage-counter");
+            String body = "State: " + dataMap.get("stage-state") + "\nResult: " + dataMap.get("stage-result") + "\n Create Time: " + dataMap.get("create-time") + "\n Last Transition Time: " + dataMap.get("last-transition-time");
 
-            // send email
+            LOGGER.warn("Sending Email for " + subject);
+
+            String hostName = "smtp.gmail.com";
+            int port = 587;
+            String username = "";
+            String password = "";
+            boolean tls = true;
+            String fromEmailId = "";
+            String toEmailId = "";
+            new SMTPMailSender(hostName, port, username, password, tls, fromEmailId).send(subject, body, toEmailId);
+
+            LOGGER.warn("Done");
 
             response.put("status", "success");
             messages.add("Could connect to URL successfully");
