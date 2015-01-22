@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.thoughtworks.go</groupId>
-    <artifactId>email-notifier</artifactId>
+    <groupId>in.ashwanthkumar</groupId>
+    <artifactId>gocd-slack-notifier</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
 
@@ -22,11 +22,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4.7</version>
-        </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -55,19 +50,6 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>resources</directory>
-            </resource>
-        </resources>
-        <testSourceDirectory>test</testSourceDirectory>
-        <testResources>
-            <testResource>
-                <directory>test-resources</directory>
-            </testResource>
-        </testResources>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -101,37 +83,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <id>copy-to-dist</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <tasks>
-                                <delete dir="dist"/>
-                                <mkdir dir="dist"/>
-
-                                <copy todir="${project.basedir}/dist">
-                                    <fileset dir="${project.basedir}/target">
-                                        <include name="*.jar"/>
-                                    </fileset>
-                                </copy>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>2.5</version>
-            </plugin>
         </plugins>
     </build>
 </project>
