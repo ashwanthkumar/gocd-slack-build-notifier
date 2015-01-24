@@ -1,4 +1,4 @@
-package com.tw.go.plugin;
+package in.ashwanthkumar.gocd.slack;
 
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
@@ -14,10 +14,10 @@ import java.util.*;
 import static java.util.Arrays.asList;
 
 @Extension
-public class EmailNotificationPluginImpl implements GoPlugin {
-    private static Logger LOGGER = Logger.getLoggerFor(EmailNotificationPluginImpl.class);
+public class SlackNotification implements GoPlugin {
+    private static Logger LOGGER = Logger.getLoggerFor(SlackNotification.class);
 
-    public static final String EXTENSION_NAME = "notification";
+    public static final String EXTENSION_TYPE = "notification";
     private static final List<String> goSupportedVersions = asList("1.0");
 
     public static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
@@ -43,7 +43,7 @@ public class EmailNotificationPluginImpl implements GoPlugin {
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier(EXTENSION_NAME, goSupportedVersions);
+        return new GoPluginIdentifier(EXTENSION_TYPE, goSupportedVersions);
     }
 
     private GoPluginApiResponse handleNotificationsInterestedIn() {
@@ -53,29 +53,17 @@ public class EmailNotificationPluginImpl implements GoPlugin {
     }
 
     private GoPluginApiResponse handleStageNotification(GoPluginApiRequest goPluginApiRequest) {
-        Map<String, Object> dataMap = getMapFor(goPluginApiRequest);
+        GoNotificationMessage dataMap = parseNotificationMessage(goPluginApiRequest);
 
         Map<String, Object> response = new HashMap<String, Object>();
         List<String> messages = new ArrayList<String>();
         try {
-            String subject = "Stage: " + dataMap.get("pipeline-name") + "/" + dataMap.get("pipeline-counter") + "/" + dataMap.get("stage-name") + "/" + dataMap.get("stage-counter");
-            String body = "State: " + dataMap.get("stage-state") + "\nResult: " + dataMap.get("stage-result") + "\n Create Time: " + dataMap.get("create-time") + "\n Last Transition Time: " + dataMap.get("last-transition-time");
-
-            LOGGER.warn("Sending Email for " + subject);
-
-            String hostName = "smtp.gmail.com";
-            int port = 587;
-            String username = "";
-            String password = "";
-            boolean tls = true;
-            String fromEmailId = "";
-            String toEmailId = "";
-            new SMTPMailSender(hostName, port, username, password, tls, fromEmailId).send(subject, body, toEmailId);
-
-            LOGGER.warn("Done");
-
+            String subject = "Stage: " + dataMap.getPipelineName() + "/" + dataMap.getPipelineCounter() + "/" + dataMap.getStageName() + "/" + dataMap.getStageCounter();
+            String body = "State: " + dataMap.getStageState() + "\nResult: " + dataMap.getStageResult() + "\n Create Time: " + dataMap.getCreateTime() + "\n Last Transition Time: " + dataMap.getLastTransitionTime();
+            LOGGER.info("Subject - " + subject);
+            LOGGER.info("Body - " + body);
             response.put("status", "success");
-            messages.add("Could connect to URL successfully");
+            // TODO - Should submit to Slack here
         } catch (Exception e) {
             response.put("status", "failure");
             messages.add(e.getMessage());
@@ -85,8 +73,8 @@ public class EmailNotificationPluginImpl implements GoPlugin {
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
 
-    private Map<String, Object> getMapFor(GoPluginApiRequest goPluginApiRequest) {
-        return (Map<String, Object>) new GsonBuilder().create().fromJson(goPluginApiRequest.requestBody(), Object.class);
+    private GoNotificationMessage parseNotificationMessage(GoPluginApiRequest goPluginApiRequest) {
+        return new GsonBuilder().create().fromJson(goPluginApiRequest.requestBody(), GoNotificationMessage.class);
     }
 
     private GoPluginApiResponse renderJSON(final int responseCode, Object response) {
