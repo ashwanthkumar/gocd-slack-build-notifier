@@ -53,13 +53,13 @@ public class SlackNotification implements GoPlugin {
     }
 
     private GoPluginApiResponse handleStageNotification(GoPluginApiRequest goPluginApiRequest) {
-        GoNotificationMessage dataMap = parseNotificationMessage(goPluginApiRequest);
+        GoNotificationMessage message = parseNotificationMessage(goPluginApiRequest);
 
         Map<String, Object> response = new HashMap<String, Object>();
         List<String> messages = new ArrayList<String>();
         try {
-            String subject = "Stage: " + dataMap.getPipelineName() + "/" + dataMap.getPipelineCounter() + "/" + dataMap.getStageName() + "/" + dataMap.getStageCounter();
-            String body = "State: " + dataMap.getStageState() + "\nResult: " + dataMap.getStageResult() + "\n Create Time: " + dataMap.getCreateTime() + "\n Last Transition Time: " + dataMap.getLastTransitionTime();
+            String subject = "Stage: " + message.getPipelineName() + "/" + message.getPipelineCounter() + "/" + message.getStageName() + "/" + message.getStageCounter();
+            String body = "State: " + message.getStageState() + "\nResult: " + message.getStageResult() + "\n Create Time: " + message.getCreateTime() + "\n Last Transition Time: " + message.getLastTransitionTime();
             LOGGER.info("Subject - " + subject);
             LOGGER.info("Body - " + body);
             response.put("status", "success");

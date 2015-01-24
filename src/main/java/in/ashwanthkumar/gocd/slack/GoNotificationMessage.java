@@ -27,6 +27,10 @@ public class GoNotificationMessage {
     @SerializedName("last-transition-time")
     private String lastTransitionTime;
 
+    public String goServerUrl(String host) {
+        return String.format("%s/go/pipelines/%s/%s/%s/%s", host, pipelineName, pipelineCounter, stageName, stageCounter);
+    }
+
     public String getPipelineName() {
         return pipelineName;
     }
