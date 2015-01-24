@@ -1,6 +1,6 @@
-Warning: NOT FOR PRODUCTION USAGE.
+# gocd-slack-build-notifier
+Slack based GoCD build notifier. WIP.
 
-Thoughtworks Go plugin to send Email notifications.
+## License
 
-*Usage:*
-Download jar from releases & place it in <go-server-location>/plugins/external & restart Go Server.
+http://www.apache.org/licenses/LICENSE-2.0
