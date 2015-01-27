@@ -55,34 +55,30 @@ public class EmailNotificationPluginImpl implements GoPlugin {
     private GoPluginApiResponse handleStageNotification(GoPluginApiRequest goPluginApiRequest) {
         Map<String, Object> dataMap = getMapFor(goPluginApiRequest);
 
+        int responseCode = SUCCESS_RESPONSE_CODE;
         Map<String, Object> response = new HashMap<String, Object>();
         List<String> messages = new ArrayList<String>();
         try {
-            String subject = "Stage: " + dataMap.get("pipeline-name") + "/" + dataMap.get("pipeline-counter") + "/" + dataMap.get("stage-name") + "/" + dataMap.get("stage-counter");
-            String body = "State: " + dataMap.get("stage-state") + "\nResult: " + dataMap.get("stage-result") + "\n Create Time: " + dataMap.get("create-time") + "\n Last Transition Time: " + dataMap.get("last-transition-time");
+            String subject = "Stage: " + dataMap.get("pipeline-name") + "/" + ((Double) dataMap.get("pipeline-counter")).intValue() + "/" + dataMap.get("stage-name") + "/" + dataMap.get("stage-counter");
+            String body = "State: " + dataMap.get("stage-state") + "\nResult: " + dataMap.get("stage-result") + "\nCreate Time: " + dataMap.get("create-time");
 
             LOGGER.warn("Sending Email for " + subject);
 
-            String hostName = "smtp.gmail.com";
-            int port = 587;
-            String username = "";
-            String password = "";
-            boolean tls = true;
-            String fromEmailId = "";
-            String toEmailId = "";
-            new SMTPMailSender(hostName, port, username, password, tls, fromEmailId).send(subject, body, toEmailId);
+            SMTPSettings settings = new SMTPSettings("smtp.gmail.com", 587, true, "", "");
+            new SMTPMailSender(settings).send(subject, body, "");
 
             LOGGER.warn("Done");
 
             response.put("status", "success");
             messages.add("Could connect to URL successfully");
         } catch (Exception e) {
+            responseCode = INTERNAL_ERROR_RESPONSE_CODE;
             response.put("status", "failure");
             messages.add(e.getMessage());
         }
 
         response.put("messages", messages);
-        return renderJSON(SUCCESS_RESPONSE_CODE, response);
+        return renderJSON(responseCode, response);
     }
 
     private Map<String, Object> getMapFor(GoPluginApiRequest goPluginApiRequest) {

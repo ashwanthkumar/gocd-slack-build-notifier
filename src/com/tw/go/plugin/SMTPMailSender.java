@@ -31,30 +31,20 @@ public class SMTPMailSender {
 
     public static final int DEFAULT_TIMEOUT = 60 * 1000;
 
-    private String host;
-    private int port;
-    private String username;
-    private String password;
-    private Boolean tls;
-    private String fromEmailId;
+    private SMTPSettings smtpSettings;
 
-    public SMTPMailSender(String hostName, int port, String username, String password, boolean tls, String fromEmailId) {
-        this.host = hostName;
-        this.port = port;
-        this.username = username;
-        this.password = password;
-        this.tls = tls;
-        this.fromEmailId = fromEmailId;
+    public SMTPMailSender(SMTPSettings smtpSettings) {
+        this.smtpSettings = smtpSettings;
     }
 
     public void send(String subject, String body, String toEmailId) {
         Transport transport = null;
         try {
             Properties properties = mailProperties();
-            Session session = createSession(properties, username, password);
+            Session session = createSession(properties, smtpSettings.getFromEmailId(), smtpSettings.getPassword());
             transport = session.getTransport();
-            transport.connect(host, nullIfEmpty(username), nullIfEmpty(password));
-            MimeMessage message = createMessage(session, fromEmailId, toEmailId, subject, body);
+            transport.connect(smtpSettings.getHostName(), nullIfEmpty(smtpSettings.getFromEmailId()), nullIfEmpty(smtpSettings.getPassword()));
+            MimeMessage message = createMessage(session, smtpSettings.getFromEmailId(), toEmailId, subject, body);
             transport.sendMessage(message, message.getRecipients(TO));
         } catch (Exception e) {
             LOGGER.error(String.format("Sending failed for email [%s] to [%s]", subject, toEmailId), e);
@@ -71,7 +61,7 @@ public class SMTPMailSender {
 
     private Properties mailProperties() {
         Properties properties = new Properties();
-        properties.put("mail.from", fromEmailId);
+        properties.put("mail.from", smtpSettings.getFromEmailId());
 
         if (!System.getProperties().containsKey("mail.smtp.connectiontimeout")) {
             properties.put("mail.smtp.connectiontimeout", DEFAULT_TIMEOUT);
@@ -81,12 +71,12 @@ public class SMTPMailSender {
             properties.put("mail.smtp.timeout", DEFAULT_TIMEOUT);
         }
 
-        if (tls) {
+        if (smtpSettings.isTls()) {
             properties.put("mail.smtp.starttls.enable", "true");
             properties.setProperty("mail.smtp.ssl.enable", "true");
         }
 
-        String mailProtocol = tls ? "smtps" : "smtp";
+        String mailProtocol = smtpSettings.isTls() ? "smtps" : "smtp";
         properties.put("mail.transport.protocol", mailProtocol);
 
         return properties;
@@ -144,24 +134,13 @@ public class SMTPMailSender {
 
         SMTPMailSender that = (SMTPMailSender) o;
 
-        if (port != that.port) return false;
-        if (fromEmailId != null ? !fromEmailId.equals(that.fromEmailId) : that.fromEmailId != null) return false;
-        if (host != null ? !host.equals(that.host) : that.host != null) return false;
-        if (password != null ? !password.equals(that.password) : that.password != null) return false;
-        if (tls != null ? !tls.equals(that.tls) : that.tls != null) return false;
-        if (username != null ? !username.equals(that.username) : that.username != null) return false;
+        if (smtpSettings != null ? !smtpSettings.equals(that.smtpSettings) : that.smtpSettings != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = host != null ? host.hashCode() : 0;
-        result = 31 * result + port;
-        result = 31 * result + (username != null ? username.hashCode() : 0);
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        result = 31 * result + (tls != null ? tls.hashCode() : 0);
-        result = 31 * result + (fromEmailId != null ? fromEmailId.hashCode() : 0);
-        return result;
+        return smtpSettings != null ? smtpSettings.hashCode() : 0;
     }
 }
