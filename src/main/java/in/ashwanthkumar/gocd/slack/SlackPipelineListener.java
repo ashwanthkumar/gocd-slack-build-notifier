@@ -51,11 +51,11 @@ public class SlackPipelineListener extends PipelineListener {
     private SlackAttachment slackAttachment(GoNotificationMessage message, PipelineStatus pipelineStatus) throws URISyntaxException {
         String messageText = "See details - " + message.goServerUrl(rules.getGoServerHost());
         return new SlackAttachment(messageText)
-                .fallback(String.format("%s %s %s", message.fullyQualifiedJobName(), prepositionFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "))
-                .title(String.format("Stage [%s] %s %s", message.fullyQualifiedJobName(), prepositionFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "));
+                .fallback(String.format("%s %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "))
+                .title(String.format("Stage [%s] %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "));
     }
 
-    private String prepositionFor(PipelineStatus pipelineStatus) {
+    private String verbFor(PipelineStatus pipelineStatus) {
         switch (pipelineStatus) {
             case BROKEN:
             case FIXED:
