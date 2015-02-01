@@ -49,9 +49,23 @@ public class SlackPipelineListener extends PipelineListener {
     }
 
     private SlackAttachment slackAttachment(GoNotificationMessage message, PipelineStatus pipelineStatus) throws URISyntaxException {
-        return new SlackAttachment("")
-                .fallback(message.fullyQualifiedJobName() + " has " + pipelineStatus)
-                .title("Stage [" + message.fullyQualifiedJobName() + "] has " + pipelineStatus, message.goServerUrl(rules.getGoServerHost()));
+        String messageText = "See details - " + message.goServerUrl(rules.getGoServerHost());
+        return new SlackAttachment(messageText)
+                .fallback(String.format("%s %s %s", message.fullyQualifiedJobName(), prepositionFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "))
+                .title(String.format("Stage [%s] %s %s", message.fullyQualifiedJobName(), prepositionFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "));
+    }
+
+    private String prepositionFor(PipelineStatus pipelineStatus) {
+        switch (pipelineStatus) {
+            case BROKEN:
+            case FIXED:
+                return "is";
+            case FAILED:
+            case PASSED:
+                return "has";
+            default:
+                return "";
+        }
     }
 
     private void updateSlackChannel(String slackChannel) {
