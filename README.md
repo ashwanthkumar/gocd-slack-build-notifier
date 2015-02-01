@@ -2,7 +2,7 @@
 Slack based GoCD build notifier
 
 ## Configuration
-Create a file `go_notify.conf` in the server's home directory. Minimalistic configuration is
+All configurations are in [HOCON](https://github.com/typesafehub/config) format. Create a file `go_notify.conf` in the server's home directory. Minimalistic configuration would be something like
 ```hocon
 gocd.slack {
   server-host = "http://localhost:8153/"
