@@ -70,6 +70,7 @@ public class GoNotificationPlugin implements GoPlugin {
 
     private GoPluginApiResponse handleStageNotification(GoPluginApiRequest goPluginApiRequest) {
         GoNotificationMessage message = parseNotificationMessage(goPluginApiRequest);
+        int responseCode = SUCCESS_RESPONSE_CODE;
 
         Map<String, Object> response = new HashMap<String, Object>();
         List<String> messages = new ArrayList<String>();
@@ -78,12 +79,13 @@ public class GoNotificationPlugin implements GoPlugin {
             LOGGER.info(message.fullyQualifiedJobName() + " has " + message.getStageState() + "/" + message.getStageResult());
             rules.getPipelineListener().notify(message);
         } catch (Exception e) {
+            responseCode = INTERNAL_ERROR_RESPONSE_CODE;
             response.put("status", "failure");
             messages.add(e.getMessage());
         }
 
         response.put("messages", messages);
-        return renderJSON(SUCCESS_RESPONSE_CODE, response);
+        return renderJSON(responseCode, response);
     }
 
     private GoNotificationMessage parseNotificationMessage(GoPluginApiRequest goPluginApiRequest) {
