@@ -35,9 +35,10 @@ gocd.slack {
   }]
 }
 ```
+`gocd.slack.pipelines` contains all the rules for the go-server. It is a list of rules (see below for what the parameters mean) for various pipelines.
 - `name` - Regex to match the pipeline name
 - `stage` - Regex to match the stage name
-- `state` - State of the pipeline at which we should send a notification. You can provide multiple values separated by pipe symbol
+- `state` - State of the pipeline at which we should send a notification. You can provide multiple values separated by pipe (`|`) symbol
 - `channel` - (Optional) channel where we should send the slack notification. This setting for a rule overrides the global setting
 
 ## License
