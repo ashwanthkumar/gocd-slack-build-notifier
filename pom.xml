@@ -25,7 +25,13 @@
         <dependency>
             <groupId>in.ashwanthkumar</groupId>
             <artifactId>slack-java-webhook</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>in.ashwanthkumar</groupId>
+            <artifactId>my-java-utils</artifactId>
+            <version>0.0.3</version>
         </dependency>
 
         <dependency>

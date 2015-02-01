@@ -2,6 +2,9 @@ package in.ashwanthkumar.gocd.slack;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class GoNotificationMessage {
     @SerializedName("pipeline-name")
     private String pipelineName;
@@ -27,8 +30,12 @@ public class GoNotificationMessage {
     @SerializedName("last-transition-time")
     private String lastTransitionTime;
 
-    public String goServerUrl(String host) {
-        return String.format("%s/go/pipelines/%s/%s/%s/%s", host, pipelineName, pipelineCounter, stageName, stageCounter);
+    public String goServerUrl(String host) throws URISyntaxException {
+        return new URI(String.format("%s/go/pipelines/%s/%s/%s/%s", host, pipelineName, pipelineCounter, stageName, stageCounter)).normalize().toASCIIString();
+    }
+
+    public String fullyQualifiedJobName() {
+        return pipelineName + "/" + pipelineCounter + "/" + stageName + "/" + stageCounter;
     }
 
     public String getPipelineName() {

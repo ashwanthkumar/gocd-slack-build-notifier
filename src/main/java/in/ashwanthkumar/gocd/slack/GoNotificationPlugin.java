@@ -8,14 +8,17 @@ import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import in.ashwanthkumar.gocd.slack.ruleset.Rules;
+import in.ashwanthkumar.gocd.slack.ruleset.RulesReader;
 
+import java.io.File;
 import java.util.*;
 
 import static java.util.Arrays.asList;
 
 @Extension
-public class SlackNotification implements GoPlugin {
-    private static Logger LOGGER = Logger.getLoggerFor(SlackNotification.class);
+public class GoNotificationPlugin implements GoPlugin {
+    private static Logger LOGGER = Logger.getLoggerFor(GoNotificationPlugin.class);
 
     public static final String EXTENSION_TYPE = "notification";
     private static final List<String> goSupportedVersions = asList("1.0");
@@ -25,6 +28,19 @@ public class SlackNotification implements GoPlugin {
 
     public static final int SUCCESS_RESPONSE_CODE = 200;
     public static final int INTERNAL_ERROR_RESPONSE_CODE = 500;
+
+    public static final String GO_NOTIFY_CONFIGURATION = "go_notify.conf";
+
+    private Rules rules;
+
+    public GoNotificationPlugin() {
+        String userHome = System.getProperty("user.home");
+        File pluginConfig = new File(userHome + File.separator + GO_NOTIFY_CONFIGURATION);
+        if (!pluginConfig.exists()) {
+            throw new RuntimeException(String.format("%s file is not found in %s", GO_NOTIFY_CONFIGURATION, userHome));
+        }
+        rules = RulesReader.read(pluginConfig);
+    }
 
     @Override
     public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
@@ -58,12 +74,9 @@ public class SlackNotification implements GoPlugin {
         Map<String, Object> response = new HashMap<String, Object>();
         List<String> messages = new ArrayList<String>();
         try {
-            String subject = "Stage: " + message.getPipelineName() + "/" + message.getPipelineCounter() + "/" + message.getStageName() + "/" + message.getStageCounter();
-            String body = "State: " + message.getStageState() + "\nResult: " + message.getStageResult() + "\n Create Time: " + message.getCreateTime() + "\n Last Transition Time: " + message.getLastTransitionTime();
-            LOGGER.info("Subject - " + subject);
-            LOGGER.info("Body - " + body);
             response.put("status", "success");
-            // TODO - Should submit to Slack here
+            LOGGER.info(message.fullyQualifiedJobName() + " has " + message.getStageState() + "/" + message.getStageResult());
+            rules.getPipelineListener().notify(message);
         } catch (Exception e) {
             response.put("status", "failure");
             messages.add(e.getMessage());
