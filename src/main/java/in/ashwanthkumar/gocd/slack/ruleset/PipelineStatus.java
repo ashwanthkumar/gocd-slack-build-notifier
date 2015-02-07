@@ -24,7 +24,7 @@ public enum PipelineStatus {
     /**
      * Status of the pipeline while being built.
      */
-    UNKNOWN;
+    BUILDING;
 
     public boolean matches(String state) {
         return this == ALL || this == PipelineStatus.valueOf(state.toUpperCase());

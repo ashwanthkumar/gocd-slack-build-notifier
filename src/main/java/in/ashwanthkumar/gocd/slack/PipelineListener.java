@@ -18,7 +18,7 @@ abstract public class PipelineListener {
         Option<PipelineRule> ruleOption = rules.find(message.getPipelineName(), message.getStageName(), message.getStageResult());
         if (ruleOption.isDefined()) {
             PipelineRule pipelineRule = ruleOption.get();
-            handlePipelineStatus(pipelineRule, PipelineStatus.valueOf(message.getStageResult().toUpperCase()), message);
+            handlePipelineStatus(pipelineRule, PipelineStatus.valueOf(message.getStageState().toUpperCase()), message);
         } else {
             LOG.warn(String.format("Couldn't find any matching rule for %s/%s with status=%s", message.getPipelineName(), message.getStageName(), message.getStageResult()));
         }
@@ -38,13 +38,22 @@ abstract public class PipelineListener {
             case BROKEN:
                 onBroken(rule, message);
                 break;
-            case UNKNOWN:
-                // Be silent and not do anything
+            case BUILDING:
+                onBuilding(rule, message);
                 break;
             default:
                 throw new RuntimeException("I just got pipeline status=" + status + ". I don't know how to handle it.");
         }
     }
+
+    /**
+     * Invoked when pipeline is BUILDING
+     *
+     * @param rule
+     * @param message
+     * @throws Exception
+     */
+    public abstract void onBuilding(PipelineRule rule, GoNotificationMessage message) throws Exception;
 
     /**
      * Invoked when pipeline PASSED
@@ -65,6 +74,8 @@ abstract public class PipelineListener {
     /**
      * Invoked when pipeline is BROKEN
      *
+     * Note - This currently is not implemented
+     *
      * @param message
      * @throws Exception
      */
@@ -72,6 +83,8 @@ abstract public class PipelineListener {
 
     /**
      * Invoked when pipeline is FIXED
+     *
+     * Note - This currently is not implemented
      *
      * @param message
      * @throws Exception

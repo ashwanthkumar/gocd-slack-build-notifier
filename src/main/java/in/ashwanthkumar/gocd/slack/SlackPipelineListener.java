@@ -25,6 +25,12 @@ public class SlackPipelineListener extends PipelineListener {
     }
 
     @Override
+    public void onBuilding(PipelineRule rule, GoNotificationMessage message) throws Exception {
+        updateSlackChannel(rule.getChannel());
+        slack.push(slackAttachment(message, PipelineStatus.BUILDING));
+    }
+
+    @Override
     public void onSuccess(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
         slack.push(slackAttachment(message, PipelineStatus.PASSED));
