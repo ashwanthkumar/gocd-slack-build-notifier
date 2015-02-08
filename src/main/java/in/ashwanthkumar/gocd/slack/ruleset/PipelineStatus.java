@@ -1,32 +1,69 @@
 package in.ashwanthkumar.gocd.slack.ruleset;
 
+import in.ashwanthkumar.gocd.slack.GoNotificationMessage;
+import in.ashwanthkumar.gocd.slack.PipelineListener;
+
 public enum PipelineStatus {
-    /**
-     * Pipeline has failed for the first time
-     */
-    FAILED,
-    /**
-     * Current and previous run of the pipeline failed hences broken
-     */
-    BROKEN,
-    /**
-     * Previous run has failed but now it succeeded
-     */
-    FIXED,
-    /**
-     * The pipeline has passed earlier and also now.
-     */
-    PASSED,
-    /**
-     * Pretty obvious ah?
-     */
-    ALL,
     /**
      * Status of the pipeline while being built.
      */
-    BUILDING;
+    BUILDING {
+        @Override
+        public void handle(PipelineListener listener, PipelineRule rule, GoNotificationMessage message) throws Exception {
+            listener.onBuilding(rule, message);
+        }
+    },
+    /**
+     * The pipeline has passed earlier and also now.
+     */
+    PASSED {
+        @Override
+        public void handle(PipelineListener listener, PipelineRule rule, GoNotificationMessage message) throws Exception {
+            listener.onPassed(rule, message);
+        }
+    },
+    /**
+     * Pipeline has failed for the first time
+     */
+    FAILED {
+        @Override
+        public void handle(PipelineListener listener, PipelineRule rule, GoNotificationMessage message) throws Exception {
+            listener.onFailed(rule, message);
+        }
+    },
+    /**
+     * Current and previous run of the pipeline failed hences broken
+     */
+    BROKEN {
+        @Override
+        public void handle(PipelineListener listener, PipelineRule rule, GoNotificationMessage message) throws Exception {
+            listener.onBroken(rule, message);
+        }
+    },
+    /**
+     * Previous run has failed but now it succeeded
+     */
+    FIXED {
+        @Override
+        public void handle(PipelineListener listener, PipelineRule rule, GoNotificationMessage message) throws Exception {
+            listener.onFixed(rule, message);
+        }
+    },
+    /**
+     * Pretty obvious ah?
+     */
+    ALL {
+        @Override
+        public void handle(PipelineListener listener, PipelineRule rule, GoNotificationMessage message) throws Exception {
+            /*
+            * No-op - Since we use this flag only to denote handle all states but not the actual state itself.
+            */
+        }
+    };
 
     public boolean matches(String state) {
         return this == ALL || this == PipelineStatus.valueOf(state.toUpperCase());
     }
+
+    public abstract void handle(PipelineListener listener, PipelineRule rule, GoNotificationMessage message) throws Exception;
 }

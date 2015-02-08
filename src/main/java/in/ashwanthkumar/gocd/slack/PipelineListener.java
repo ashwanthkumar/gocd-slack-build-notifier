@@ -25,25 +25,7 @@ abstract public class PipelineListener {
     }
 
     protected void handlePipelineStatus(PipelineRule rule, PipelineStatus status, GoNotificationMessage message) throws Exception {
-        switch (status) {
-            case PASSED:
-                onSuccess(rule, message);
-                break;
-            case FAILED:
-                onFailed(rule, message);
-                break;
-            case FIXED:
-                onFixed(rule, message);
-                break;
-            case BROKEN:
-                onBroken(rule, message);
-                break;
-            case BUILDING:
-                onBuilding(rule, message);
-                break;
-            default:
-                throw new RuntimeException("I just got pipeline status=" + status + ". I don't know how to handle it.");
-        }
+        status.handle(this, rule, message);
     }
 
     /**
@@ -61,7 +43,7 @@ abstract public class PipelineListener {
      * @param message
      * @throws Exception
      */
-    public abstract void onSuccess(PipelineRule rule, GoNotificationMessage message) throws Exception;
+    public abstract void onPassed(PipelineRule rule, GoNotificationMessage message) throws Exception;
 
     /**
      * Invoked when pipeline FAILED
