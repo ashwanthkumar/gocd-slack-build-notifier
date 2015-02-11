@@ -7,7 +7,7 @@ Slack based GoCD build notifier
 Download jar from releases & place it in /plugins/external & restart Go Server.
 
 ## Configuration
-All configurations are in [HOCON](https://github.com/typesafehub/config) format. Create a file `go_notify.conf` in the server user's home directory and on all agent machines (if they're running on different hosts). Minimalistic configuration would be something like
+All configurations are in [HOCON](https://github.com/typesafehub/config) format. Create a file `go_notify.conf` in the server user's (typically /var/go/) home directory. Minimalistic configuration would be something like
 ```hocon
 gocd.slack {
   server-host = "http://localhost:8153/"
