@@ -72,4 +72,12 @@ abstract public class PipelineListener {
      * @throws Exception
      */
     public abstract void onFixed(PipelineRule rule, GoNotificationMessage message) throws Exception;
+
+    /**
+     * Invoked when pipeline is CANCELLED
+     *
+     * @param message
+     * @throws Exception
+     */
+    public abstract void onCancelled(PipelineRule rule, GoNotificationMessage message) throws Exception;
 }

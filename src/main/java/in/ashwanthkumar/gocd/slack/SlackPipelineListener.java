@@ -54,6 +54,12 @@ public class SlackPipelineListener extends PipelineListener {
         slack.push(slackAttachment(message, PipelineStatus.FIXED));
     }
 
+    @Override
+    public void onCancelled(PipelineRule rule, GoNotificationMessage message) throws Exception {
+        updateSlackChannel(rule.getChannel());
+        slack.push(slackAttachment(message, PipelineStatus.CANCELLED));
+    }
+
     private SlackAttachment slackAttachment(GoNotificationMessage message, PipelineStatus pipelineStatus) throws URISyntaxException {
         String messageText = "See details - " + message.goServerUrl(rules.getGoServerHost());
         return new SlackAttachment(messageText)
@@ -69,6 +75,8 @@ public class SlackPipelineListener extends PipelineListener {
             case FAILED:
             case PASSED:
                 return "has";
+            case CANCELLED:
+                return "was";
             default:
                 return "";
         }

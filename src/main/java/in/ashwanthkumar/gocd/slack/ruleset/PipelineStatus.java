@@ -50,6 +50,26 @@ public enum PipelineStatus {
         }
     },
     /**
+     * Pipeline is an unknown state (often temporary?)
+     */
+    UNKNOWN {
+        @Override
+        public void handle(PipelineListener listener, PipelineRule rule, GoNotificationMessage message) throws Exception {
+            /*
+            * No-op - We never report this status.
+            */
+        }
+    },
+    /**
+     * Pipeline has been cancelled.
+     */
+    CANCELLED {
+        @Override
+        public void handle(PipelineListener listener, PipelineRule rule, GoNotificationMessage message) throws Exception {
+            listener.onCancelled(rule, message);
+        }
+    },
+    /**
      * Pretty obvious ah?
      */
     ALL {
