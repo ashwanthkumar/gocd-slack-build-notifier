@@ -8,9 +8,14 @@ import in.ashwanthkumar.slack.webhook.SlackAttachment;
 
 import java.net.URISyntaxException;
 
+import com.google.gson.JsonObject;
+import com.thoughtworks.go.plugin.api.logging.Logger;
+import com.typesafe.config.Config;
+
 import static in.ashwanthkumar.slack.webhook.util.StringUtils.startsWith;
 
 public class SlackPipelineListener extends PipelineListener {
+    private Logger LOG = Logger.getLoggerFor(SlackPipelineListener.class);
 
     private final Slack slack;
 
@@ -61,8 +66,27 @@ public class SlackPipelineListener extends PipelineListener {
     }
 
     private SlackAttachment slackAttachment(GoNotificationMessage message, PipelineStatus pipelineStatus) throws URISyntaxException {
-        String messageText = "See details - " + message.goServerUrl(rules.getGoServerHost());
-        return new SlackAttachment(messageText)
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            JsonObject details = message.fetchDetails(rules);
+            String triggerMessage = details.get("build_cause").getAsJsonObject()
+                .get("trigger_message").getAsString();
+            triggerMessage =
+                // Capitalize first letter. Really the shortest way:
+                // http://stackoverflow.com/questions/3904579
+                triggerMessage.substring(0,1).toUpperCase()
+                + triggerMessage.substring(1);
+            sb.append(triggerMessage);
+            sb.append(". ");
+        } catch (Exception e) {
+            sb.append("(Couldn't fetch build details; see server log.) ");
+            LOG.warn("Couldn't fetch build details: " + e.toString());
+        }
+        sb.append("See details - ");
+        sb.append(message.goServerUrl(rules.getGoServerHost()));
+
+        return new SlackAttachment(sb.toString())
                 .fallback(String.format("%s %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "))
                 .title(String.format("Stage [%s] %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "));
     }

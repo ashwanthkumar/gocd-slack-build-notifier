@@ -17,6 +17,9 @@ public class Rules {
     private String slackChannel;
     private String webHookUrl;
     private String goServerHost;
+    private String goLogin;
+    private String goPassword;
+
     private List<PipelineRule> pipelineRules = new ArrayList<PipelineRule>();
     private PipelineListener pipelineListener;
 
@@ -65,6 +68,24 @@ public class Rules {
         return this;
     }
 
+    public String getGoLogin() {
+        return goLogin;
+    }
+
+    public Rules setGoLogin(String goLogin) {
+        this.goLogin = goLogin;
+        return this;
+    }
+
+    public String getGoPassword() {
+        return goPassword;
+    }
+
+    public Rules setGoPassword(String goPassword) {
+        this.goPassword = goPassword;
+        return this;
+    }
+
     public PipelineListener getPipelineListener() {
         return pipelineListener;
     }
@@ -86,6 +107,15 @@ public class Rules {
         }
         String webhookUrl = config.getString("webhookUrl");
         String serverHost = config.getString("server-host");
+        String login = null;
+        if (config.hasPath("login")) {
+            login = config.getString("login");
+        }
+        String password = null;
+        if (config.hasPath("password")) {
+            password = config.getString("password");
+        }
+
         final PipelineRule defaultRule = PipelineRule.fromConfig(config.getConfig("default"), channel);
 
         List<PipelineRule> pipelineRules = Lists.map((List<Config>) config.getConfigList("pipelines"), new Function<Config, PipelineRule>() {
@@ -100,7 +130,9 @@ public class Rules {
                 .setSlackChannel(channel)
                 .setWebHookUrl(webhookUrl)
                 .setPipelineRules(pipelineRules)
-                .setGoServerHost(serverHost);
+                .setGoServerHost(serverHost)
+                .setGoLogin(login)
+                .setGoPassword(password);
         try {
             rules.pipelineListener = Class.forName(config.getString("listener")).asSubclass(PipelineListener.class).getConstructor(Rules.class).newInstance(rules);
         } catch (Exception ignore) {
