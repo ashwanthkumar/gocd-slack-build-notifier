@@ -19,7 +19,7 @@ abstract public class PipelineListener {
         Option<PipelineRule> ruleOption = rules.find(message.getPipelineName(), message.getStageName(), message.getStageResult());
         if (ruleOption.isDefined()) {
             PipelineRule pipelineRule = ruleOption.get();
-            handlePipelineStatus(pipelineRule, PipelineStatus.valueOf(message.getStageState().toUpperCase()), message);
+            handlePipelineStatus(pipelineRule, PipelineStatus.valueOf(message.getStageResult().toUpperCase()), message);
         } else {
             LOG.warn(String.format("Couldn't find any matching rule for %s/%s with status=%s", message.getPipelineName(), message.getStageName(), message.getStageResult()));
         }
