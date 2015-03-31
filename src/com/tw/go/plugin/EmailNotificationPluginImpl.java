@@ -59,8 +59,11 @@ public class EmailNotificationPluginImpl implements GoPlugin {
         Map<String, Object> response = new HashMap<String, Object>();
         List<String> messages = new ArrayList<String>();
         try {
-            String subject = "Stage: " + dataMap.get("pipeline-name") + "/" + ((Double) dataMap.get("pipeline-counter")).intValue() + "/" + dataMap.get("stage-name") + "/" + dataMap.get("stage-counter");
-            String body = "State: " + dataMap.get("stage-state") + "\nResult: " + dataMap.get("stage-result") + "\nCreate Time: " + dataMap.get("create-time");
+            Map<String, Object> pipelineMap = (Map<String, Object>) dataMap.get("pipeline");
+            Map<String, Object> stageMap = (Map<String, Object>) pipelineMap.get("stage");
+
+            String subject = String.format("Stage: %s/%s/%s/%s", pipelineMap.get("name"), pipelineMap.get("counter"), stageMap.get("name"), stageMap.get("counter"));
+            String body = String.format("State: %s\nResult: %s\nCreate Time: %s\nLast Transition Time: %s", stageMap.get("state"), stageMap.get("result"), stageMap.get("create-time"), stageMap.get("last-transition-time"));
 
             LOGGER.warn("Sending Email for " + subject);
 
@@ -70,15 +73,21 @@ public class EmailNotificationPluginImpl implements GoPlugin {
             LOGGER.warn("Done");
 
             response.put("status", "success");
-            messages.add("Could connect to URL successfully");
         } catch (Exception e) {
+            LOGGER.warn("Error occurred while trying to deliver an email.", e);
             responseCode = INTERNAL_ERROR_RESPONSE_CODE;
             response.put("status", "failure");
-            messages.add(e.getMessage());
+            if (!isEmpty(e.getMessage())) {
+                messages.add(e.getMessage());
+            }
         }
 
         response.put("messages", messages);
         return renderJSON(responseCode, response);
+    }
+
+    private boolean isEmpty(String str) {
+        return str == null || str.trim().isEmpty();
     }
 
     private Map<String, Object> getMapFor(GoPluginApiRequest goPluginApiRequest) {
