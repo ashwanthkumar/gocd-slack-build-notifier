@@ -65,16 +65,17 @@ public class EmailNotificationPluginImpl implements GoPlugin {
             String subject = String.format("Stage: %s/%s/%s/%s", pipelineMap.get("name"), pipelineMap.get("counter"), stageMap.get("name"), stageMap.get("counter"));
             String body = String.format("State: %s\nResult: %s\nCreate Time: %s\nLast Transition Time: %s", stageMap.get("state"), stageMap.get("result"), stageMap.get("create-time"), stageMap.get("last-transition-time"));
 
-            LOGGER.warn("Sending Email for " + subject);
+            LOGGER.info("Sending Email for " + subject);
 
             SMTPSettings settings = new SMTPSettings("smtp.gmail.com", 587, true, "", "");
             new SMTPMailSender(settings).send(subject, body, "");
 
-            LOGGER.warn("Done");
+            LOGGER.info("Successfully delivered an email.");
 
             response.put("status", "success");
         } catch (Exception e) {
             LOGGER.warn("Error occurred while trying to deliver an email.", e);
+
             responseCode = INTERNAL_ERROR_RESPONSE_CODE;
             response.put("status", "failure");
             if (!isEmpty(e.getMessage())) {
@@ -82,7 +83,9 @@ public class EmailNotificationPluginImpl implements GoPlugin {
             }
         }
 
-        response.put("messages", messages);
+        if (!messages.isEmpty()) {
+            response.put("messages", messages);
+        }
         return renderJSON(responseCode, response);
     }
 
