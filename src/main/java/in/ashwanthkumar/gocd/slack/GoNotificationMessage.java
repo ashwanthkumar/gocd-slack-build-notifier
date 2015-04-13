@@ -36,75 +36,85 @@ public class GoNotificationMessage {
         }
     }
 
-    @SerializedName("pipeline-name")
-    private String pipelineName;
+    static class Stage {
+        @SerializedName("name")
+        private String name;
 
-    @SerializedName("pipeline-counter")
-    private String pipelineCounter;
+        @SerializedName("counter")
+        private String counter;
 
-    @SerializedName("stage-name")
-    private String stageName;
+        @SerializedName("state")
+        private String state;
 
-    @SerializedName("stage-counter")
-    private String stageCounter;
+        @SerializedName("result")
+        private String result;
 
-    @SerializedName("stage-state")
-    private String stageState;
+        @SerializedName("create-time")
+        private String createTime;
 
-    @SerializedName("stage-result")
-    private String stageResult;
+        @SerializedName("last-transition-time")
+        private String lastTransitionTime;
+    }
 
-    @SerializedName("create-time")
-    private String createTime;
+    static class Pipeline {
+        @SerializedName("name")
+        private String name;
 
-    @SerializedName("last-transition-time")
-    private String lastTransitionTime;
+        @SerializedName("counter")
+        private String counter;
+
+        @SerializedName("stage")
+        private Stage stage;
+    }
+
+    @SerializedName("pipeline")
+    private Pipeline pipeline;
 
     // Internal cache of pipeline history data from GoCD's JSON API.
     private JsonArray mRecentPipelineHistory;
 
     public String goServerUrl(String host) throws URISyntaxException {
-        return new URI(String.format("%s/go/pipelines/%s/%s/%s/%s", host, pipelineName, pipelineCounter, stageName, stageCounter)).normalize().toASCIIString();
+        return new URI(String.format("%s/go/pipelines/%s/%s/%s/%s", host, pipeline.name, pipeline.counter, pipeline.stage.name, pipeline.stage.counter)).normalize().toASCIIString();
     }
 
     public String goHistoryUrl() throws URISyntaxException {
-        return new URI(String.format("http://localhost:8153/go/api/pipelines/%s/history", pipelineName)).normalize().toASCIIString();
+        return new URI(String.format("http://localhost:8153/go/api/pipelines/%s/history", pipeline.name)).normalize().toASCIIString();
     }
 
     public String fullyQualifiedJobName() {
-        return pipelineName + "/" + pipelineCounter + "/" + stageName + "/" + stageCounter;
+        return pipeline.name + "/" + pipeline.counter + "/" + pipeline.stage.name + "/" + pipeline.stage.counter;
     }
 
     public String getPipelineName() {
-        return pipelineName;
+        return pipeline.name;
     }
 
     public String getPipelineCounter() {
-        return pipelineCounter;
+        return pipeline.counter;
     }
 
     public String getStageName() {
-        return stageName;
+        return pipeline.stage.name;
     }
 
     public String getStageCounter() {
-        return stageCounter;
+        return pipeline.stage.counter;
     }
 
     public String getStageState() {
-        return stageState;
+        return pipeline.stage.state;
     }
 
     public String getStageResult() {
-        return stageResult;
+        return pipeline.stage.result;
     }
 
     public String getCreateTime() {
-        return createTime;
+        return pipeline.stage.createTime;
     }
 
     public String getLastTransitionTime() {
-        return lastTransitionTime;
+        return pipeline.stage.lastTransitionTime;
     }
 
     /**
@@ -153,21 +163,21 @@ public class GoNotificationMessage {
             if (build.get("counter").getAsInt() == counter)
                 return build;
         }
-        throw new BuildDetailsNotFoundException(pipelineName, counter);
+        throw new BuildDetailsNotFoundException(getPipelineName(), counter);
     }
 
     public void tryToFixStageResult(Rules rules)
     {
         // We only need to double-check certain messages; the rest are
         // trusty-worthy.
-        String currentResult = stageResult.toUpperCase();
+        String currentResult = pipeline.stage.result.toUpperCase();
         if (!currentResult.equals("PASSED") && !currentResult.equals("FAILED"))
             return;
 
         // Fetch our previous build.  If we can't get it, just give up;
         // this is a low-priority tweak.
         JsonObject previous = null;
-        int wanted = Integer.parseInt(pipelineCounter) - 1;
+        int wanted = Integer.parseInt(getPipelineCounter()) - 1;
         try {
             previous = fetchDetailsForBuild(rules, wanted);
         } catch(Exception e) {
@@ -189,15 +199,15 @@ public class GoNotificationMessage {
         // any event.
         //LOG.info("current: "+currentResult + ", previous: "+previousResult);
         if (currentResult.equals("PASSED") && !previousResult.equals("PASSED"))
-            stageResult = "Fixed";
+            pipeline.stage.result = "Fixed";
         else if (currentResult.equals("FAILED") &&
                  previousResult.equals("PASSED"))
-            stageResult = "Broken";
+            pipeline.stage.result = "Broken";
     }
 
     public JsonObject fetchDetails(Rules rules)
         throws URISyntaxException, IOException, BuildDetailsNotFoundException
     {
-        return fetchDetailsForBuild(rules, Integer.parseInt(pipelineCounter));
+        return fetchDetailsForBuild(rules, Integer.parseInt(getPipelineCounter()));
     }
 }

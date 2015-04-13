@@ -81,11 +81,19 @@ public class GoNotificationPlugin implements GoPlugin {
         } catch (Exception e) {
             responseCode = INTERNAL_ERROR_RESPONSE_CODE;
             response.put("status", "failure");
-            messages.add(e.getMessage());
+            if (!isEmpty(e.getMessage())) {
+                messages.add(e.getMessage());
+            }
         }
 
-        response.put("messages", messages);
+        if (!messages.isEmpty()) {
+            response.put("messages", messages);
+        }
         return renderJSON(responseCode, response);
+    }
+
+    private boolean isEmpty(String str) {
+        return str == null || str.trim().isEmpty();
     }
 
     private GoNotificationMessage parseNotificationMessage(GoPluginApiRequest goPluginApiRequest) {
