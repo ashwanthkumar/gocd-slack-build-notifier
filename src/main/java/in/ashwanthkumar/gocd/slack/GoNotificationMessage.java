@@ -1,65 +1,113 @@
 package in.ashwanthkumar.gocd.slack;
 
-import com.google.gson.annotations.SerializedName;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
 public class GoNotificationMessage {
-    @SerializedName("pipeline-name")
-    private String pipelineName;
-
-    @SerializedName("pipeline-counter")
-    private String pipelineCounter;
-
-    @SerializedName("stage-name")
-    private String stageName;
-
-    @SerializedName("stage-counter")
-    private String stageCounter;
-
-    @SerializedName("stage-state")
-    private String stageState;
-
-    @SerializedName("stage-result")
-    private String stageResult;
-
-    @SerializedName("create-time")
-    private String createTime;
-
-    @SerializedName("last-transition-time")
-    private String lastTransitionTime;
+    private Pipeline pipeline;
 
     public String goServerUrl(String host) throws URISyntaxException {
-        return new URI(String.format("%s/go/pipelines/%s/%s/%s/%s", host, pipelineName, pipelineCounter, stageName, stageCounter)).normalize().toASCIIString();
+        return new URI(String.format("%s/go/pipelines/%s/%s/%s/%s", host, getPipelineName(), getPipelineCounter(), getStageName(), getStageCounter())).normalize().toASCIIString();
     }
 
     public String fullyQualifiedJobName() {
-        return pipelineName + "/" + pipelineCounter + "/" + stageName + "/" + stageCounter;
+        return getPipelineName() + "/" + getPipelineCounter() + "/" + getStageName() + "/" + getStageCounter();
     }
 
     public String getPipelineName() {
-        return pipelineName;
+        return pipeline.getName();
     }
 
     public String getPipelineCounter() {
-        return pipelineCounter;
+        return pipeline.getCounter();
     }
 
     public String getStageName() {
-        return stageName;
+        return pipeline.getStageName();
     }
 
     public String getStageCounter() {
-        return stageCounter;
+        return pipeline.getStageCounter();
     }
 
     public String getStageState() {
-        return stageState;
+        return pipeline.getStageState();
     }
 
     public String getStageResult() {
-        return stageResult;
+        return pipeline.getStageResult();
+    }
+
+    public String getCreateTime() {
+        return pipeline.getCreateTime();
+    }
+
+    public String getLastTransitionTime() {
+        return pipeline.getLastTransitionTime();
+    }
+}
+
+class Pipeline {
+    private String name;
+    private String counter;
+    private Stage stage;
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCounter() {
+        return counter;
+    }
+
+    public String getStageName() {
+        return stage.getName();
+    }
+
+    public String getStageCounter() {
+        return stage.getCounter();
+    }
+
+    public String getStageState() {
+        return stage.getState();
+    }
+
+    public String getStageResult() {
+        return stage.getResult();
+    }
+
+    public String getCreateTime() {
+        return stage.getCreateTime();
+    }
+
+    public String getLastTransitionTime() {
+        return stage.getLastTransitionTime();
+    }
+}
+
+class Stage {
+    private String name;
+    private String counter;
+    private String state;
+    private String result;
+    private String createTime;
+    private String lastTransitionTime;
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCounter() {
+        return counter;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public String getResult() {
+        return result;
     }
 
     public String getCreateTime() {
@@ -70,3 +118,5 @@ public class GoNotificationMessage {
         return lastTransitionTime;
     }
 }
+
+
