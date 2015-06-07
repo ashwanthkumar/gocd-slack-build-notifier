@@ -10,6 +10,8 @@ Download jar from releases & place it in /plugins/external & restart Go Server.
 All configurations are in [HOCON](https://github.com/typesafehub/config) format. Create a file `go_notify.conf` in the server user's (typically /var/go/) home directory. Minimalistic configuration would be something like
 ```hocon
 gocd.slack {
+  login = "someuser"
+  password = "somepassword"
   server-host = "http://localhost:8153/"
   webhookUrl = "https://hooks.slack.com/services/...."
 
@@ -17,6 +19,8 @@ gocd.slack {
   channel = "#build"
 }
 ```
+- `login` - Login for a Go user who is authorized to access the REST API.
+- `password` - Password for the user specified above. You might want to create a less privileged user for this plugin.
 - `server-host` - FQDN of the Go Server. All links on the slack channel will be relative to this host.
 - `webhookUrl` - Slack Webhook URL
 - `channel` - Override the default channel where we should send the notifications in slack. You can also give a value starting with `@` to send it to any specific user.
