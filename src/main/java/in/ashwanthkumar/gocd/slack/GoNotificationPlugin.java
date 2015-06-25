@@ -42,12 +42,10 @@ public class GoNotificationPlugin implements GoPlugin {
         rules = RulesReader.read(pluginConfig);
     }
 
-    @Override
     public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
         // ignore
     }
 
-    @Override
     public GoPluginApiResponse handle(GoPluginApiRequest goPluginApiRequest) {
         if (goPluginApiRequest.requestName().equals(REQUEST_NOTIFICATIONS_INTERESTED_IN)) {
             return handleNotificationsInterestedIn();
@@ -57,7 +55,6 @@ public class GoNotificationPlugin implements GoPlugin {
         return null;
     }
 
-    @Override
     public GoPluginIdentifier pluginIdentifier() {
         return new GoPluginIdentifier(EXTENSION_TYPE, goSupportedVersions);
     }

@@ -6,7 +6,7 @@
 
     <groupId>in.ashwanthkumar</groupId>
     <artifactId>gocd-slack-notifier</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -72,6 +72,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
@@ -89,7 +90,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.outputDirectory}\lib</outputDirectory>
+                            <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
                             <includeScope>runtime</includeScope>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
