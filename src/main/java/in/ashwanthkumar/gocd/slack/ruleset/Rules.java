@@ -14,8 +14,10 @@ import static in.ashwanthkumar.gocd.slack.ruleset.PipelineRule.merge;
 
 public class Rules {
     private boolean enabled;
-    private String slackChannel;
     private String webHookUrl;
+    private String slackChannel;
+    private String slackDisplayName;
+    private String slackUserIconURL;
     private String goServerHost;
     private String goLogin;
     private String goPassword;
@@ -32,6 +34,15 @@ public class Rules {
         return this;
     }
 
+    public String getWebHookUrl() {
+        return webHookUrl;
+    }
+
+    public Rules setWebHookUrl(String webHookUrl) {
+        this.webHookUrl = webHookUrl;
+        return this;
+    }
+
     public String getSlackChannel() {
         return slackChannel;
     }
@@ -41,12 +52,21 @@ public class Rules {
         return this;
     }
 
-    public String getWebHookUrl() {
-        return webHookUrl;
+    public String getSlackDisplayName() {
+        return slackDisplayName;
     }
 
-    public Rules setWebHookUrl(String webHookUrl) {
-        this.webHookUrl = webHookUrl;
+    private Rules setSlackDisplayName(String displayName) {
+        this.slackDisplayName = displayName;
+        return this;
+    }
+
+    public String getSlackUserIcon() {
+        return slackUserIconURL;
+    }
+
+    private Rules setSlackUserIcon(String iconURL) {
+        this.slackUserIconURL = iconURL;
         return this;
     }
 
@@ -92,7 +112,6 @@ public class Rules {
 
     public Option<PipelineRule> find(final String pipeline, final String stage, final String pipelineStatus) {
         return Lists.find(pipelineRules, new Predicate<PipelineRule>() {
-            @Override
             public Boolean apply(PipelineRule input) {
                 return input.matches(pipeline, stage, pipelineStatus);
             }
@@ -101,11 +120,23 @@ public class Rules {
 
     public static Rules fromConfig(Config config) {
         boolean isEnabled = config.getBoolean("enabled");
+
+        String webhookUrl = config.getString("webhookUrl");
         String channel = null;
         if (config.hasPath("channel")) {
             channel = config.getString("channel");
         }
-        String webhookUrl = config.getString("webhookUrl");
+
+        String displayName = "gocd-slack-bot";
+        if(config.hasPath("slackDisplayName")) {
+            displayName = config.getString("slackDisplayName");
+        }
+
+        String iconURL = "https://raw.githubusercontent.com/ashwanthkumar/assets/c597777ee749c89fec7ce21304d727724a65be7d/images/gocd-logo.png";
+        if(config.hasPath("slackUserIconURL")) {
+            iconURL = config.getString("slackUserIconURL");
+        }
+
         String serverHost = config.getString("server-host");
         String login = null;
         if (config.hasPath("login")) {
@@ -119,7 +150,6 @@ public class Rules {
         final PipelineRule defaultRule = PipelineRule.fromConfig(config.getConfig("default"), channel);
 
         List<PipelineRule> pipelineRules = Lists.map((List<Config>) config.getConfigList("pipelines"), new Function<Config, PipelineRule>() {
-            @Override
             public PipelineRule apply(Config input) {
                 return merge(PipelineRule.fromConfig(input), defaultRule);
             }
@@ -127,8 +157,10 @@ public class Rules {
 
         Rules rules = new Rules()
                 .setEnabled(isEnabled)
-                .setSlackChannel(channel)
                 .setWebHookUrl(webhookUrl)
+                .setSlackChannel(channel)
+                .setSlackDisplayName(displayName)
+                .setSlackUserIcon(iconURL)
                 .setPipelineRules(pipelineRules)
                 .setGoServerHost(serverHost)
                 .setGoLogin(login)

@@ -24,9 +24,8 @@ public class SlackPipelineListener extends PipelineListener {
         slack = new Slack(rules.getWebHookUrl());
         updateSlackChannel(rules.getSlackChannel());
 
-        // TODO - Make these configurable
-        slack.displayName("gocd-slack-bot")
-                .icon("https://raw.githubusercontent.com/ashwanthkumar/assets/c597777ee749c89fec7ce21304d727724a65be7d/images/gocd-logo.png");
+        slack.displayName(rules.getSlackDisplayName())
+            .icon(rules.getSlackUserIcon());
     }
 
     @Override
