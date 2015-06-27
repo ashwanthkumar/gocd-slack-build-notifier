@@ -17,6 +17,8 @@ gocd.slack {
 
   # optional fields
   channel = "#build"
+  slackDisplayName = "gocd-slack-bot"
+  slackUserIconURL = "http://example.com/slack-bot.png"
 }
 ```
 - `login` - Login for a Go user who is authorized to access the REST API.
