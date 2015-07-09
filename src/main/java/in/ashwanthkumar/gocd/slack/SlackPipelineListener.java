@@ -95,7 +95,13 @@ public class SlackPipelineListener extends PipelineListener {
                 sb.append(change.material.description);
                 sb.append("\n");
                 for (Modification mod : change.modifications) {
-                    if (mod.revision != null) {
+                    String url = change.modificationUrl(mod);
+                    if (url != null) {
+                        // This would be nicer if our Slack library allowed
+                        // us to use formatted attachements.
+                        sb.append(url);
+                        sb.append(" ");
+                    } else if (mod.revision != null) {
                         sb.append(mod.revision);
                         sb.append(": ");
                     }
