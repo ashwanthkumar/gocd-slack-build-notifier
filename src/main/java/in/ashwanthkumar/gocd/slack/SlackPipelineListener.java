@@ -1,5 +1,8 @@
 package in.ashwanthkumar.gocd.slack;
 
+import in.ashwanthkumar.gocd.slack.jsonapi.MaterialRevision;
+import in.ashwanthkumar.gocd.slack.jsonapi.Modification;
+import in.ashwanthkumar.gocd.slack.jsonapi.Pipeline;
 import in.ashwanthkumar.gocd.slack.ruleset.PipelineRule;
 import in.ashwanthkumar.gocd.slack.ruleset.PipelineStatus;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
@@ -7,10 +10,9 @@ import in.ashwanthkumar.slack.webhook.Slack;
 import in.ashwanthkumar.slack.webhook.SlackAttachment;
 
 import java.net.URISyntaxException;
+import java.util.List;
 
-import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.api.logging.Logger;
-import com.typesafe.config.Config;
 
 import static in.ashwanthkumar.slack.webhook.util.StringUtils.startsWith;
 
@@ -67,10 +69,10 @@ public class SlackPipelineListener extends PipelineListener {
     private SlackAttachment slackAttachment(GoNotificationMessage message, PipelineStatus pipelineStatus) throws URISyntaxException {
         StringBuilder sb = new StringBuilder();
 
+        // Describe the build.
         try {
-            JsonObject details = message.fetchDetails(rules);
-            String triggerMessage = details.get("build_cause").getAsJsonObject()
-                .get("trigger_message").getAsString();
+            Pipeline details = message.fetchDetails(rules);
+            String triggerMessage = details.buildCause.triggerMessage;
             triggerMessage =
                 // Capitalize first letter. Really the shortest way:
                 // http://stackoverflow.com/questions/3904579
@@ -80,10 +82,44 @@ public class SlackPipelineListener extends PipelineListener {
             sb.append(". ");
         } catch (Exception e) {
             sb.append("(Couldn't fetch build details; see server log.) ");
-            LOG.warn("Couldn't fetch build details: " + e.toString());
+            LOG.warn("Couldn't fetch build details", e);
         }
         sb.append("See details - ");
         sb.append(message.goServerUrl(rules.getGoServerHost()));
+        sb.append("\n");
+
+        // Describe the root changes that made up this build.
+        try {
+            List<MaterialRevision> changes = message.fetchChanges(rules);
+            for (MaterialRevision change : changes) {
+                sb.append(change.material.description);
+                sb.append("\n");
+                for (Modification mod : change.modifications) {
+                    String url = change.modificationUrl(mod);
+                    if (url != null) {
+                        // This would be nicer if our Slack library allowed
+                        // us to use formatted attachements.
+                        sb.append(url);
+                        sb.append(" ");
+                    } else if (mod.revision != null) {
+                        sb.append(mod.revision);
+                        sb.append(": ");
+                    }
+                    String comment = mod.summarizeComment();
+                    if (comment != null) {
+                        sb.append(comment);
+                    }
+                    if (mod.userName != null) {
+                        sb.append(" - ");
+                        sb.append(mod.userName);
+                    }
+                    sb.append("\n");
+                }
+            }
+        } catch (Exception e) {
+            sb.append("(Couldn't fetch changes; see server log.) ");
+            LOG.warn("Couldn't fetch changes", e);
+        }
 
         return new SlackAttachment(sb.toString())
                 .fallback(String.format("%s %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "))

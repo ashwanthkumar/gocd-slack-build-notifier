@@ -76,6 +76,7 @@ public class GoNotificationPlugin implements GoPlugin {
             LOGGER.info(message.fullyQualifiedJobName() + " has " + message.getStageState() + "/" + message.getStageResult());
             rules.getPipelineListener().notify(message);
         } catch (Exception e) {
+            LOGGER.info(message.fullyQualifiedJobName() + " failed with error", e);
             responseCode = INTERNAL_ERROR_RESPONSE_CODE;
             response.put("status", "failure");
             if (!isEmpty(e.getMessage())) {
