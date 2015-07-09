@@ -58,16 +58,19 @@ public class History {
      * Find the most recent run of the specified stage _before_ this one.
      */
     public Stage previousRun(int pipelineCounter, String stageName, int stageCounter) {
-        LOG.info(String.format("Looking for stage before %d/%s/%d",
-                               pipelineCounter, stageName, stageCounter));
-        for (int i = pipelines.length - 1; i >= 0; i--) {
-            Pipeline pipeline = pipelines[i];
-            for (int j = pipeline.stages.length - 1; j >= 0; j--) {
-                Stage stage = pipeline.stages[j];
-                LOG.info(String.format("Checking %d/%s/%d",
-                                       pipeline.counter, stage.name, stage.counter));
+        LOG.debug(String.format("Looking for stage before %d/%s/%d",
+                                pipelineCounter, stageName, stageCounter));
 
-                if (stage.name == stageName) {
+        // Note that pipelines and stages are stored in reverse
+        // chronological order.
+        for (int i = 0; i < pipelines.length; i++) {
+            Pipeline pipeline = pipelines[i];
+            for (int j = 0; j < pipeline.stages.length; j++) {
+                Stage stage = pipeline.stages[j];
+                LOG.debug(String.format("Checking %d/%s/%d",
+                                        pipeline.counter, stage.name, stage.counter));
+
+                if (stage.name.equals(stageName)) {
 
                     // Same pipeline run, earlier instance of stage.
                     if (pipeline.counter == pipelineCounter &&

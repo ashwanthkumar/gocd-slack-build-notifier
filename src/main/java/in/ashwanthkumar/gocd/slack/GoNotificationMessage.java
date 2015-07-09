@@ -140,22 +140,28 @@ public class GoNotificationMessage {
         if (!currentResult.equals("PASSED") && !currentResult.equals("FAILED"))
             return;
 
-        // Fetch our previous build.  If we can't get it, just give up;
-        // this is a low-priority tweak.
-        Pipeline previous = null;
-        int wanted = Integer.parseInt(getPipelineCounter()) - 1;
+        // Fetch our history.  If we can't get it, just give up; this is a
+        // low-priority tweak.
+        History history = null;
         try {
-            previous = fetchDetailsForBuild(rules, wanted);
+            history = fetchRecentPipelineHistory(rules);
         } catch(Exception e) {
-            LOG.warn(String.format("Error getting previous build: " +
+            LOG.warn(String.format("Error getting pipeline history: " +
                                    e.getMessage()));
             return;
         }
 
-        // Figure out whether the previous stage passed or failed.
-        Stage[] stages = previous.stages;
-        Stage lastStage = stages[stages.length-1];
-        String previousResult = lastStage.result.toUpperCase();
+        // Figure out whether the previous run of this stage passed or failed.
+        Stage previous = history.previousRun(Integer.parseInt(pipeline.counter),
+                                             pipeline.stage.name,
+                                             Integer.parseInt(pipeline.stage.counter));
+        if (previous == null) {
+            LOG.info("Couldn't find any previous run of " +
+                     pipeline.name + "/" + pipeline.counter + "/" +
+                     pipeline.stage.name + "/" + pipeline.stage.counter);
+            return;
+        }
+        String previousResult = previous.result.toUpperCase();
 
         // Fix up our build status.  This is slightly asymmetrical, because
         // we want to be quicker to praise than to blame.  Also, I _think_
