@@ -1,5 +1,6 @@
 package in.ashwanthkumar.gocd.slack;
 
+import in.ashwanthkumar.gocd.slack.jsonapi.Pipeline;
 import in.ashwanthkumar.gocd.slack.ruleset.PipelineRule;
 import in.ashwanthkumar.gocd.slack.ruleset.PipelineStatus;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
@@ -68,9 +69,8 @@ public class SlackPipelineListener extends PipelineListener {
         StringBuilder sb = new StringBuilder();
 
         try {
-            JsonObject details = message.fetchDetails(rules);
-            String triggerMessage = details.get("build_cause").getAsJsonObject()
-                .get("trigger_message").getAsString();
+            Pipeline details = message.fetchDetails(rules);
+            String triggerMessage = details.buildCause.triggerMessage;
             triggerMessage =
                 // Capitalize first letter. Really the shortest way:
                 // http://stackoverflow.com/questions/3904579

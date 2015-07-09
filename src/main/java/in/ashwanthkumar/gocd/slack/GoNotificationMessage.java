@@ -1,24 +1,20 @@
 package in.ashwanthkumar.gocd.slack;
 
-import in.ashwanthkumar.gocd.slack.ruleset.Rules;
-
-import com.google.gson.JsonArray;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
-
 import com.thoughtworks.go.plugin.api.logging.Logger;
+import in.ashwanthkumar.gocd.slack.jsonapi.History;
+import in.ashwanthkumar.gocd.slack.jsonapi.Pipeline;
+import in.ashwanthkumar.gocd.slack.jsonapi.Stage;
+import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import javax.xml.bind.DatatypeConverter;
+import java.net.*;
 
 public class GoNotificationMessage {
     private Logger LOG = Logger.getLoggerFor(GoNotificationMessage.class);
@@ -36,7 +32,7 @@ public class GoNotificationMessage {
         }
     }
 
-    static class Stage {
+    static class StageInfo {
         @SerializedName("name")
         private String name;
 
@@ -56,7 +52,7 @@ public class GoNotificationMessage {
         private String lastTransitionTime;
     }
 
-    static class Pipeline {
+    static class PipelineInfo {
         @SerializedName("name")
         private String name;
 
@@ -64,14 +60,14 @@ public class GoNotificationMessage {
         private String counter;
 
         @SerializedName("stage")
-        private Stage stage;
+        private StageInfo stage;
     }
 
     @SerializedName("pipeline")
-    private Pipeline pipeline;
+    private PipelineInfo pipeline;
 
     // Internal cache of pipeline history data from GoCD's JSON API.
-    private JsonArray mRecentPipelineHistory;
+    private History mRecentPipelineHistory;
 
     public String goServerUrl(String host) throws URISyntaxException {
         return new URI(String.format("%s/go/pipelines/%s/%s/%s/%s", host, pipeline.name, pipeline.counter, pipeline.stage.name, pipeline.stage.counter)).normalize().toASCIIString();
@@ -121,7 +117,7 @@ public class GoNotificationMessage {
      * Fetch the full history of this pipeline from the server.  We can't
      * get specify a specific version, unfortunately.
      */
-    public JsonArray fetchRecentPipelineHistory(Rules rules)
+    public History fetchRecentPipelineHistory(Rules rules)
         throws URISyntaxException, IOException
     {
         if (mRecentPipelineHistory == null) {
@@ -145,22 +141,22 @@ public class GoNotificationMessage {
             request.connect();
 
             JsonParser parser = new JsonParser();
-            JsonElement rootElement = parser.parse(new InputStreamReader((InputStream) request.getContent()));
-            JsonObject json = rootElement.getAsJsonObject();
-            mRecentPipelineHistory = json.get("pipelines").getAsJsonArray();
+            JsonElement json = parser.parse(new InputStreamReader((InputStream) request.getContent()));
+            mRecentPipelineHistory =
+                new GsonBuilder().create().fromJson(json, History.class);
         }
         return mRecentPipelineHistory;
     }
 
-    public JsonObject fetchDetailsForBuild(Rules rules, int counter)
+    public Pipeline fetchDetailsForBuild(Rules rules, int counter)
         throws URISyntaxException, IOException, BuildDetailsNotFoundException
     {
-        JsonArray history = fetchRecentPipelineHistory(rules);
+        Pipeline[] pipelines = fetchRecentPipelineHistory(rules).pipelines;
         // Search through the builds in our recent history, and hope that
         // we can find the build we want.
-        for (int i = 0, size = history.size(); i < size; i++) {
-            JsonObject build = history.get(i).getAsJsonObject();
-            if (build.get("counter").getAsInt() == counter)
+        for (int i = 0, size = pipelines.length; i < size; i++) {
+            Pipeline build = pipelines[i];
+            if (build.counter == counter)
                 return build;
         }
         throw new BuildDetailsNotFoundException(getPipelineName(), counter);
@@ -181,7 +177,7 @@ public class GoNotificationMessage {
 
         // Fetch our previous build.  If we can't get it, just give up;
         // this is a low-priority tweak.
-        JsonObject previous = null;
+        Pipeline previous = null;
         int wanted = Integer.parseInt(getPipelineCounter()) - 1;
         try {
             previous = fetchDetailsForBuild(rules, wanted);
@@ -192,15 +188,9 @@ public class GoNotificationMessage {
         }
 
         // Figure out whether the previous stage passed or failed.
-        JsonArray stages = previous.get("stages").getAsJsonArray();
-        JsonObject lastStage = stages.get(stages.size() - 1).getAsJsonObject();
-
-        String previousResult = "";
-        // If a multi-stage pipeline fails at not-the-last stage, then the last
-        // stage will not have run, and its result will be null
-        if (lastStage.get("result") != null) {
-            previousResult = lastStage.get("result").getAsString().toUpperCase();
-        }
+        Stage[] stages = previous.stages;
+        Stage lastStage = stages[stages.length-1];
+        String previousResult = lastStage.result.toUpperCase();
 
         // Fix up our build status.  This is slightly asymmetrical, because
         // we want to be quicker to praise than to blame.  Also, I _think_
@@ -215,7 +205,7 @@ public class GoNotificationMessage {
             pipeline.stage.result = "Broken";
     }
 
-    public JsonObject fetchDetails(Rules rules)
+    public Pipeline fetchDetails(Rules rules)
         throws URISyntaxException, IOException, BuildDetailsNotFoundException
     {
         return fetchDetailsForBuild(rules, Integer.parseInt(getPipelineCounter()));
