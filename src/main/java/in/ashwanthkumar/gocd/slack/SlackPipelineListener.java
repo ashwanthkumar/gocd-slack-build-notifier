@@ -9,9 +9,7 @@ import in.ashwanthkumar.slack.webhook.SlackAttachment;
 
 import java.net.URISyntaxException;
 
-import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.api.logging.Logger;
-import com.typesafe.config.Config;
 
 import static in.ashwanthkumar.slack.webhook.util.StringUtils.startsWith;
 

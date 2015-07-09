@@ -1,28 +1,16 @@
 package in.ashwanthkumar.gocd.slack;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import com.google.gson.annotations.SerializedName;
+import com.thoughtworks.go.plugin.api.logging.Logger;
+
 import in.ashwanthkumar.gocd.slack.jsonapi.History;
 import in.ashwanthkumar.gocd.slack.jsonapi.Pipeline;
 import in.ashwanthkumar.gocd.slack.jsonapi.Stage;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
-
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.annotations.SerializedName;
-
-import com.thoughtworks.go.plugin.api.logging.Logger;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import javax.xml.bind.DatatypeConverter;
 
 public class GoNotificationMessage {
     private Logger LOG = Logger.getLoggerFor(GoNotificationMessage.class);
@@ -81,10 +69,6 @@ public class GoNotificationMessage {
         return new URI(String.format("%s/go/pipelines/%s/%s/%s/%s", host, pipeline.name, pipeline.counter, pipeline.stage.name, pipeline.stage.counter)).normalize().toASCIIString();
     }
 
-    public String goHistoryUrl() throws URISyntaxException {
-        return new URI(String.format("http://localhost:8153/go/api/pipelines/%s/history", pipeline.name)).normalize().toASCIIString();
-    }
-
     public String fullyQualifiedJobName() {
         return pipeline.name + "/" + pipeline.counter + "/" + pipeline.stage.name + "/" + pipeline.stage.counter;
     }
@@ -129,29 +113,7 @@ public class GoNotificationMessage {
         throws URISyntaxException, IOException
     {
         if (mRecentPipelineHistory == null) {
-            // Based on
-            // https://github.com/matt-richardson/gocd-websocket-notifier/blob/master/src/main/java/com/matt_richardson/gocd/websocket_notifier/PipelineDetailsPopulator.java
-            // http://stackoverflow.com/questions/496651/connecting-to-remote-url-which-requires-authentication-using-java
-
-            URL url = new URL(goHistoryUrl());
-            HttpURLConnection request = (HttpURLConnection) url.openConnection();
-
-            // Add in our HTTP authorization credentials if we have them.
-            String username = rules.getGoLogin();
-            String password = rules.getGoPassword();
-            if (username != null && password != null) {
-                String userpass = username + ":" + password;
-                String basicAuth = "Basic "
-                    + DatatypeConverter.printBase64Binary(userpass.getBytes());
-                request.setRequestProperty("Authorization", basicAuth);
-            }
-
-            request.connect();
-
-            JsonParser parser = new JsonParser();
-            JsonElement json = parser.parse(new InputStreamReader((InputStream) request.getContent()));
-            mRecentPipelineHistory =
-                new GsonBuilder().create().fromJson(json, History.class);
+            mRecentPipelineHistory = History.get(rules, pipeline.name);
         }
         return mRecentPipelineHistory;
     }
