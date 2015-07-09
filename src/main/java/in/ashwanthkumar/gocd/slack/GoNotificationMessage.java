@@ -9,6 +9,7 @@ import com.thoughtworks.go.plugin.api.logging.Logger;
 
 import in.ashwanthkumar.gocd.slack.jsonapi.History;
 import in.ashwanthkumar.gocd.slack.jsonapi.Pipeline;
+import in.ashwanthkumar.gocd.slack.jsonapi.Server;
 import in.ashwanthkumar.gocd.slack.jsonapi.Stage;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 
@@ -113,7 +114,8 @@ public class GoNotificationMessage {
         throws URISyntaxException, IOException
     {
         if (mRecentPipelineHistory == null) {
-            mRecentPipelineHistory = History.get(rules, pipeline.name);
+            Server server = new Server(rules);
+            mRecentPipelineHistory = server.getPipelineHistory(pipeline.name);
         }
         return mRecentPipelineHistory;
     }
