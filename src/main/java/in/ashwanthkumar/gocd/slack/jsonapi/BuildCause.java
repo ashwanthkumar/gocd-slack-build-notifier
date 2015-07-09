@@ -12,5 +12,6 @@ public class BuildCause {
     @SerializedName("trigger_message")
     public String triggerMessage;
 
-    // "material_revisions"
+    @SerializedName("material_revisions")
+    public MaterialRevision[] materialRevisions;
 }
