@@ -20,6 +20,8 @@ import in.ashwanthkumar.gocd.slack.ruleset.Rules;
  * Actual methods for contacting the remote server.
  */
 public class Server {
+    private Logger LOG = Logger.getLoggerFor(Server.class);
+
     // Contains authentication credentials, etc.
     private Rules mRules;
 
@@ -33,6 +35,8 @@ public class Server {
     private JsonElement getUrl(URL url)
         throws IOException
     {
+        LOG.info("Fetching " + url.toString());
+
         // Based on
         // https://github.com/matt-richardson/gocd-websocket-notifier/blob/master/src/main/java/com/matt_richardson/gocd/websocket_notifier/PipelineDetailsPopulator.java
         // http://stackoverflow.com/questions/496651/connecting-to-remote-url-which-requires-authentication-using-java

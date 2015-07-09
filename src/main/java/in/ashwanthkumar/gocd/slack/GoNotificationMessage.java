@@ -3,11 +3,13 @@ package in.ashwanthkumar.gocd.slack;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 
 import in.ashwanthkumar.gocd.slack.jsonapi.History;
+import in.ashwanthkumar.gocd.slack.jsonapi.MaterialRevision;
 import in.ashwanthkumar.gocd.slack.jsonapi.Pipeline;
 import in.ashwanthkumar.gocd.slack.jsonapi.Server;
 import in.ashwanthkumar.gocd.slack.jsonapi.Stage;
@@ -182,5 +184,14 @@ public class GoNotificationMessage {
         throws URISyntaxException, IOException, BuildDetailsNotFoundException
     {
         return fetchDetailsForBuild(rules, Integer.parseInt(getPipelineCounter()));
+    }
+
+    public List<MaterialRevision> fetchChanges(Rules rules)
+        throws URISyntaxException, IOException
+    {
+        Server server = new Server(rules);
+        Pipeline pipelineInstance =
+            server.getPipelineInstance(pipeline.name, Integer.parseInt(pipeline.counter));
+        return pipelineInstance.rootChanges(server);
     }
 }
