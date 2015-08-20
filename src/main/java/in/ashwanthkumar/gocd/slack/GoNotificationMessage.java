@@ -168,9 +168,14 @@ public class GoNotificationMessage {
 
     public void tryToFixStageResult(Rules rules)
     {
+        String currentStatus = pipeline.stage.state.toUpperCase();
+        String currentResult = pipeline.stage.result.toUpperCase();
+        if (currentStatus.equals("BUILDING") && currentResult.equals("UNKNOWN")) {
+            pipeline.stage.result = "BUILDING";
+            return;
+        }
         // We only need to double-check certain messages; the rest are
         // trusty-worthy.
-        String currentResult = pipeline.stage.result.toUpperCase();
         if (!currentResult.equals("PASSED") && !currentResult.equals("FAILED"))
             return;
 
