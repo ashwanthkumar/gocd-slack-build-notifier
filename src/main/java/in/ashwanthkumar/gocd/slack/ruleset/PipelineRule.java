@@ -22,7 +22,7 @@ public class PipelineRule {
     public PipelineRule(PipelineRule copy) {
         this.nameRegex = copy.nameRegex;
         this.stageRegex = copy.stageRegex;
-        this.channel = copy.stageRegex;
+        this.channel = copy.channel;
         this.status = copy.status;
     }
 
