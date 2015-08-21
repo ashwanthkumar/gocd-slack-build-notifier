@@ -16,6 +16,7 @@ abstract public class PipelineListener {
 
     public void notify(GoNotificationMessage message) throws Exception {
         message.tryToFixStageResult(rules);
+        LOG.debug(String.format("Finding rules with state %s", message.getStageResult()));
         Option<PipelineRule> ruleOption = rules.find(message.getPipelineName(), message.getStageName(), message.getStageResult());
         if (ruleOption.isDefined()) {
             PipelineRule pipelineRule = ruleOption.get();

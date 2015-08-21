@@ -106,6 +106,7 @@ public class SlackPipelineListener extends PipelineListener {
     }
 
     private void updateSlackChannel(String slackChannel) {
+        LOG.debug(String.format("Updating target slack channel to %s", slackChannel));
         // by default post it to where ever the hook is configured to do so
         if (startsWith(slackChannel, "#")) {
             slack.sendToChannel(slackChannel.substring(1));
