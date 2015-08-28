@@ -194,8 +194,13 @@ public class GoNotificationMessage {
         // Figure out whether the previous stage passed or failed.
         JsonArray stages = previous.get("stages").getAsJsonArray();
         JsonObject lastStage = stages.get(stages.size() - 1).getAsJsonObject();
-        String previousResult = lastStage.get("result").getAsString()
-            .toUpperCase();
+
+        String previousResult = "";
+        // If a multi-stage pipeline fails at not-the-last stage, then the last
+        // stage will not have run, and its result will be null
+        if (lastStage.get("result") != null) {
+            previousResult = lastStage.get("result").getAsString().toUpperCase();
+        }
 
         // Fix up our build status.  This is slightly asymmetrical, because
         // we want to be quicker to praise than to blame.  Also, I _think_
