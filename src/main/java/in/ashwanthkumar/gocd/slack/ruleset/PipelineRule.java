@@ -5,8 +5,8 @@ import in.ashwanthkumar.utils.collections.Iterables;
 import in.ashwanthkumar.utils.func.Predicate;
 import in.ashwanthkumar.utils.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static in.ashwanthkumar.slack.webhook.util.StringUtils.isEmpty;
 
@@ -14,7 +14,7 @@ public class PipelineRule {
     private String nameRegex;
     private String stageRegex;
     private String channel;
-    private List<PipelineStatus> status = new ArrayList<PipelineStatus>();
+    private Set<PipelineStatus> status = new HashSet<PipelineStatus>();
 
     public PipelineRule() {
     }
@@ -58,11 +58,11 @@ public class PipelineRule {
         return this;
     }
 
-    public List<PipelineStatus> getStatus() {
+    public Set<PipelineStatus> getStatus() {
         return status;
     }
 
-    public PipelineRule setStatus(List<PipelineStatus> status) {
+    public PipelineRule setStatus(Set<PipelineStatus> status) {
         this.status = status;
         return this;
     }
@@ -113,7 +113,7 @@ public class PipelineRule {
         if (config.hasPath("state")) {
             String stateT = config.getString("state");
             String[] states = stateT.split("\\|");
-            List<PipelineStatus> status = new ArrayList<PipelineStatus>();
+            Set<PipelineStatus> status = new HashSet<PipelineStatus>();
             for (String state : states) {
                 status.add(PipelineStatus.valueOf(state.toUpperCase()));
             }

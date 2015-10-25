@@ -3,6 +3,7 @@ package in.ashwanthkumar.gocd.slack.ruleset;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import in.ashwanthkumar.slack.webhook.util.Lists;
+import in.ashwanthkumar.utils.collections.Sets;
 import org.junit.Test;
 
 import static in.ashwanthkumar.gocd.slack.ruleset.PipelineStatus.FAILED;
@@ -41,7 +42,7 @@ public class PipelineRuleTest {
 
     @Test
     public void shouldMatchThePipelineAndStageAgainstRegex() {
-        PipelineRule pipelineRule = new PipelineRule("gocd-.*", ".*").setStatus(Lists.of(FAILED, PASSED));
+        PipelineRule pipelineRule = new PipelineRule("gocd-.*", ".*").setStatus(Sets.of(FAILED, PASSED));
         assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "build", "failed"));
         assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "package", "passed"));
         assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "publish", "passed"));

@@ -1,6 +1,7 @@
 package in.ashwanthkumar.gocd.slack.ruleset;
 
 import in.ashwanthkumar.slack.webhook.util.Lists;
+import in.ashwanthkumar.utils.collections.Sets;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -22,8 +23,15 @@ public class RulesReaderTest {
                 .setNameRegex("gocd-slack-build-notifier")
                 .setStageRegex(".*")
                 .setChannel("#gocd")
-                .setStatus(Lists.of(PipelineStatus.FAILED));
+                .setStatus(Sets.of(PipelineStatus.FAILED));
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule1));
+
+        PipelineRule pipelineRule2 = new PipelineRule()
+                .setNameRegex("my-java-utils")
+                .setStageRegex("build")
+                .setChannel("#gocd-build")
+                .setStatus(Sets.of(PipelineStatus.FAILED));
+        assertThat(rules.getPipelineRules(), hasItem(pipelineRule2));
     }
 
 }
