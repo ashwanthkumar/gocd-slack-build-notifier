@@ -104,6 +104,16 @@ public class PipelineRule {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "PipelineRule{" +
+                "nameRegex='" + nameRegex + '\'' +
+                ", stageRegex='" + stageRegex + '\'' +
+                ", channel='" + channel + '\'' +
+                ", status=" + status +
+                '}';
+    }
+
     public static PipelineRule fromConfig(Config config) {
         PipelineRule pipelineRule = new PipelineRule();
         pipelineRule.setNameRegex(config.getString("name"));
