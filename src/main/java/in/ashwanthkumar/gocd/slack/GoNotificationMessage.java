@@ -13,6 +13,17 @@ import java.util.List;
 public class GoNotificationMessage {
     private Logger LOG = Logger.getLoggerFor(GoNotificationMessage.class);
 
+    private final ServerFactory serverFactory;
+
+    public GoNotificationMessage() {
+        serverFactory = new ServerFactory();
+    }
+
+    GoNotificationMessage(ServerFactory serverFactory, PipelineInfo pipeline) {
+        this.serverFactory = serverFactory;
+        this.pipeline = pipeline;
+    }
+
     /**
      * Raised when we can't find information about our build in the array
      * returned by the server.
@@ -28,33 +39,38 @@ public class GoNotificationMessage {
 
     static class StageInfo {
         @SerializedName("name")
-        private String name;
+        String name;
 
         @SerializedName("counter")
-        private String counter;
+        String counter;
 
         @SerializedName("state")
-        private String state;
+        String state;
 
         @SerializedName("result")
-        private String result;
+        String result;
 
         @SerializedName("create-time")
-        private String createTime;
+        String createTime;
 
         @SerializedName("last-transition-time")
-        private String lastTransitionTime;
+        String lastTransitionTime;
     }
 
     static class PipelineInfo {
         @SerializedName("name")
-        private String name;
+        String name;
 
         @SerializedName("counter")
-        private String counter;
+        String counter;
 
         @SerializedName("stage")
-        private StageInfo stage;
+        StageInfo stage;
+
+        @Override
+        public String toString() {
+            return name + "/" + counter + "/" + stage.name + "/" + stage.result;
+        }
     }
 
     @SerializedName("pipeline")
@@ -111,7 +127,7 @@ public class GoNotificationMessage {
         throws URISyntaxException, IOException
     {
         if (mRecentPipelineHistory == null) {
-            Server server = new Server(rules);
+            Server server = serverFactory.getServer(rules);
             mRecentPipelineHistory = server.getPipelineHistory(pipeline.name);
         }
         return mRecentPipelineHistory;
@@ -120,13 +136,16 @@ public class GoNotificationMessage {
     public Pipeline fetchDetailsForBuild(Rules rules, int counter)
         throws URISyntaxException, IOException, BuildDetailsNotFoundException
     {
-        Pipeline[] pipelines = fetchRecentPipelineHistory(rules).pipelines;
-        // Search through the builds in our recent history, and hope that
-        // we can find the build we want.
-        for (int i = 0, size = pipelines.length; i < size; i++) {
-            Pipeline build = pipelines[i];
-            if (build.counter == counter)
-                return build;
+        History history = fetchRecentPipelineHistory(rules);
+        if (history != null) {
+            Pipeline[] pipelines = history.pipelines;
+            // Search through the builds in our recent history, and hope that
+            // we can find the build we want.
+            for (int i = 0, size = pipelines.length; i < size; i++) {
+                Pipeline build = pipelines[i];
+                if (build.counter == counter)
+                    return build;
+            }
         }
         throw new BuildDetailsNotFoundException(getPipelineName(), counter);
     }
@@ -189,7 +208,7 @@ public class GoNotificationMessage {
     public List<MaterialRevision> fetchChanges(Rules rules)
         throws URISyntaxException, IOException
     {
-        Server server = new Server(rules);
+        Server server = serverFactory.getServer(rules);
         Pipeline pipelineInstance =
             server.getPipelineInstance(pipeline.name, Integer.parseInt(pipeline.counter));
         return pipelineInstance.rootChanges(server);
