@@ -1,20 +1,18 @@
 package in.ashwanthkumar.gocd.slack.jsonapi;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.thoughtworks.go.plugin.api.logging.Logger;
+import in.ashwanthkumar.gocd.slack.ruleset.Rules;
+
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import javax.xml.bind.DatatypeConverter;
-
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.thoughtworks.go.plugin.api.logging.Logger;
-
-import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 
 /**
  * Actual methods for contacting the remote server.
@@ -65,7 +63,8 @@ public class Server {
     public History getPipelineHistory(String pipelineName)
         throws MalformedURLException, IOException
     {
-        URL url = new URL(String.format("http://localhost:8153/go/api/pipelines/%s/history", pipelineName));
+        URL url = new URL(String.format("http://%s/go/api/pipelines/%s/history",
+                mRules.getGoServerHost(), pipelineName));
         JsonElement json = getUrl(url);
         return new GsonBuilder().create().fromJson(json, History.class);
     }
@@ -76,8 +75,8 @@ public class Server {
     public Pipeline getPipelineInstance(String pipelineName, int pipelineCounter)
         throws MalformedURLException, IOException
     {
-        URL url = new URL(String.format("http://localhost:8153/go/api/pipelines/%s/instance/%d",
-                                        pipelineName, pipelineCounter));
+        URL url = new URL(String.format("http://%s/go/api/pipelines/%s/instance/%d",
+                                        mRules.getGoServerHost(), pipelineName, pipelineCounter));
         JsonElement json = getUrl(url);
         return new GsonBuilder().create().fromJson(json, Pipeline.class);
     }
