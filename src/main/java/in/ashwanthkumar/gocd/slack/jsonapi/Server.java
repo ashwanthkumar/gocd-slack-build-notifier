@@ -1,18 +1,16 @@
 package in.ashwanthkumar.gocd.slack.jsonapi;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import static in.ashwanthkumar.utils.lang.StringUtils.isNotEmpty;
 
 /**
  * Actual methods for contacting the remote server.
@@ -22,39 +20,39 @@ public class Server {
 
     // Contains authentication credentials, etc.
     private Rules mRules;
+    private HttpConnectionUtil httpConnectionUtil;
 
     /**
      * Construct a new server object, using credentials from Rules.
      */
     public Server(Rules rules) {
         mRules = rules;
+        httpConnectionUtil = new HttpConnectionUtil();
     }
 
-    private JsonElement getUrl(URL url)
+    Server(Rules mRules, HttpConnectionUtil httpConnectionUtil) {
+        this.mRules = mRules;
+        this.httpConnectionUtil = httpConnectionUtil;
+    }
+
+    JsonElement getUrl(URL url)
         throws IOException
     {
         LOG.info("Fetching " + url.toString());
 
-        // Based on
-        // https://github.com/matt-richardson/gocd-websocket-notifier/blob/master/src/main/java/com/matt_richardson/gocd/websocket_notifier/PipelineDetailsPopulator.java
-        // http://stackoverflow.com/questions/496651/connecting-to-remote-url-which-requires-authentication-using-java
-
-        HttpURLConnection request = (HttpURLConnection) url.openConnection();
+        HttpURLConnection request = httpConnectionUtil.getConnection(url);
 
         // Add in our HTTP authorization credentials if we have them.
-        String username = mRules.getGoLogin();
-        String password = mRules.getGoPassword();
-        if (username != null && password != null) {
-            String userpass = username + ":" + password;
+        if (isNotEmpty(mRules.getGoLogin()) && isNotEmpty(mRules.getGoPassword())) {
+            String userpass = mRules.getGoLogin() + ":" + mRules.getGoPassword();
             String basicAuth = "Basic "
-                + DatatypeConverter.printBase64Binary(userpass.getBytes());
+                    + DatatypeConverter.printBase64Binary(userpass.getBytes());
             request.setRequestProperty("Authorization", basicAuth);
         }
 
         request.connect();
 
-        JsonParser parser = new JsonParser();
-        return parser.parse(new InputStreamReader((InputStream) request.getContent()));
+        return httpConnectionUtil.responseToJson(request.getContent());
     }
 
     /**
@@ -63,10 +61,10 @@ public class Server {
     public History getPipelineHistory(String pipelineName)
         throws MalformedURLException, IOException
     {
-        URL url = new URL(String.format("http://%s/go/api/pipelines/%s/history",
+        URL url = new URL(String.format("%s/go/api/pipelines/%s/history",
                 mRules.getGoServerHost(), pipelineName));
         JsonElement json = getUrl(url);
-        return new GsonBuilder().create().fromJson(json, History.class);
+        return httpConnectionUtil.convertResponse(json, History.class);
     }
 
     /**
@@ -75,9 +73,9 @@ public class Server {
     public Pipeline getPipelineInstance(String pipelineName, int pipelineCounter)
         throws MalformedURLException, IOException
     {
-        URL url = new URL(String.format("http://%s/go/api/pipelines/%s/instance/%d",
+        URL url = new URL(String.format("%s/go/api/pipelines/%s/instance/%d",
                                         mRules.getGoServerHost(), pipelineName, pipelineCounter));
         JsonElement json = getUrl(url);
-        return new GsonBuilder().create().fromJson(json, Pipeline.class);
+        return httpConnectionUtil.convertResponse(json, Pipeline.class);
     }
 }
