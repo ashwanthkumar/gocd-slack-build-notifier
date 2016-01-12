@@ -37,31 +37,31 @@ public class SlackPipelineListener extends PipelineListener {
     @Override
     public void onPassed(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
-        slack.push(slackAttachment(message, PipelineStatus.PASSED));
+        slack.push(slackAttachment(message, PipelineStatus.PASSED).color("good"));
     }
 
     @Override
     public void onFailed(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
-        slack.push(slackAttachment(message, PipelineStatus.FAILED));
+        slack.push(slackAttachment(message, PipelineStatus.FAILED).color("danger"));
     }
 
     @Override
     public void onBroken(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
-        slack.push(slackAttachment(message, PipelineStatus.BROKEN));
+        slack.push(slackAttachment(message, PipelineStatus.BROKEN).color("danger"));
     }
 
     @Override
     public void onFixed(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
-        slack.push(slackAttachment(message, PipelineStatus.FIXED));
+        slack.push(slackAttachment(message, PipelineStatus.FIXED).color("good"));
     }
 
     @Override
     public void onCancelled(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
-        slack.push(slackAttachment(message, PipelineStatus.CANCELLED));
+        slack.push(slackAttachment(message, PipelineStatus.CANCELLED).color("warning"));
     }
 
     private SlackAttachment slackAttachment(GoNotificationMessage message, PipelineStatus pipelineStatus) throws URISyntaxException {
