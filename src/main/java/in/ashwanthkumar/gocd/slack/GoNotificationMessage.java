@@ -155,7 +155,7 @@ public class GoNotificationMessage {
         String currentStatus = pipeline.stage.state.toUpperCase();
         String currentResult = pipeline.stage.result.toUpperCase();
         if (currentStatus.equals("BUILDING") && currentResult.equals("UNKNOWN")) {
-            pipeline.stage.result = "BUILDING";
+            pipeline.stage.result = "Building";
             return;
         }
         // We only need to double-check certain messages; the rest are
