@@ -41,5 +41,18 @@ public class History {
         // Not found.
         return null;
     }
+
+    @Override
+    public String toString() {
+        if (pipelines != null && pipelines.length > 0) {
+            if (pipelines.length > 1) {
+                return pipelines[0].toString() + "...";
+            } else {
+                return pipelines[0].toString();
+            }
+        } else {
+            return "No history";
+        }
+    }
 }
 

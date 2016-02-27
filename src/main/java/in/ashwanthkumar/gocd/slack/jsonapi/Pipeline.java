@@ -1,11 +1,11 @@
 package in.ashwanthkumar.gocd.slack.jsonapi;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.gson.annotations.SerializedName;
 
 public class Pipeline {
     @SerializedName("id")
@@ -51,6 +51,15 @@ public class Pipeline {
     {
         for (MaterialRevision mr : buildCause.materialRevisions) {
             mr.addChangesRecursively(server, outChanges);
+        }
+    }
+
+    @Override
+    public String toString()  {
+        if (stages != null && stages.length > 0) {
+            return name + "/" + counter + "/" + stages[0].name + "/" + stages[0].result;
+        } else {
+            return name + "/" + counter;
         }
     }
 }
