@@ -96,9 +96,9 @@ public class GoNotificationPlugin implements GoPlugin {
     private GoPluginApiResponse handleRequestGetConfiguration() {
         Map<String, Object> response = new HashMap<String, Object>();
         Map<String, Object> serverUrlParams = new HashMap<String, Object>();
-        serverUrlParams.put("display-name", "External server URL");
+        serverUrlParams.put("display-name", "External GoCD Server URL");
 
-        response.put("server_url_external", serverUrlParams);
+        response.put("server-url-external", serverUrlParams);
 
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
