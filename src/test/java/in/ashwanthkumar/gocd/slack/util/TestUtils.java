@@ -16,4 +16,9 @@ public class TestUtils {
         return factory;
     }
 
+    public static String getResourceDirectory(String resource) {
+        ClassLoader ldr = Thread.currentThread().getContextClassLoader();
+        String url = ldr.getResource(resource).toString();
+        return url.substring("file:".length(), url.lastIndexOf('/'));
+    }
 }

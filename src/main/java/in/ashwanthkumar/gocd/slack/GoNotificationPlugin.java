@@ -10,8 +10,10 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 import in.ashwanthkumar.gocd.slack.ruleset.RulesReader;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -25,6 +27,9 @@ public class GoNotificationPlugin implements GoPlugin {
 
     public static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
     public static final String REQUEST_STAGE_STATUS = "stage-status";
+    public static final String REQUEST_GET_CONFIGURATION = "go.plugin-settings.get-configuration";
+    public static final String REQUEST_GET_VIEW = "go.plugin-settings.get-view";
+    public static final String REQUEST_VALIDATE_CONFIGURATION = "go.plugin-settings.validate-configuration";
 
     public static final int SUCCESS_RESPONSE_CODE = 200;
     public static final int INTERNAL_ERROR_RESPONSE_CODE = 500;
@@ -47,16 +52,55 @@ public class GoNotificationPlugin implements GoPlugin {
     }
 
     public GoPluginApiResponse handle(GoPluginApiRequest goPluginApiRequest) {
-        if (goPluginApiRequest.requestName().equals(REQUEST_NOTIFICATIONS_INTERESTED_IN)) {
+        String requestName = goPluginApiRequest.requestName();
+        if (requestName.equals(REQUEST_NOTIFICATIONS_INTERESTED_IN)) {
             return handleNotificationsInterestedIn();
-        } else if (goPluginApiRequest.requestName().equals(REQUEST_STAGE_STATUS)) {
+        } else if (requestName.equals(REQUEST_STAGE_STATUS)) {
             return handleStageNotification(goPluginApiRequest);
+        } else if (requestName.equals(REQUEST_GET_VIEW)) {
+            return handleRequestGetView();
+        } else if (requestName.equals(REQUEST_VALIDATE_CONFIGURATION)) {
+            return handleValidateConfig(goPluginApiRequest.requestBody());
+        } else if (requestName.equals(REQUEST_GET_CONFIGURATION)) {
+            return handleRequestGetConfiguration();
         }
         return null;
     }
 
+    private GoPluginApiResponse handleValidateConfig(String requestBody) {
+        List<Object> response = Arrays.asList();
+        return renderJSON(SUCCESS_RESPONSE_CODE, response);
+    }
+
+
     public GoPluginIdentifier pluginIdentifier() {
         return new GoPluginIdentifier(EXTENSION_TYPE, goSupportedVersions);
+    }
+
+
+    private GoPluginApiResponse handleRequestGetView() {
+        Map<String, Object> response = new HashMap<String, Object>();
+
+        try {
+            String template = IOUtils.toString(getClass().getResourceAsStream("/views/config.template.html"), "UTF-8");
+            response.put("template", template);
+        } catch (IOException e) {
+            response.put("error", "Can't load view template");
+            return renderJSON(INTERNAL_ERROR_RESPONSE_CODE, response);
+        }
+
+
+        return renderJSON(SUCCESS_RESPONSE_CODE, response);
+    }
+
+    private GoPluginApiResponse handleRequestGetConfiguration() {
+        Map<String, Object> response = new HashMap<String, Object>();
+        Map<String, Object> serverUrlParams = new HashMap<String, Object>();
+        serverUrlParams.put("display-name", "External server URL");
+
+        response.put("server_url_external", serverUrlParams);
+
+        return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
 
     private GoPluginApiResponse handleNotificationsInterestedIn() {
@@ -99,7 +143,7 @@ public class GoNotificationPlugin implements GoPlugin {
     }
 
     private GoPluginApiResponse renderJSON(final int responseCode, Object response) {
-        final String json = response == null ? null : new GsonBuilder().create().toJson(response);
+        final String json = response == null ? null : new GsonBuilder().disableHtmlEscaping().create().toJson(response);
         return new GoPluginApiResponse() {
             @Override
             public int responseCode() {
