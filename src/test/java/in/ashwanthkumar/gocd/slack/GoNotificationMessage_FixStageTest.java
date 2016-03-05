@@ -16,7 +16,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
-public class GoNotificationMessageTest_FixStageResult {
+public class GoNotificationMessage_FixStageTest {
 
     public static final String PIPELINE_NAME = "PL";
     public static final String STAGE_NAME = "STG";
@@ -25,7 +25,7 @@ public class GoNotificationMessageTest_FixStageResult {
     private GoNotificationMessage.PipelineInfo pipeline;
     private String expectedStatus;
 
-    public GoNotificationMessageTest_FixStageResult(History pipelineHistory, GoNotificationMessage.PipelineInfo pipeline, String expectedStatus) {
+    public GoNotificationMessage_FixStageTest(History pipelineHistory, GoNotificationMessage.PipelineInfo pipeline, String expectedStatus) {
         this.pipelineHistory = pipelineHistory;
         this.pipeline = pipeline;
         this.expectedStatus = expectedStatus;
@@ -318,7 +318,7 @@ public class GoNotificationMessageTest_FixStageResult {
     }
 
     @Test
-    public void test() throws IOException {
+    public void shouldResolveCorrectStageStatus() throws IOException {
         Server server = mock(Server.class);
         when(server.getPipelineHistory(PIPELINE_NAME)).thenReturn(pipelineHistory);
 
