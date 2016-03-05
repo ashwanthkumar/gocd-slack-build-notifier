@@ -20,7 +20,6 @@ import static java.util.Arrays.asList;
 
 @Extension
 public class GoNotificationPlugin implements GoPlugin {
-    public static final String CONFIG_VIEW_TEMPLATE = "<div class=\"form_item_block\"><label>Message:</label></div>";
     private static Logger LOGGER = Logger.getLoggerFor(GoNotificationPlugin.class);
 
     public static final String EXTENSION_TYPE = "notification";
