@@ -160,7 +160,7 @@ public class PipelineRule {
         if (pipelineRule.getStatus().isEmpty()) {
             ruleToReturn.setStatus(defaultRule.getStatus());
         } else {
-            ruleToReturn.getStatus().addAll(defaultRule.getStatus());
+            ruleToReturn.getStatus().addAll(pipelineRule.getStatus());
         }
 
         return ruleToReturn;

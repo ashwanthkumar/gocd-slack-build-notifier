@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class RulesReaderTest {
@@ -31,6 +32,23 @@ public class RulesReaderTest {
                 .setChannel("#gocd-build")
                 .setStatus(Sets.of(PipelineStatus.FAILED));
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule2));
+    }
+
+    @Test
+    public void shouldReadMinimalConfig() {
+        Rules rules = RulesReader.read("test-config-minimal.conf");
+        assertThat(rules.isEnabled(), is(true));
+        assertThat(rules.getSlackChannel(), nullValue());
+        assertThat(rules.getGoServerHost(), is("https://go-instance:8153/"));
+        assertThat(rules.getWebHookUrl(), is("http://slack-instance.net/"));
+        assertThat(rules.getPipelineRules().size(), is(1));
+
+        PipelineRule pipelineRule = new PipelineRule()
+                .setNameRegex(".*")
+                .setStageRegex(".*")
+                .setChannel("#foo")
+                .setStatus(Sets.of(PipelineStatus.FAILED));
+        assertThat(rules.getPipelineRules(), hasItem(pipelineRule));
     }
 
 }
