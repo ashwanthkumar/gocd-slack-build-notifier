@@ -7,7 +7,9 @@ import in.ashwanthkumar.gocd.slack.util.TestUtils;
 import org.junit.Test;
 
 import static in.ashwanthkumar.gocd.slack.GoNotificationPlugin.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -79,7 +81,7 @@ public class GoNotificationPluginTest {
     }
 
     public static GoNotificationPlugin createGoNotificationPlugin() {
-        String folder = TestUtils.getResourceDirectory("go_notify.conf");
+        String folder = TestUtils.getResourceDirectory("configs/go_notify.conf");
 
         String oldUserHome = System.getProperty(USER_HOME);
         System.setProperty(USER_HOME, folder);

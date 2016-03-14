@@ -10,7 +10,7 @@ public class RulesReaderTest {
 
     @Test
     public void shouldReadTestConfig() {
-        Rules rules = RulesReader.read("test-config-1.conf");
+        Rules rules = RulesReader.read("configs/test-config-1.conf");
         assertThat(rules.isEnabled(), is(true));
         assertThat(rules.getSlackChannel(), is("#gocd"));
         assertThat(rules.getGoServerHost(), is("http://localhost:8080/"));
@@ -36,7 +36,7 @@ public class RulesReaderTest {
 
     @Test
     public void shouldReadMinimalConfig() {
-        Rules rules = RulesReader.read("test-config-minimal.conf");
+        Rules rules = RulesReader.read("configs/test-config-minimal.conf");
 
         assertThat(rules.isEnabled(), is(true));
 
@@ -64,7 +64,7 @@ public class RulesReaderTest {
 
     @Test
     public void shouldReadMinimalConfigWithPipeline() {
-        Rules rules = RulesReader.read("test-config-minimal-with-pipeline.conf");
+        Rules rules = RulesReader.read("configs/test-config-minimal-with-pipeline.conf");
         assertThat(rules.isEnabled(), is(true));
         assertThat(rules.getSlackChannel(), nullValue());
         assertThat(rules.getGoServerHost(), is("https://go-instance:8153/"));
