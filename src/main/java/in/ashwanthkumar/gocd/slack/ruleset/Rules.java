@@ -1,5 +1,6 @@
 package in.ashwanthkumar.gocd.slack.ruleset;
 
+import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.typesafe.config.Config;
 import in.ashwanthkumar.gocd.slack.PipelineListener;
 import in.ashwanthkumar.utils.collections.Lists;
@@ -13,6 +14,9 @@ import java.util.List;
 import static in.ashwanthkumar.gocd.slack.ruleset.PipelineRule.merge;
 
 public class Rules {
+
+    private static Logger LOGGER = Logger.getLoggerFor(Rules.class);
+
     private boolean enabled;
     private String webHookUrl;
     private String slackChannel;
@@ -168,6 +172,7 @@ public class Rules {
         try {
             rules.pipelineListener = Class.forName(config.getString("listener")).asSubclass(PipelineListener.class).getConstructor(Rules.class).newInstance(rules);
         } catch (Exception e) {
+            LOGGER.error("Exception while initializing pipeline listener", e);
             throw new RuntimeException(e);
         }
 
