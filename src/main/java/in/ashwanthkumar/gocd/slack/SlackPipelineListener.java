@@ -14,7 +14,7 @@ import java.util.List;
 
 import com.thoughtworks.go.plugin.api.logging.Logger;
 
-import static in.ashwanthkumar.slack.webhook.util.StringUtils.startsWith;
+import static in.ashwanthkumar.utils.lang.StringUtils.startsWith;
 
 public class SlackPipelineListener extends PipelineListener {
     private Logger LOG = Logger.getLoggerFor(SlackPipelineListener.class);

@@ -8,7 +8,7 @@ import in.ashwanthkumar.utils.lang.StringUtils;
 import java.util.HashSet;
 import java.util.Set;
 
-import static in.ashwanthkumar.slack.webhook.util.StringUtils.isEmpty;
+import static in.ashwanthkumar.utils.lang.StringUtils.isEmpty;
 
 public class PipelineRule {
     private String nameRegex;

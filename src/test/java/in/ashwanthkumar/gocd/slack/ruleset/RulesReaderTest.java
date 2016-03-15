@@ -1,6 +1,5 @@
 package in.ashwanthkumar.gocd.slack.ruleset;
 
-import in.ashwanthkumar.slack.webhook.util.Lists;
 import in.ashwanthkumar.utils.collections.Sets;
 import org.junit.Test;
 
