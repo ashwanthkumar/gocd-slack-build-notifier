@@ -167,7 +167,8 @@ public class Rules {
                 .setGoPassword(password);
         try {
             rules.pipelineListener = Class.forName(config.getString("listener")).asSubclass(PipelineListener.class).getConstructor(Rules.class).newInstance(rules);
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return rules;
