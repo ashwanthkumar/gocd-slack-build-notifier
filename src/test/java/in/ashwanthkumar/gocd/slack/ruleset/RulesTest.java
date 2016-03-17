@@ -95,6 +95,17 @@ public class RulesTest {
         assertThat(rules.find("p1", "s1", Status.Unknown.getStatus()).isDefined(), is(true));
     }
 
+    @Test
+    public void shouldGetAPIServerHost() {
+        Rules rules = new Rules();
+
+        rules.setGoServerHost("https://gocd.com");
+        assertThat(rules.getGoAPIServerHost(), is("https://gocd.com"));
+
+        rules.setGoAPIServerHost("http://localhost");
+        assertThat(rules.getGoAPIServerHost(), is("http://localhost"));
+    }
+
     private static PipelineRule pipelineRule(String pipeline, String stage, String channel, Set<PipelineStatus> statuses) {
         PipelineRule pipelineRule = new PipelineRule(pipeline, stage);
         pipelineRule.setStatus(statuses);
