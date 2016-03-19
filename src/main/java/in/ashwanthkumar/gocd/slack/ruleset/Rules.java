@@ -6,6 +6,7 @@ import in.ashwanthkumar.gocd.slack.PipelineListener;
 import in.ashwanthkumar.utils.collections.Lists;
 import in.ashwanthkumar.utils.func.Function;
 import in.ashwanthkumar.utils.func.Predicate;
+import in.ashwanthkumar.utils.lang.StringUtils;
 import in.ashwanthkumar.utils.lang.option.Option;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class Rules {
     private String slackDisplayName;
     private String slackUserIconURL;
     private String goServerHost;
+    private String goAPIServerHost;
     private String goLogin;
     private String goPassword;
 
@@ -92,6 +94,19 @@ public class Rules {
         return this;
     }
 
+
+    public String getGoAPIServerHost() {
+        if (StringUtils.isNotEmpty(goAPIServerHost)) {
+            return goAPIServerHost;
+        }
+        return getGoServerHost();
+    }
+
+    public Rules setGoAPIServerHost(String goAPIServerHost) {
+        this.goAPIServerHost = goAPIServerHost;
+        return this;
+    }
+
     public String getGoLogin() {
         return goLogin;
     }
@@ -142,6 +157,10 @@ public class Rules {
         }
 
         String serverHost = config.getString("server-host");
+        String apiServerHost = null;
+        if (config.hasPath("api-server-host")) {
+            apiServerHost = config.getString("api-server-host");
+        }
         String login = null;
         if (config.hasPath("login")) {
             login = config.getString("login");
@@ -167,6 +186,7 @@ public class Rules {
                 .setSlackUserIcon(iconURL)
                 .setPipelineRules(pipelineRules)
                 .setGoServerHost(serverHost)
+                .setGoAPIServerHost(apiServerHost)
                 .setGoLogin(login)
                 .setGoPassword(password);
         try {

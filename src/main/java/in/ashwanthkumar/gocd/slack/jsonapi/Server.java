@@ -62,7 +62,7 @@ public class Server {
         throws MalformedURLException, IOException
     {
         URL url = new URL(String.format("%s/go/api/pipelines/%s/history",
-                mRules.getGoServerHost(), pipelineName));
+                mRules.getGoAPIServerHost(), pipelineName));
         JsonElement json = getUrl(url);
         return httpConnectionUtil.convertResponse(json, History.class);
     }
@@ -74,7 +74,7 @@ public class Server {
         throws MalformedURLException, IOException
     {
         URL url = new URL(String.format("%s/go/api/pipelines/%s/instance/%d",
-                                        mRules.getGoServerHost(), pipelineName, pipelineCounter));
+                                        mRules.getGoAPIServerHost(), pipelineName, pipelineCounter));
         JsonElement json = getUrl(url);
         return httpConnectionUtil.convertResponse(json, Pipeline.class);
     }
