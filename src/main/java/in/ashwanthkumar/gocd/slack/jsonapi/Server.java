@@ -6,9 +6,7 @@ import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 
 import static in.ashwanthkumar.utils.lang.StringUtils.isNotEmpty;
 
@@ -38,9 +36,15 @@ public class Server {
     JsonElement getUrl(URL url)
         throws IOException
     {
-        LOG.info("Fetching " + url.toString());
+        URL normalizedUrl;
+        try {
+            normalizedUrl = url.toURI().normalize().toURL();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        LOG.info("Fetching " + normalizedUrl.toString());
 
-        HttpURLConnection request = httpConnectionUtil.getConnection(url);
+        HttpURLConnection request = httpConnectionUtil.getConnection(normalizedUrl);
 
         // Add in our HTTP authorization credentials if we have them.
         if (isNotEmpty(mRules.getGoLogin()) && isNotEmpty(mRules.getGoPassword())) {

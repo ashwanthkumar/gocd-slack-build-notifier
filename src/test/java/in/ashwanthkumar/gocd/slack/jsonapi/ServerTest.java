@@ -34,6 +34,23 @@ public class ServerTest {
     }
 
     @Test
+    public void testGetPipelineHistoryEvenWhenGoServerHostHasTrailingSlash() throws Exception {
+        HttpConnectionUtil httpConnectionUtil = mockConnection();
+
+        Rules rules = new Rules();
+        rules.setGoServerHost("https://example.org/");
+        Server server = new Server(rules, httpConnectionUtil);
+
+        server.getPipelineHistory("pipeline-test");
+
+        ArgumentCaptor<URL> url = ArgumentCaptor.forClass(URL.class);
+        verify(httpConnectionUtil).getConnection(
+                url.capture()
+        );
+        assertThat(url.getValue().toString(), is("https://example.org/go/api/pipelines/pipeline-test/history"));
+    }
+
+    @Test
     public void testGetPipelineInstance() throws Exception {
         HttpConnectionUtil httpConnectionUtil = mockConnection();
 
