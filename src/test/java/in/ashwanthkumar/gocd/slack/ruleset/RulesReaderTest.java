@@ -16,6 +16,7 @@ public class RulesReaderTest {
         assertThat(rules.getGoServerHost(), is("http://localhost:8080/"));
         assertThat(rules.getPipelineRules().size(), is(2));
         assertThat(rules.getPipelineRules().size(), is(2));
+        assertThat(rules.getDisplayMaterialChanges(), is(false));
 
         PipelineRule pipelineRule1 = new PipelineRule()
                 .setNameRegex("gocd-slack-build-notifier")
@@ -51,6 +52,7 @@ public class RulesReaderTest {
 
         // Default rules
         assertThat(rules.getPipelineRules().size(), is(1));
+        assertThat(rules.getDisplayMaterialChanges(), is(true));
 
         PipelineRule pipelineRule = new PipelineRule()
                 .setNameRegex(".*")

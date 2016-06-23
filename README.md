@@ -20,6 +20,7 @@ gocd.slack {
   channel = "#build"
   slackDisplayName = "gocd-slack-bot"
   slackUserIconURL = "http://example.com/slack-bot.png"
+  displayMaterialChanges = true
 }
 ```
 - `login` - Login for a Go user who is authorized to access the REST API.
@@ -28,8 +29,9 @@ gocd.slack {
 - `api-server-host` - This is an optional attribute. Set this field to localhost so server will use this endpoint to get `PipelineHistory` and `PipelineInstance`  
 - `webhookUrl` - Slack Webhook URL
 - `channel` - Override the default channel where we should send the notifications in slack. You can also give a value starting with `@` to send it to any specific user.
+- `displayMaterialChanges` - Display material changes in the notification (git revisions for example). Defaults to true, set to false if you want to hide.
 
-## Pipline Rules
+## Pipeline Rules
 By default the plugin pushes a note about all failed stages across all pipelines to Slack. You have fine grain control over this operation.
 ```hocon
 gocd.slack {
