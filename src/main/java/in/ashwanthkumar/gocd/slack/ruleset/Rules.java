@@ -27,6 +27,7 @@ public class Rules {
     private String goAPIServerHost;
     private String goLogin;
     private String goPassword;
+    private boolean displayMaterialChanges;
 
     private List<PipelineRule> pipelineRules = new ArrayList<PipelineRule>();
     private PipelineListener pipelineListener;
@@ -125,6 +126,16 @@ public class Rules {
         return this;
     }
 
+    public boolean getDisplayMaterialChanges() {
+        return displayMaterialChanges;
+    }
+
+    public Rules setDisplayMaterialChanges(boolean displayMaterialChanges) {
+        this.displayMaterialChanges = displayMaterialChanges;
+        return this;
+    }
+
+    
     public PipelineListener getPipelineListener() {
         return pipelineListener;
     }
@@ -169,7 +180,12 @@ public class Rules {
         if (config.hasPath("password")) {
             password = config.getString("password");
         }
+	boolean displayMaterialChanges = true;
+	if (config.hasPath("displayMaterialChanges")) {
+	    displayMaterialChanges = config.getBoolean("displayMaterialChanges");
+	}
 
+	
         final PipelineRule defaultRule = PipelineRule.fromConfig(config.getConfig("default"), channel);
 
         List<PipelineRule> pipelineRules = Lists.map((List<Config>) config.getConfigList("pipelines"), new Function<Config, PipelineRule>() {
@@ -188,7 +204,8 @@ public class Rules {
                 .setGoServerHost(serverHost)
                 .setGoAPIServerHost(apiServerHost)
                 .setGoLogin(login)
-                .setGoPassword(password);
+                .setGoPassword(password)
+                .setDisplayMaterialChanges(displayMaterialChanges);
         try {
             rules.pipelineListener = Class.forName(config.getString("listener")).asSubclass(PipelineListener.class).getConstructor(Rules.class).newInstance(rules);
         } catch (Exception e) {
