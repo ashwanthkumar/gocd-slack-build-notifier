@@ -22,7 +22,8 @@ public class RulesReader {
     }
 
     protected Rules load(Config config) {
-        Config configWithFallback = config.withFallback(ConfigFactory.load(getClass().getClassLoader()));
+        Config envThenSystem = ConfigFactory.systemEnvironment().withFallback(ConfigFactory.systemProperties());
+        Config configWithFallback = config.withFallback(ConfigFactory.load(getClass().getClassLoader())).resolveWith(envThenSystem);
         return Rules.fromConfig(configWithFallback.getConfig("gocd.slack"));
     }
 

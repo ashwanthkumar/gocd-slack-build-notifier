@@ -83,6 +83,26 @@ public class RulesReaderTest {
         assertThat(rules.getPipelineListener(), notNullValue());
     }
 
+    @Test
+    public void shouldReadMinimalConfigWithPipelineAndEnvironmentVariables() {
+        Rules rules = RulesReader.read("configs/test-config-minimal-with-env-variables.conf");
+        assertThat(rules.isEnabled(), is(true));
+        assertThat(rules.getSlackChannel(), nullValue());
+        assertThat(rules.getGoServerHost(), is("https://go-instance:8153/"));
+        assertThat(rules.getWebHookUrl(), is("https://hooks.slack.com/services/"));
+        assertThat(rules.getPipelineRules().size(), is(1));
+        assertThat(rules.getGoLogin(), is(System.getenv("HOME")));
+
+        PipelineRule pipelineRule = new PipelineRule()
+                .setNameRegex(".*")
+                .setStageRegex(".*")
+                .setChannel("#foo")
+                .setStatus(Sets.of(PipelineStatus.FAILED));
+        assertThat(rules.getPipelineRules(), hasItem(pipelineRule));
+
+        assertThat(rules.getPipelineListener(), notNullValue());
+    }
+
     @Test(expected = RuntimeException.class)
     public void shouldThrowExceptionIfConfigInvalid() {
         RulesReader.read("test-config-invalid.conf");
