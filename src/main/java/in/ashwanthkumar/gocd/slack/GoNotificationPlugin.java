@@ -15,12 +15,14 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static java.util.Arrays.asList;
 
 @Extension
 public class GoNotificationPlugin implements GoPlugin {
     private static Logger LOGGER = Logger.getLoggerFor(GoNotificationPlugin.class);
+    private static final long CONFIG_REFRESH_INTERVAL = 60 * 1000; // 1 minute
 
     public static final String EXTENSION_TYPE = "notification";
     private static final List<String> goSupportedVersions = asList("1.0");
@@ -35,16 +37,29 @@ public class GoNotificationPlugin implements GoPlugin {
     public static final int INTERNAL_ERROR_RESPONSE_CODE = 500;
 
     public static final String GO_NOTIFY_CONFIGURATION = "go_notify.conf";
+    public static final String PLUGIN_CONFIG_PATH = System.getProperty("user.home") + File.separator + GO_NOTIFY_CONFIGURATION;
 
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private Rules rules;
 
+    private final Timer timer = new Timer();
+    private long configLastModified = 0l;
+
     public GoNotificationPlugin() {
-        String userHome = System.getProperty("user.home");
-        File pluginConfig = new File(userHome + File.separator + GO_NOTIFY_CONFIGURATION);
-        if (!pluginConfig.exists()) {
-            throw new RuntimeException(String.format("%s file is not found in %s", GO_NOTIFY_CONFIGURATION, userHome));
-        }
-        rules = RulesReader.read(pluginConfig);
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                File pluginConfig = new File(PLUGIN_CONFIG_PATH);
+                if (!pluginConfig.exists()) {
+                    throw new RuntimeException(String.format("%s file is not found in %s", GO_NOTIFY_CONFIGURATION, System.getProperty("user.home")));
+                }
+                if (pluginConfig.lastModified() != configLastModified) {
+                    lock.writeLock().lock();
+                    rules = RulesReader.read(PLUGIN_CONFIG_PATH);
+                    lock.writeLock().unlock();
+                }
+            }
+        }, 0, CONFIG_REFRESH_INTERVAL);
     }
 
     public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
@@ -118,7 +133,9 @@ public class GoNotificationPlugin implements GoPlugin {
         try {
             response.put("status", "success");
             LOGGER.info(message.fullyQualifiedJobName() + " has " + message.getStageState() + "/" + message.getStageResult());
+            lock.readLock().lock();
             rules.getPipelineListener().notify(message);
+            lock.readLock().unlock();
         } catch (Exception e) {
             LOGGER.info(message.fullyQualifiedJobName() + " failed with error", e);
             responseCode = INTERNAL_ERROR_RESPONSE_CODE;
