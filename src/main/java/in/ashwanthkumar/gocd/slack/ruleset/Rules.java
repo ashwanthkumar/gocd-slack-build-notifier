@@ -135,7 +135,7 @@ public class Rules {
         return this;
     }
 
-    
+
     public PipelineListener getPipelineListener() {
         return pipelineListener;
     }
@@ -158,12 +158,12 @@ public class Rules {
         }
 
         String displayName = "gocd-slack-bot";
-        if(config.hasPath("slackDisplayName")) {
+        if (config.hasPath("slackDisplayName")) {
             displayName = config.getString("slackDisplayName");
         }
 
         String iconURL = "https://raw.githubusercontent.com/ashwanthkumar/assets/c597777ee749c89fec7ce21304d727724a65be7d/images/gocd-logo.png";
-        if(config.hasPath("slackUserIconURL")) {
+        if (config.hasPath("slackUserIconURL")) {
             iconURL = config.getString("slackUserIconURL");
         }
 
@@ -180,12 +180,12 @@ public class Rules {
         if (config.hasPath("password")) {
             password = config.getString("password");
         }
-	boolean displayMaterialChanges = true;
-	if (config.hasPath("displayMaterialChanges")) {
-	    displayMaterialChanges = config.getBoolean("displayMaterialChanges");
-	}
 
-	
+        boolean displayMaterialChanges = true;
+        if (config.hasPath("displayMaterialChanges")) {
+            displayMaterialChanges = config.getBoolean("displayMaterialChanges");
+        }
+
         final PipelineRule defaultRule = PipelineRule.fromConfig(config.getConfig("default"), channel);
 
         List<PipelineRule> pipelineRules = Lists.map((List<Config>) config.getConfigList("pipelines"), new Function<Config, PipelineRule>() {
