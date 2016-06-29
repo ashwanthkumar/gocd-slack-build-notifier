@@ -57,6 +57,7 @@ public class GoNotificationPlugin implements GoPlugin {
                     lock.writeLock().lock();
                     rules = RulesReader.read(PLUGIN_CONFIG_PATH);
                     lock.writeLock().unlock();
+                    configLastModified = pluginConfig.lastModified();
                 }
             }
         }, 0, CONFIG_REFRESH_INTERVAL);
