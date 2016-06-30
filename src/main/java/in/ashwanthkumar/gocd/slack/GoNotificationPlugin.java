@@ -136,7 +136,6 @@ public class GoNotificationPlugin implements GoPlugin {
             LOGGER.info(message.fullyQualifiedJobName() + " has " + message.getStageState() + "/" + message.getStageResult());
             lock.readLock().lock();
             rules.getPipelineListener().notify(message);
-            lock.readLock().unlock();
         } catch (Exception e) {
             LOGGER.info(message.fullyQualifiedJobName() + " failed with error", e);
             responseCode = INTERNAL_ERROR_RESPONSE_CODE;
@@ -144,6 +143,8 @@ public class GoNotificationPlugin implements GoPlugin {
             if (!isEmpty(e.getMessage())) {
                 messages.add(e.getMessage());
             }
+        } finally {
+            lock.readLock().unlock();
         }
 
         if (!messages.isEmpty()) {
