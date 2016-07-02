@@ -9,6 +9,8 @@ import in.ashwanthkumar.utils.func.Predicate;
 import in.ashwanthkumar.utils.lang.StringUtils;
 import in.ashwanthkumar.utils.lang.option.Option;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,8 @@ public class Rules {
     private String goLogin;
     private String goPassword;
     private boolean displayMaterialChanges;
+
+    private Proxy proxy;
 
     private List<PipelineRule> pipelineRules = new ArrayList<PipelineRule>();
     private PipelineListener pipelineListener;
@@ -135,6 +139,14 @@ public class Rules {
         return this;
     }
 
+    public Proxy getProxy() {
+        return proxy;
+    }
+
+    public Rules setProxy(Proxy proxy) {
+        this.proxy = proxy;
+        return this;
+    }
 
     public PipelineListener getPipelineListener() {
         return pipelineListener;
@@ -186,6 +198,18 @@ public class Rules {
             displayMaterialChanges = config.getBoolean("displayMaterialChanges");
         }
 
+        Proxy proxy = null;
+        if (config.hasPath("proxy")) {
+            Config proxyConfig = config.getConfig("proxy");
+            if (proxyConfig.hasPath("hostname") && proxyConfig.hasPath("port") && proxyConfig.hasPath("type")) {
+                String hostname = proxyConfig.getString("hostname");
+                int port = proxyConfig.getInt("port");
+                String type = proxyConfig.getString("type").toUpperCase();
+                Proxy.Type proxyType = Proxy.Type.valueOf(type);
+                proxy = new Proxy(proxyType, new InetSocketAddress(hostname, port));
+            }
+        }
+
         final PipelineRule defaultRule = PipelineRule.fromConfig(config.getConfig("default"), channel);
 
         List<PipelineRule> pipelineRules = Lists.map((List<Config>) config.getConfigList("pipelines"), new Function<Config, PipelineRule>() {
@@ -205,7 +229,8 @@ public class Rules {
                 .setGoAPIServerHost(apiServerHost)
                 .setGoLogin(login)
                 .setGoPassword(password)
-                .setDisplayMaterialChanges(displayMaterialChanges);
+                .setDisplayMaterialChanges(displayMaterialChanges)
+                .setProxy(proxy);
         try {
             rules.pipelineListener = Class.forName(config.getString("listener")).asSubclass(PipelineListener.class).getConstructor(Rules.class).newInstance(rules);
         } catch (Exception e) {

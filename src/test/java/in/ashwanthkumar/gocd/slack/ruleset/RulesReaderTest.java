@@ -3,6 +3,9 @@ package in.ashwanthkumar.gocd.slack.ruleset;
 import in.ashwanthkumar.utils.collections.Sets;
 import org.junit.Test;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -101,11 +104,20 @@ public class RulesReaderTest {
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule));
 
         assertThat(rules.getPipelineListener(), notNullValue());
+        assertThat(rules.getProxy(), nullValue());
     }
 
     @Test(expected = RuntimeException.class)
     public void shouldThrowExceptionIfConfigInvalid() {
         RulesReader.read("test-config-invalid.conf");
+    }
+
+    @Test
+    public void shouldReadProxyConfig() {
+        Rules rules = RulesReader.read("configs/test-config-with-proxy.conf");
+        assertThat(rules.isEnabled(), is(true));
+        Proxy expectedProxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 5555));
+        assertThat(rules.getProxy(), is(expectedProxy));
     }
 
 
