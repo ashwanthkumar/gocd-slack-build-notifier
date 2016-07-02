@@ -3,6 +3,7 @@ package in.ashwanthkumar.gocd.slack;
 import in.ashwanthkumar.gocd.slack.jsonapi.*;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 import in.ashwanthkumar.gocd.slack.util.TestUtils;
+import in.ashwanthkumar.utils.collections.Lists;
 import org.junit.Test;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class GoNotificationMessageTest {
         Server server = mock(Server.class);
 
         History pipelineHistory = new History();
-        pipelineHistory.pipelines = new Pipeline[] {
+        pipelineHistory.pipelines = new Pipeline[]{
                 pipeline(PIPELINE_NAME, 8),
                 pipeline(PIPELINE_NAME, 9),
                 pipeline(PIPELINE_NAME, 10),
@@ -46,7 +47,7 @@ public class GoNotificationMessageTest {
         Server server = mock(Server.class);
 
         History pipelineHistory = new History();
-        pipelineHistory.pipelines = new Pipeline[] {
+        pipelineHistory.pipelines = new Pipeline[]{
                 pipeline(PIPELINE_NAME, 8),
                 pipeline(PIPELINE_NAME, 9)
         };
@@ -65,7 +66,7 @@ public class GoNotificationMessageTest {
         Server server = mock(Server.class);
 
         History pipelineHistory = new History();
-        pipelineHistory.pipelines = new Pipeline[] {
+        pipelineHistory.pipelines = new Pipeline[]{
                 pipeline("something-different", 10)
         };
         when(server.getPipelineHistory("something-different")).thenReturn(pipelineHistory);
@@ -100,7 +101,7 @@ public class GoNotificationMessageTest {
             Modification modification = new Modification();
             modification.revision = "pipeline2/11/foo";
 
-            pipelineRevision.modifications = new Modification[]{modification};
+            pipelineRevision.modifications = Lists.of(modification);
             pipeline1.buildCause.materialRevisions = new MaterialRevision[]{
                     leafRevision, pipelineRevision
             };
