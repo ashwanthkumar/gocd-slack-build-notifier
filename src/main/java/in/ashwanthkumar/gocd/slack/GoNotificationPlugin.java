@@ -22,7 +22,7 @@ import static java.util.Arrays.asList;
 @Extension
 public class GoNotificationPlugin implements GoPlugin {
     private static Logger LOGGER = Logger.getLoggerFor(GoNotificationPlugin.class);
-    private static final long CONFIG_REFRESH_INTERVAL = 60 * 1000; // 1 minute
+    private static final long CONFIG_REFRESH_INTERVAL = 10 * 1000; // 10 seconds
 
     public static final String EXTENSION_TYPE = "notification";
     private static final List<String> goSupportedVersions = asList("1.0");
