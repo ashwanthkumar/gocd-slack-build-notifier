@@ -193,6 +193,7 @@ public class Rules {
             password = config.getString("password");
         }
 
+        // TODO - Next major release - change this to - separated config
         boolean displayMaterialChanges = true;
         if (config.hasPath("displayMaterialChanges")) {
             displayMaterialChanges = config.getBoolean("displayMaterialChanges");
