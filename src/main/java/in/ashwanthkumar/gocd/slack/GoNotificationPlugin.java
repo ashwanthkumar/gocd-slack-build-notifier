@@ -59,9 +59,14 @@ public class GoNotificationPlugin implements GoPlugin {
                     } else {
                         LOGGER.info("Reloading configuration file since some modifications were found");
                     }
-                    lock.writeLock().lock();
-                    rules = RulesReader.read(pluginConfig);
-                    lock.writeLock().unlock();
+                    try {
+                        lock.writeLock().lock();
+                        rules = RulesReader.read(pluginConfig);
+                    } catch (Exception e) {
+                        LOGGER.error(e.getMessage(), e);
+                    } finally {
+                        lock.writeLock().unlock();
+                    }
                     configLastModified = pluginConfig.lastModified();
                 }
             }
