@@ -55,7 +55,7 @@ public class GoNotificationPlugin implements GoPlugin {
                 }
                 if (pluginConfig.lastModified() != configLastModified) {
                     lock.writeLock().lock();
-                    rules = RulesReader.read(PLUGIN_CONFIG_PATH);
+                    rules = RulesReader.read(pluginConfig);
                     lock.writeLock().unlock();
                     configLastModified = pluginConfig.lastModified();
                 }
