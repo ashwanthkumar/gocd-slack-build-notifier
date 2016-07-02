@@ -131,6 +131,7 @@ public class SlackPipelineListener extends PipelineListener {
         switch (pipelineStatus) {
             case BROKEN:
             case FIXED:
+            case BUILDING:
                 return "is";
             case FAILED:
             case PASSED:
