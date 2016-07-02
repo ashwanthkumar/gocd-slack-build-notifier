@@ -21,6 +21,11 @@ gocd.slack {
   slackDisplayName = "gocd-slack-bot"
   slackUserIconURL = "http://example.com/slack-bot.png"
   displayMaterialChanges = true
+  proxy {
+    hostname = "localhost"
+    port = "5555"
+    type = "socks" # acceptable values are http / socks
+  }
 }
 ```
 - `login` - Login for a Go user who is authorized to access the REST API.
@@ -30,6 +35,10 @@ gocd.slack {
 - `webhookUrl` - Slack Webhook URL
 - `channel` - Override the default channel where we should send the notifications in slack. You can also give a value starting with `@` to send it to any specific user.
 - `displayMaterialChanges` - Display material changes in the notification (git revisions for example). Defaults to true, set to false if you want to hide.
+- `proxy` - Specify proxy related settings for the plugin.
+  - `proxy.hostname` - Proxy Host
+  - `proxy.port` - Proxy Port
+  - `proxy.type` - `socks` or `http` are the only accepted values.
 
 ## Pipeline Rules
 By default the plugin pushes a note about all failed stages across all pipelines to Slack. You have fine grain control over this operation.

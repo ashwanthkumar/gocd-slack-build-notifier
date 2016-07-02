@@ -23,7 +23,7 @@ public class SlackPipelineListener extends PipelineListener {
 
     public SlackPipelineListener(Rules rules) {
         super(rules);
-        slack = new Slack(rules.getWebHookUrl());
+        slack = new Slack(rules.getWebHookUrl(), rules.getProxy());
         updateSlackChannel(rules.getSlackChannel());
 
         slack.displayName(rules.getSlackDisplayName())
