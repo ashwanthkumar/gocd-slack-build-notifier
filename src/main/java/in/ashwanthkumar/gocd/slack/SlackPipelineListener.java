@@ -3,20 +3,25 @@ package in.ashwanthkumar.gocd.slack;
 import in.ashwanthkumar.gocd.slack.jsonapi.MaterialRevision;
 import in.ashwanthkumar.gocd.slack.jsonapi.Modification;
 import in.ashwanthkumar.gocd.slack.jsonapi.Pipeline;
+import in.ashwanthkumar.gocd.slack.jsonapi.Stage;
 import in.ashwanthkumar.gocd.slack.ruleset.PipelineRule;
 import in.ashwanthkumar.gocd.slack.ruleset.PipelineStatus;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 import in.ashwanthkumar.slack.webhook.Slack;
 import in.ashwanthkumar.slack.webhook.SlackAttachment;
 
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.thoughtworks.go.plugin.api.logging.Logger;
+import in.ashwanthkumar.utils.collections.Lists;
 
 import static in.ashwanthkumar.utils.lang.StringUtils.startsWith;
 
 public class SlackPipelineListener extends PipelineListener {
+    public static final int MAX_CHANGES_PER_MATERIAL_IN_SLACK = 5;
     private Logger LOG = Logger.getLoggerFor(SlackPipelineListener.class);
 
     private final Slack slack;
@@ -67,41 +72,46 @@ public class SlackPipelineListener extends PipelineListener {
     }
 
     private SlackAttachment slackAttachment(GoNotificationMessage message, PipelineStatus pipelineStatus) throws URISyntaxException {
-        StringBuilder sb = new StringBuilder();
+        String title = String.format("Stage [%s] %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " ");
+        SlackAttachment buildAttachment = new SlackAttachment("")
+                .fallback(title)
+                .title(title, message.goServerUrl(rules.getGoServerHost()));
 
+        List<String> consoleLogLinks = new ArrayList<String>();
         // Describe the build.
         try {
             Pipeline details = message.fetchDetails(rules);
-            String triggerMessage = details.buildCause.triggerMessage;
-            triggerMessage =
-                    // Capitalize first letter. Really the shortest way:
-                    // http://stackoverflow.com/questions/3904579
-                    triggerMessage.substring(0, 1).toUpperCase()
-                            + triggerMessage.substring(1);
-            sb.append(triggerMessage);
-            sb.append(". ");
+            Stage stage = pickCurrentStage(details.stages, message);
+            buildAttachment.addField(new SlackAttachment.Field("Triggered by", stage.approvedBy, true));
+            if (details.buildCause.triggerForced) {
+                buildAttachment.addField(new SlackAttachment.Field("Reason", "Forced Trigger", true));
+            } else {
+                buildAttachment.addField(new SlackAttachment.Field("Reason", details.buildCause.triggerMessage, true));
+            }
+            buildAttachment.addField(new SlackAttachment.Field("Label", details.label, true));
+            consoleLogLinks = createConsoleLogLinks(rules.getGoServerHost(), details, stage, pipelineStatus);
         } catch (Exception e) {
-            sb.append("(Couldn't fetch build details; see server log.) ");
+            buildAttachment.text("(Couldn't fetch build details; see server log.) ");
             LOG.warn("Couldn't fetch build details", e);
         }
-        sb.append("See details - ");
-        sb.append(message.goServerUrl(rules.getGoServerHost()));
-        sb.append("\n");
+        buildAttachment.addField(new SlackAttachment.Field("Status", pipelineStatus.name(), true));
 
         // Describe the root changes that made up this build.
         if (rules.getDisplayMaterialChanges()) {
             try {
                 List<MaterialRevision> changes = message.fetchChanges(rules);
+                StringBuilder sb = new StringBuilder();
                 for (MaterialRevision change : changes) {
-                    sb.append(change.material.description);
-                    sb.append("\n");
+                    boolean isTruncated = false;
+                    if (change.modifications.size() > MAX_CHANGES_PER_MATERIAL_IN_SLACK) {
+                        change.modifications = Lists.take(change.modifications, MAX_CHANGES_PER_MATERIAL_IN_SLACK);
+                        isTruncated = true;
+                    }
                     for (Modification mod : change.modifications) {
                         String url = change.modificationUrl(mod);
                         if (url != null) {
-                            // This would be nicer if our Slack library allowed
-                            // us to use formatted attachements.
-                            sb.append(url);
-                            sb.append(" ");
+                            sb.append("<").append(url).append("|").append(mod.revision).append(">");
+                            sb.append(": ");
                         } else if (mod.revision != null) {
                             sb.append(mod.revision);
                             sb.append(": ");
@@ -116,15 +126,49 @@ public class SlackPipelineListener extends PipelineListener {
                         }
                         sb.append("\n");
                     }
+                    String fieldNamePrefix = (isTruncated) ? String.format("Latest %d", MAX_CHANGES_PER_MATERIAL_IN_SLACK) : "All";
+                    String fieldName = String.format("%s changes for %s", fieldNamePrefix, change.material.description);
+                    buildAttachment.addField(new SlackAttachment.Field(fieldName, sb.toString(), false));
                 }
             } catch (Exception e) {
-                sb.append("(Couldn't fetch changes; see server log.) ");
+                buildAttachment.addField(new SlackAttachment.Field("Changes", "(Couldn't fetch changes; see server log.)", true));
                 LOG.warn("Couldn't fetch changes", e);
             }
         }
-        return new SlackAttachment(sb.toString())
-                .fallback(String.format("%s %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "))
-                .title(String.format("Stage [%s] %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "));
+
+
+        if (!consoleLogLinks.isEmpty()) {
+            String logLinks = Lists.mkString(consoleLogLinks, "", "", "\n");
+            buildAttachment.addField(new SlackAttachment.Field("Console Logs", logLinks, true));
+        }
+        return buildAttachment;
+    }
+
+    private List<String> createConsoleLogLinks(String host, Pipeline pipeline, Stage stage, PipelineStatus pipelineStatus) throws URISyntaxException {
+        List<String> consoleLinks = new ArrayList<String>();
+        for (String job : stage.jobNames()) {
+            URI link;
+            // We should be linking to Console Tab when the status is building,
+            // while all others will be the console.log artifact.
+            if(pipelineStatus == PipelineStatus.BUILDING) {
+                link = new URI(String.format("%s/go/tab/build/detail/%s/%d/%s/%d/%s#tab-console", host, pipeline.name, pipeline.counter, stage.name, stage.counter, job));
+            } else {
+                link = new URI(String.format("%s/go/files/%s/%d/%s/%d/%s/cruise-output/console.log", host, pipeline.name, pipeline.counter, stage.name, stage.counter, job));
+            }
+            // TODO - May be it's only useful to show the failed job logs instead of all jobs?
+            consoleLinks.add("<" + link.normalize().toASCIIString() + "| View " + job + " logs>");
+        }
+        return consoleLinks;
+    }
+
+    private Stage pickCurrentStage(Stage[] stages, GoNotificationMessage message) {
+        for (Stage stage : stages) {
+            if (message.getStageName().equals(stage.name)) {
+                return stage;
+            }
+        }
+
+        throw new IllegalArgumentException("The list of stages from the pipeline (" + message.getPipelineName() + ") doesn't have the active stage (" + message.getStageName() + ") for which we got the notification.");
     }
 
     private String verbFor(PipelineStatus pipelineStatus) {
