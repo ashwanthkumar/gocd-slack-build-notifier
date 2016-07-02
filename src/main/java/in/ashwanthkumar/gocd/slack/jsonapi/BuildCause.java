@@ -7,7 +7,7 @@ public class BuildCause {
     public String approver;
 
     @SerializedName("trigger_forced")
-    public String triggerForced;
+    public boolean triggerForced;
 
     @SerializedName("trigger_message")
     public String triggerMessage;

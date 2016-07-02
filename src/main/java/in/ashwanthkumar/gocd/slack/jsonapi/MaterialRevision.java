@@ -5,7 +5,6 @@ import com.thoughtworks.go.plugin.api.logging.Logger;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,7 +24,7 @@ public class MaterialRevision {
     public Material material;
 
     @SerializedName("modifications")
-    public Modification[] modifications;
+    public List<Modification> modifications;
 
     /**
      * Is this revision a pipeline, or something else (generally a commit
@@ -119,7 +118,7 @@ public class MaterialRevision {
         int result = 1;
         result = prime * result + (changed ? 1231 : 1237);
         result = prime * result + ((material == null) ? 0 : material.hashCode());
-        result = prime * result + Arrays.hashCode(modifications);
+        result = prime * result + modifications.hashCode();
         return result;
     }
 
@@ -139,7 +138,7 @@ public class MaterialRevision {
                 return false;
         } else if (!material.equals(other.material))
             return false;
-        if (!Arrays.equals(modifications, other.modifications))
+        if (!modifications.equals(other.modifications))
             return false;
         return true;
     }

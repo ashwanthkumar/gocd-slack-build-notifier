@@ -29,8 +29,10 @@ public class Pipeline {
     @SerializedName("stages")
     public Stage[] stages;
 
+    @SerializedName("label")
+    public String label;
+
     // "comment"
-    // "label"
     // "natural_order"
     // "stages"
 
