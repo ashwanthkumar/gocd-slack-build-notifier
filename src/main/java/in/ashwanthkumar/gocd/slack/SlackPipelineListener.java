@@ -27,7 +27,7 @@ public class SlackPipelineListener extends PipelineListener {
         updateSlackChannel(rules.getSlackChannel());
 
         slack.displayName(rules.getSlackDisplayName())
-            .icon(rules.getSlackUserIcon());
+                .icon(rules.getSlackUserIcon());
     }
 
     @Override
@@ -74,10 +74,10 @@ public class SlackPipelineListener extends PipelineListener {
             Pipeline details = message.fetchDetails(rules);
             String triggerMessage = details.buildCause.triggerMessage;
             triggerMessage =
-                // Capitalize first letter. Really the shortest way:
-                // http://stackoverflow.com/questions/3904579
-                triggerMessage.substring(0,1).toUpperCase()
-                + triggerMessage.substring(1);
+                    // Capitalize first letter. Really the shortest way:
+                    // http://stackoverflow.com/questions/3904579
+                    triggerMessage.substring(0, 1).toUpperCase()
+                            + triggerMessage.substring(1);
             sb.append(triggerMessage);
             sb.append(". ");
         } catch (Exception e) {
@@ -89,39 +89,39 @@ public class SlackPipelineListener extends PipelineListener {
         sb.append("\n");
 
         // Describe the root changes that made up this build.
-	if (rules.getDisplayMaterialChanges()) {
-	    try {
-		List<MaterialRevision> changes = message.fetchChanges(rules);
-		for (MaterialRevision change : changes) {
-		    sb.append(change.material.description);
-		    sb.append("\n");
-		    for (Modification mod : change.modifications) {
-			String url = change.modificationUrl(mod);
-			if (url != null) {
-			    // This would be nicer if our Slack library allowed
-			    // us to use formatted attachements.
-			    sb.append(url);
-			    sb.append(" ");
-			} else if (mod.revision != null) {
-			    sb.append(mod.revision);
-			    sb.append(": ");
-			}
-			String comment = mod.summarizeComment();
-			if (comment != null) {
-			    sb.append(comment);
-			}
-			if (mod.userName != null) {
-			    sb.append(" - ");
-			    sb.append(mod.userName);
-			}
-			sb.append("\n");
-		    }
-		}
-	    } catch (Exception e) {
-		sb.append("(Couldn't fetch changes; see server log.) ");
-		LOG.warn("Couldn't fetch changes", e);
-	    }
-	}
+        if (rules.getDisplayMaterialChanges()) {
+            try {
+                List<MaterialRevision> changes = message.fetchChanges(rules);
+                for (MaterialRevision change : changes) {
+                    sb.append(change.material.description);
+                    sb.append("\n");
+                    for (Modification mod : change.modifications) {
+                        String url = change.modificationUrl(mod);
+                        if (url != null) {
+                            // This would be nicer if our Slack library allowed
+                            // us to use formatted attachements.
+                            sb.append(url);
+                            sb.append(" ");
+                        } else if (mod.revision != null) {
+                            sb.append(mod.revision);
+                            sb.append(": ");
+                        }
+                        String comment = mod.summarizeComment();
+                        if (comment != null) {
+                            sb.append(comment);
+                        }
+                        if (mod.userName != null) {
+                            sb.append(" - ");
+                            sb.append(mod.userName);
+                        }
+                        sb.append("\n");
+                    }
+                }
+            } catch (Exception e) {
+                sb.append("(Couldn't fetch changes; see server log.) ");
+                LOG.warn("Couldn't fetch changes", e);
+            }
+        }
         return new SlackAttachment(sb.toString())
                 .fallback(String.format("%s %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "))
                 .title(String.format("Stage [%s] %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " "));

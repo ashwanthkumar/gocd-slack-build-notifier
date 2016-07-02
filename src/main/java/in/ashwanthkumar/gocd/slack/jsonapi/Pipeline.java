@@ -28,7 +28,7 @@ public class Pipeline {
 
     @SerializedName("stages")
     public Stage[] stages;
-    
+
     // "comment"
     // "label"
     // "natural_order"
@@ -39,23 +39,21 @@ public class Pipeline {
      * "Pipeline" objects recursively instead of including them directly.
      */
     public List<MaterialRevision> rootChanges(Server server)
-        throws MalformedURLException, IOException
-    {
+            throws MalformedURLException, IOException {
         List result = new ArrayList();
         addChangesRecursively(server, result);
         return result;
     }
 
     void addChangesRecursively(Server server, List<MaterialRevision> outChanges)
-        throws MalformedURLException, IOException
-    {
+            throws MalformedURLException, IOException {
         for (MaterialRevision mr : buildCause.materialRevisions) {
             mr.addChangesRecursively(server, outChanges);
         }
     }
 
     @Override
-    public String toString()  {
+    public String toString() {
         if (stages != null && stages.length > 0) {
             return name + "/" + counter + "/" + stages[0].name + "/" + stages[0].result;
         } else {

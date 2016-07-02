@@ -14,7 +14,7 @@ public class History {
      */
     public Stage previousRun(int pipelineCounter, String stageName, int stageCounter) {
         LOG.debug(String.format("Looking for stage before %d/%s/%d",
-                                pipelineCounter, stageName, stageCounter));
+                pipelineCounter, stageName, stageCounter));
 
         // Note that pipelines and stages are stored in reverse
         // chronological order.
@@ -23,13 +23,13 @@ public class History {
             for (int j = 0; j < pipeline.stages.length; j++) {
                 Stage stage = pipeline.stages[j];
                 LOG.debug(String.format("Checking %d/%s/%d",
-                                        pipeline.counter, stage.name, stage.counter));
+                        pipeline.counter, stage.name, stage.counter));
 
                 if (stage.name.equals(stageName)) {
 
                     // Same pipeline run, earlier instance of stage.
                     if (pipeline.counter == pipelineCounter &&
-                        stage.counter < stageCounter)
+                            stage.counter < stageCounter)
                         return stage;
 
                     // Previous pipeline run.

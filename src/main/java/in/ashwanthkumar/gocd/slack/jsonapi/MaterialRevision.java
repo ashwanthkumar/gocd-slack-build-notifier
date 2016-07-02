@@ -1,5 +1,8 @@
 package in.ashwanthkumar.gocd.slack.jsonapi;
 
+import com.google.gson.annotations.SerializedName;
+import com.thoughtworks.go.plugin.api.logging.Logger;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
@@ -7,14 +10,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.plugin.api.logging.Logger;
-
 public class MaterialRevision {
     static private final Pattern PIPELINE_REVISION_PATTERN =
-        Pattern.compile("^([^/]+)/(\\d+)/.*");
+            Pattern.compile("^([^/]+)/(\\d+)/.*");
     static private final Pattern GITHUB_MATERIAL_PATTERN =
-        Pattern.compile("^URL: git@github\\.com:(.+)\\.git,.*");
+            Pattern.compile("^URL: git@github\\.com:(.+)\\.git,.*");
 
     private Logger LOG = Logger.getLoggerFor(MaterialRevision.class);
 
@@ -45,11 +45,10 @@ public class MaterialRevision {
      */
     public String modificationUrl(Modification modification) {
         if (!material.type.equals("Git") || material.description == null
-            || modification.revision == null)
-        {
+                || modification.revision == null) {
             LOG.info(String.format("Can't build URL for modification (%s)/(%s)/(%s)",
-                                   material.type, material.description,
-                                   modification.revision));
+                    material.type, material.description,
+                    modification.revision));
             return null;
         }
 
@@ -65,7 +64,7 @@ public class MaterialRevision {
         // Shorten our commit ID.
         String commit = modification.revision;
         if (commit.length() > 6)
-            commit =  commit.substring(0, 6);
+            commit = commit.substring(0, 6);
 
         return "https://github.com/" + org_and_repo + "/commit/" + commit;
     }
@@ -76,8 +75,7 @@ public class MaterialRevision {
      * "Pipeline" objects recursively instead of including them directly.
      */
     void addChangesRecursively(Server server, List<MaterialRevision> outChanges)
-        throws MalformedURLException, IOException
-    {
+            throws MalformedURLException, IOException {
         // Give up now if this material hasn't changed.
         if (!changed) {
             return;
@@ -102,7 +100,7 @@ public class MaterialRevision {
 
                     // Fetch the pipeline and walk it recursively.
                     Pipeline pipeline =
-                        server.getPipelineInstance(pipelineName, pipelineCounter);
+                            server.getPipelineInstance(pipelineName, pipelineCounter);
                     pipeline.addChangesRecursively(server, outChanges);
                 } else {
                     LOG.error("Error matching pipeline revision: " + m.revision);
