@@ -54,6 +54,11 @@ public class GoNotificationPlugin implements GoPlugin {
                     throw new RuntimeException(String.format("%s file is not found in %s", GO_NOTIFY_CONFIGURATION, System.getProperty("user.home")));
                 }
                 if (pluginConfig.lastModified() != configLastModified) {
+                    if (configLastModified == 0l) {
+                        LOGGER.info("Loading configuration file");
+                    } else {
+                        LOGGER.info("Reloading configuration file since some modifications were found");
+                    }
                     lock.writeLock().lock();
                     rules = RulesReader.read(pluginConfig);
                     lock.writeLock().unlock();
