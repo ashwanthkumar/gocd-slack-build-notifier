@@ -84,7 +84,7 @@ public class SlackPipelineListener extends PipelineListener {
             Stage stage = pickCurrentStage(details.stages, message);
             buildAttachment.addField(new SlackAttachment.Field("Triggered by", stage.approvedBy, true));
             if (details.buildCause.triggerForced) {
-                buildAttachment.addField(new SlackAttachment.Field("Reason", "Forced Trigger", true));
+                buildAttachment.addField(new SlackAttachment.Field("Reason", "Manual Trigger", true));
             } else {
                 buildAttachment.addField(new SlackAttachment.Field("Reason", details.buildCause.triggerMessage, true));
             }
