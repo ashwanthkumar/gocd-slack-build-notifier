@@ -2,11 +2,12 @@ package in.ashwanthkumar.gocd.slack.ruleset;
 
 import com.typesafe.config.Config;
 import in.ashwanthkumar.utils.collections.Iterables;
+import in.ashwanthkumar.utils.collections.Lists;
+import in.ashwanthkumar.utils.collections.Sets;
 import in.ashwanthkumar.utils.func.Predicate;
 import in.ashwanthkumar.utils.lang.StringUtils;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static in.ashwanthkumar.utils.lang.StringUtils.isEmpty;
 
@@ -14,7 +15,8 @@ public class PipelineRule {
     private String nameRegex;
     private String stageRegex;
     private String channel;
-    private Set<PipelineStatus> status = new HashSet<PipelineStatus>();
+    private Set<String> owners = new HashSet<>();
+    private Set<PipelineStatus> status = new HashSet<>();
 
     public PipelineRule() {
     }
@@ -24,6 +26,7 @@ public class PipelineRule {
         this.stageRegex = copy.stageRegex;
         this.channel = copy.channel;
         this.status = copy.status;
+        this.owners = copy.owners;
     }
 
     public PipelineRule(String nameRegex, String stageRegex) {
@@ -67,6 +70,15 @@ public class PipelineRule {
         return this;
     }
 
+    public Set<String> getOwners() {
+        return owners;
+    }
+
+    public PipelineRule setOwners(Set<String> owners) {
+        this.owners = owners;
+        return this;
+    }
+
     public boolean matches(String pipeline, String stage, final String pipelineState) {
         return pipeline.matches(nameRegex) && stage.matches(stageRegex) && Iterables.exists(status, hasStateMatching(pipelineState));
     }
@@ -91,6 +103,7 @@ public class PipelineRule {
         if (nameRegex != null ? !nameRegex.equals(that.nameRegex) : that.nameRegex != null) return false;
         if (stageRegex != null ? !stageRegex.equals(that.stageRegex) : that.stageRegex != null) return false;
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
+        if (owners != null ? !owners.equals(that.owners) : that.owners != null) return false;
 
         return true;
     }
@@ -101,6 +114,7 @@ public class PipelineRule {
         result = 31 * result + (stageRegex != null ? stageRegex.hashCode() : 0);
         result = 31 * result + (channel != null ? channel.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (owners != null ? owners.hashCode() : 0);
         return result;
     }
 
@@ -111,6 +125,7 @@ public class PipelineRule {
                 ", stageRegex='" + stageRegex + '\'' +
                 ", channel='" + channel + '\'' +
                 ", status=" + status +
+                ", owners=" + owners +
                 '}';
     }
 
@@ -131,6 +146,15 @@ public class PipelineRule {
         }
         if (config.hasPath("channel")) {
             pipelineRule.setChannel(config.getString("channel"));
+        }
+        if (config.hasPath("owners")) {
+            List<String> nonEmptyOwners = Lists.filter(config.getStringList("owners"), new Predicate<String>() {
+                @Override
+                public Boolean apply(String input) {
+                    return StringUtils.isNotEmpty(input);
+                }
+            });
+            pipelineRule.getOwners().addAll(nonEmptyOwners);
         }
 
         return pipelineRule;
@@ -161,6 +185,12 @@ public class PipelineRule {
             ruleToReturn.setStatus(defaultRule.getStatus());
         } else {
             ruleToReturn.getStatus().addAll(pipelineRule.getStatus());
+        }
+
+        if(pipelineRule.getOwners().isEmpty()) {
+            ruleToReturn.setOwners(defaultRule.getOwners());
+        } else {
+            ruleToReturn.getOwners().addAll(pipelineRule.getOwners());
         }
 
         return ruleToReturn;

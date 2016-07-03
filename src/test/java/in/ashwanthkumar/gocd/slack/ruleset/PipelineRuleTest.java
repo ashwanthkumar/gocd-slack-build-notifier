@@ -2,6 +2,7 @@ package in.ashwanthkumar.gocd.slack.ruleset;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import in.ashwanthkumar.utils.collections.Lists;
 import in.ashwanthkumar.utils.collections.Sets;
 import org.junit.Test;
 
@@ -22,6 +23,7 @@ public class PipelineRuleTest {
         assertThat(build.getStageRegex(), is(".*"));
         assertThat(build.getStatus(), hasItem(FAILED));
         assertThat(build.getChannel(), is("#gocd"));
+        assertThat(build.getOwners(), is(Sets.of("ashwanthkumar", "gobot")));
     }
 
     @Test
@@ -37,6 +39,7 @@ public class PipelineRuleTest {
         assertThat(mergedRule.getStageRegex(), is("build"));
         assertThat(mergedRule.getStatus(), hasItem(FAILED));
         assertThat(mergedRule.getChannel(), is("#gocd"));
+        assertThat(mergedRule.getOwners(), is(Sets.of("ashwanthkumar", "gobot")));
     }
 
     @Test

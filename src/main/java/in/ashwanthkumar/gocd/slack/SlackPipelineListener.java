@@ -17,6 +17,7 @@ import java.util.List;
 
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import in.ashwanthkumar.utils.collections.Lists;
+import in.ashwanthkumar.utils.func.Function;
 
 import static in.ashwanthkumar.utils.lang.StringUtils.startsWith;
 
@@ -38,40 +39,40 @@ public class SlackPipelineListener extends PipelineListener {
     @Override
     public void onBuilding(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
-        slack.push(slackAttachment(message, PipelineStatus.BUILDING));
+        slack.push(slackAttachment(rule, message, PipelineStatus.BUILDING));
     }
 
     @Override
     public void onPassed(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
-        slack.push(slackAttachment(message, PipelineStatus.PASSED).color("good"));
+        slack.push(slackAttachment(rule, message, PipelineStatus.PASSED).color("good"));
     }
 
     @Override
     public void onFailed(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
-        slack.push(slackAttachment(message, PipelineStatus.FAILED).color("danger"));
+        slack.push(slackAttachment(rule, message, PipelineStatus.FAILED).color("danger"));
     }
 
     @Override
     public void onBroken(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
-        slack.push(slackAttachment(message, PipelineStatus.BROKEN).color("danger"));
+        slack.push(slackAttachment(rule, message, PipelineStatus.BROKEN).color("danger"));
     }
 
     @Override
     public void onFixed(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
-        slack.push(slackAttachment(message, PipelineStatus.FIXED).color("good"));
+        slack.push(slackAttachment(rule, message, PipelineStatus.FIXED).color("good"));
     }
 
     @Override
     public void onCancelled(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
-        slack.push(slackAttachment(message, PipelineStatus.CANCELLED).color("warning"));
+        slack.push(slackAttachment(rule, message, PipelineStatus.CANCELLED).color("warning"));
     }
 
-    private SlackAttachment slackAttachment(GoNotificationMessage message, PipelineStatus pipelineStatus) throws URISyntaxException {
+    private SlackAttachment slackAttachment(PipelineRule rule, GoNotificationMessage message, PipelineStatus pipelineStatus) throws URISyntaxException {
         String title = String.format("Stage [%s] %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " ");
         SlackAttachment buildAttachment = new SlackAttachment("")
                 .fallback(title)
@@ -140,6 +141,16 @@ public class SlackPipelineListener extends PipelineListener {
         if (!consoleLogLinks.isEmpty()) {
             String logLinks = Lists.mkString(consoleLogLinks, "", "", "\n");
             buildAttachment.addField(new SlackAttachment.Field("Console Logs", logLinks, true));
+        }
+
+        if (!rule.getOwners().isEmpty()) {
+            List<String> slackOwners = Lists.map(rule.getOwners(), new Function<String, String>() {
+                @Override
+                public String apply(String input) {
+                    return String.format("<@%s>", input);
+                }
+            });
+            buildAttachment.addField(new SlackAttachment.Field("Owners", Lists.mkString(slackOwners, ","), true));
         }
         return buildAttachment;
     }
