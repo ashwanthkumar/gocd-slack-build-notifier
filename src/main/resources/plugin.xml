@@ -2,7 +2,7 @@
 <go-plugin id="slack.notifier" version="1">
     <about>
         <name>Slack Notification Plugin</name>
-        <version>1.4.0-RC3</version>
+        <version>1.4.0-RC4</version>
         <target-go-version>16.1.0</target-go-version>
         <description>Plugin to send build notifications to slack</description>
         <vendor>
