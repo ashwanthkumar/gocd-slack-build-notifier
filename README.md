@@ -1,8 +1,6 @@
 # gocd-slack-build-notifier
 Slack based GoCD build notifier
 
-![Demo](images/gocd-slack-notifier-demo.png)
-
 ## Setup
 Download jar from releases & place it in /plugins/external & restart Go Server.
 
@@ -73,6 +71,10 @@ gocd.slack {
 - `state` - State of the pipeline at which we should send a notification. You can provide multiple values separated by pipe (`|`) symbol. Valid values are passed, failed, cancelled, building, fixed, broken or all.
 - `channel` - (Optional) channel where we should send the slack notification. This setting for a rule overrides the global setting
 - `owners` - (Optional) list of slack user handles who must be tagged in the message upon notifications
+
+## Screenshots
+![Demo with changes included](https://raw.githubusercontent.com/ashwanthkumar/gocd-slack-build-notifier/master/images/gocd-slack-notifier-demo-with-changes.png)
+![Demo without changes](https://raw.githubusercontent.com/ashwanthkumar/gocd-slack-build-notifier/master/images/gocd-slack-notifier-demo.png)
 
 ## License
 
