@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import in.ashwanthkumar.gocd.slack.jsonapi.*;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
+import in.ashwanthkumar.utils.lang.StringUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -178,7 +179,7 @@ public class GoNotificationMessage {
         Stage previous = history.previousRun(Integer.parseInt(pipeline.counter),
                                              pipeline.stage.name,
                                              Integer.parseInt(pipeline.stage.counter));
-        if (previous == null) {
+        if (previous == null || StringUtils.isEmpty(previous.result)) {
             LOG.info("Couldn't find any previous run of " +
                      pipeline.name + "/" + pipeline.counter + "/" +
                      pipeline.stage.name + "/" + pipeline.stage.counter);
