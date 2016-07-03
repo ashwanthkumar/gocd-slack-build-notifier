@@ -6,6 +6,8 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import in.ashwanthkumar.gocd.slack.util.TestUtils;
 import org.junit.Test;
 
+import java.io.File;
+
 import static in.ashwanthkumar.gocd.slack.GoNotificationPlugin.*;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -28,7 +30,7 @@ public class GoNotificationPluginTest {
 
     @Test
     public void canHandleConfigValidationRequest() {
-        GoNotificationPlugin plugin = createGoNotificationPlugin();
+        GoNotificationPlugin plugin = createGoNotificationPluginFromConfigAtHomeDir();
 
         GoPluginApiRequest request = mock(GoPluginApiRequest.class);
         when(request.requestName()).thenReturn(REQUEST_VALIDATE_CONFIGURATION);
@@ -43,7 +45,7 @@ public class GoNotificationPluginTest {
 
     @Test
     public void canHandleConfigurationRequest() {
-        GoNotificationPlugin plugin = createGoNotificationPlugin();
+        GoNotificationPlugin plugin = createGoNotificationPluginFromConfigAtHomeDir();
 
         GoPluginApiRequest request = mock(GoPluginApiRequest.class);
         when(request.requestName()).thenReturn(REQUEST_GET_CONFIGURATION);
@@ -56,7 +58,7 @@ public class GoNotificationPluginTest {
 
     @Test
     public void canHandleGetViewRequest() {
-        GoNotificationPlugin plugin = createGoNotificationPlugin();
+        GoNotificationPlugin plugin = createGoNotificationPluginFromConfigAtHomeDir();
 
         GoPluginApiRequest request = mock(GoPluginApiRequest.class);
         when(request.requestName()).thenReturn(REQUEST_GET_VIEW);
@@ -69,7 +71,7 @@ public class GoNotificationPluginTest {
 
     @Test
     public void canHandleNotificationInterestedInRequest() {
-        GoNotificationPlugin plugin = createGoNotificationPlugin();
+        GoNotificationPlugin plugin = createGoNotificationPluginFromConfigAtHomeDir();
 
         GoPluginApiRequest request = mock(GoPluginApiRequest.class);
         when(request.requestName()).thenReturn(REQUEST_NOTIFICATIONS_INTERESTED_IN);
@@ -80,7 +82,33 @@ public class GoNotificationPluginTest {
         assertThat(rv.responseBody(), equalTo(NOTIFICATION_INTEREST_RESPONSE));
     }
 
-    public static GoNotificationPlugin createGoNotificationPlugin() {
+    @Test
+    public void canHandleNotificationInterestedInRequestForConfigFromEnvVariable() {
+        GoNotificationPlugin plugin = createGoNotificationPluginFromConfigAtEnvironmentVariableLocation(GO_NOTIFY_CONF);
+
+        GoPluginApiRequest request = mock(GoPluginApiRequest.class);
+        when(request.requestName()).thenReturn(REQUEST_NOTIFICATIONS_INTERESTED_IN);
+
+        GoPluginApiResponse rv = plugin.handle(request);
+
+        assertThat(rv, is(notNullValue()));
+        assertThat(rv.responseBody(), equalTo(NOTIFICATION_INTEREST_RESPONSE));
+    }
+
+    @Test
+    public void canHandleNotificationInterestedInRequestForConfigFromGoServerPath() {
+        GoNotificationPlugin plugin = createGoNotificationPluginFromConfigAtEnvironmentVariableLocation(CRUISE_SERVER_DIR);
+
+        GoPluginApiRequest request = mock(GoPluginApiRequest.class);
+        when(request.requestName()).thenReturn(REQUEST_NOTIFICATIONS_INTERESTED_IN);
+
+        GoPluginApiResponse rv = plugin.handle(request);
+
+        assertThat(rv, is(notNullValue()));
+        assertThat(rv.responseBody(), equalTo(NOTIFICATION_INTEREST_RESPONSE));
+    }
+
+    public GoNotificationPlugin createGoNotificationPluginFromConfigAtHomeDir() {
         String folder = TestUtils.getResourceDirectory("configs/go_notify.conf");
 
         String oldUserHome = System.getProperty(USER_HOME);
@@ -90,6 +118,12 @@ public class GoNotificationPluginTest {
 
         System.setProperty(USER_HOME, oldUserHome);
         return plugin;
+    }
+
+    public GoNotificationPlugin createGoNotificationPluginFromConfigAtEnvironmentVariableLocation(String envVariable) {
+        String folder = TestUtils.getResourceDirectory("configs/go_notify.conf");
+        GoEnvironment goEnvironment = new GoEnvironment().setEnv(envVariable, folder + File.separator + CONFIG_FILE_NAME);
+        return new GoNotificationPlugin(goEnvironment);
     }
 
 }

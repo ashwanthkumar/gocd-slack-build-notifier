@@ -10,6 +10,7 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 import in.ashwanthkumar.gocd.slack.ruleset.RulesReader;
+import in.ashwanthkumar.utils.lang.StringUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -21,6 +22,7 @@ import static java.util.Arrays.asList;
 
 @Extension
 public class GoNotificationPlugin implements GoPlugin {
+    public static final String CRUISE_SERVER_DIR = "CRUISE_SERVER_DIR";
     private static Logger LOGGER = Logger.getLoggerFor(GoNotificationPlugin.class);
     private static final long CONFIG_REFRESH_INTERVAL = 10 * 1000; // 10 seconds
 
@@ -36,23 +38,23 @@ public class GoNotificationPlugin implements GoPlugin {
     public static final int SUCCESS_RESPONSE_CODE = 200;
     public static final int INTERNAL_ERROR_RESPONSE_CODE = 500;
 
-    public static final String GO_NOTIFY_CONFIGURATION = "go_notify.conf";
-    public static final String PLUGIN_CONFIG_PATH = System.getProperty("user.home") + File.separator + GO_NOTIFY_CONFIGURATION;
+    public static final String GO_NOTIFY_CONF = "GO_NOTIFY_CONF";
+    public static final String CONFIG_FILE_NAME = "go_notify.conf";
+    public static final String HOME_PLUGIN_CONFIG_PATH = System.getProperty("user.home") + File.separator + CONFIG_FILE_NAME;
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private GoEnvironment environment = new GoEnvironment();
     private Rules rules;
 
     private final Timer timer = new Timer();
     private long configLastModified = 0l;
+    private File pluginConfig;
 
     public GoNotificationPlugin() {
+        pluginConfig = findGoNotifyConfigPath();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                File pluginConfig = new File(PLUGIN_CONFIG_PATH);
-                if (!pluginConfig.exists()) {
-                    throw new RuntimeException(String.format("%s file is not found in %s", GO_NOTIFY_CONFIGURATION, System.getProperty("user.home")));
-                }
                 if (pluginConfig.lastModified() != configLastModified) {
                     if (configLastModified == 0l) {
                         LOGGER.info("Loading configuration file");
@@ -71,6 +73,11 @@ public class GoNotificationPlugin implements GoPlugin {
                 }
             }
         }, 0, CONFIG_REFRESH_INTERVAL);
+    }
+
+    // used for tests
+    GoNotificationPlugin(GoEnvironment environment) {
+        this.environment = environment;
     }
 
     public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
@@ -189,5 +196,32 @@ public class GoNotificationPlugin implements GoPlugin {
                 return json;
             }
         };
+    }
+
+    private File findGoNotifyConfigPath() {
+        // case 1: Look for an environment variable by GO_NOTIFY_CONF and if a file identified by the value exist
+        String goNotifyConfPath = environment.getenv(GO_NOTIFY_CONF);
+        if (StringUtils.isNotEmpty(goNotifyConfPath)) {
+            File pluginConfig = new File(goNotifyConfPath);
+            if (pluginConfig.exists()) {
+                LOGGER.info(String.format("Configuration file found using GO_NOTIFY_CONF at %s", pluginConfig.getAbsolutePath()));
+                return pluginConfig;
+            }
+        }
+        // case 2: Look for a file called go_notify.conf in the home folder
+        File pluginConfig = new File(HOME_PLUGIN_CONFIG_PATH);
+        if (pluginConfig.exists()) {
+            LOGGER.info(String.format("Configuration file found at Home Dir as %s", pluginConfig.getAbsolutePath()));
+            return pluginConfig;
+        }
+        // case 3: Look for a file - go_notify.conf in the current working directory of the server
+        String goServerDir = environment.getenv(CRUISE_SERVER_DIR);
+        pluginConfig = new File(goServerDir + File.separator + CONFIG_FILE_NAME);
+        if (pluginConfig.exists()) {
+            LOGGER.info(String.format("Configuration file found using CRUISE_SERVER_DIR at %s", pluginConfig.getAbsolutePath()));
+            return pluginConfig;
+        }
+
+        throw new RuntimeException("Unable to find go_notify.conf. Please make sure you've set it up right.");
     }
 }
