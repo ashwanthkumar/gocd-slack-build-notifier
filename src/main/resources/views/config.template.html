@@ -1,5 +1,126 @@
-<div class="form_item_block">
-    <p>THIS IS AN EXPERIMENTAL VIEW - <strong>NOT YET FUNCTIONAL</strong></p>
-    <label>External server URL:<span class="asterisk">*</span></label>
-    <input type="text" ng-model="server_url_external" ng-required="true">
-</div>
+<fieldset>
+    <div class="form_item_block">
+        <p>THIS IS AN EXPERIMENTAL VIEW - <strong>NOT YET FUNCTIONAL</strong></p>
+        <label>External server URL: <span class="asterisk">*</span></label>
+        <input type="text" ng-model="server_url_external" ng-required="true"/>
+    </div>
+</fieldset>
+
+<fieldset>
+    <div class="form_item_block">
+        <table id="pipeline-configurations">
+            <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th><h4 class="src">Pipeline | Stage | Job</h4></th>
+                <th><h4 class="dest">Channel</h4></th>
+                <th><h4 class="dest">Owners</h4></th>
+            </tr>
+            </thead>
+
+            <tbody class="artifact" ng-init>
+            <tr ng-repeat="pipeline in pipelines" style="margin-bottom: 15px; margin-top: 10px;">
+                <td>
+                    <span class="icon_remove delete_parent" ng-click="removeSource($index)"></span>
+                </td>
+                <td class="name_value_cell">
+                    <input class="slack-pipelines-autocomplete slack-plugin-input" type="text"
+                           ng-model="pipeline.pipelineStageJob" tabindex=1
+                           ng-minlength="3"
+                           ng-required="true"/>
+                </td>
+                <td class="name_value_cell">
+                    <input class="slack-pipeline-channel slack-plugin-input" type="text" ng-model="pipeline.channel"
+                           tabindex=2/>
+                </td>
+                <td class="name_value_cell">
+                    <input class="slack-pipeline-owner slack-plugin-input" type="text" ng-model="pipeline.owner"
+                           tabindex=3/>
+                </td>
+
+            </tr>
+            </tbody>
+        </table>
+        <input id="sourceDestinations" type="hidden" ng-model="pipelineConfig" value="{{pipelineConfig}}">
+        <a id="add_pipeline_config" ng-click="addPipelineRule()" class="action_icon skip_dirty_stop add_icon" title=""
+           href="#"><span class="icon"></span><span>Add</span></a>
+        <span class="form_error" ng-show="GOINPUTNAME[pipelineConfig].$error.server">{{ GOINPUTNAME[pipelineConfig].$error.server }}</span>
+    </div>
+</fieldset>
+
+<script type="text/javascript">
+var allPipelines;
+setTimeout(function() {
+
+    jQuery("#pipeline-configurations").on("result", "input.slack-pipelines-autocomplete", function() {
+        jQuery(this).trigger("input");
+    });
+
+    jQuery.get("/go/cctray.xml", function(data) {
+        var pipelines =
+        _.map(
+            _.uniq(
+                _.filter(
+                    _.map(jQuery(data).find("Project"), function(project) {
+                        return jQuery(project).attr("name");
+                    })
+                    , function(projectName) {
+                        return projectName.split("::").length == 3;
+                    })
+            ), function(projectName) {
+            nameParts = projectName.split("::");
+            return {
+                "pipeline": _.trim(nameParts[0]),
+                "stage": _.trim(nameParts[1]),
+                "job": _.trim(nameParts[2])
+            };
+        });
+        allPipelines = pipelines;
+
+        var interval = setInterval(function() {
+            $scope = angular.element(document.getElementById("plugin_settings_angular_plugin_settings")).scope();
+            var DEFAULT_PIPELINE_CONFIG = { pipelineStageJob: ".* | .* | .*", channel: "", owner: ""};
+            $scope.$apply(function() {
+                $scope.pipelines = $scope.pipelineConfig ? JSON.parse($scope.pipelineConfig) : [DEFAULT_PIPELINE_CONFIG];
+                slackPluginUpdateAutocompleteViews();
+                $scope.addPipelineRule = function() {
+                    $scope.pipelines.push(DEFAULT_PIPELINE_CONFIG);
+                };
+                $scope.removeSource = function(index) {
+                    $scope.pipelines.splice(index, 1);
+                }
+            });
+            $scope.$watch("pipelines", function(){
+                $scope.pipelineConfig = angular.copy($scope.pipelines).toJSON();
+                slackPluginUpdateAutocompleteViews();
+            }, true);
+            clearInterval(interval);
+            slackPluginUpdateAutocompleteViews();
+        }, 50);
+    });
+}, 50);
+
+function slackPluginUpdateAutocompleteViews() {
+    jQuery(".slack-pipelines-autocomplete").autocomplete(allPipelines, {
+        minChars: 0,
+        width: 400,
+        matchContains: "word",
+        autoFill: false,
+        formatItem: function(row, i, max) {
+            return  row.pipeline + " | " + row.stage + " | " + row.job;
+        },
+        formatMatch: function(row, i, max) {
+            return row.pipeline + " " + row.stage + " " + row.job;
+        },
+        formatResult: function(row) {
+            return row.pipeline + " | " + row.stage + " | " + row.job;
+        }
+    });
+}
+
+</script>
+<style type="text/css">
+    input.slack-plugin-input {
+        width: 210px;
+    }
+</style>
