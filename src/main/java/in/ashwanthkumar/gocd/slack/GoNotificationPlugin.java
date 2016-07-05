@@ -26,11 +26,8 @@ public class GoNotificationPlugin extends AbstractNotificationPlugin implements 
     public static final String CRUISE_SERVER_DIR = "CRUISE_SERVER_DIR";
     private static final long CONFIG_REFRESH_INTERVAL = 10 * 1000; // 10 seconds
 
-    public static final String EXTENSION_TYPE = "notification";
-    private static final List<String> goSupportedVersions = asList("1.0");
 
     public static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
-    public static final String REQUEST_STAGE_STATUS = "stage-status";
     public static final String REQUEST_GET_CONFIGURATION = "go.plugin-settings.get-configuration";
     public static final String REQUEST_GET_VIEW = "go.plugin-settings.get-view";
     public static final String REQUEST_VALIDATE_CONFIGURATION = "go.plugin-settings.validate-configuration";
@@ -80,9 +77,22 @@ public class GoNotificationPlugin extends AbstractNotificationPlugin implements 
         this.environment = environment;
     }
 
-    public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
-        // ignore
+    @Override
+    public void handleStageNotification(GoNotificationMessage notification) throws Exception{
+        try {
+            LOGGER.info(notification.fullyQualifiedJobName() + " has " + notification.getStageState() + "/" + notification.getStageResult());
+            lock.readLock().lock();
+            rules.getPipelineListener().notify(notification);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
+
+    @Override
+    public String template() throws Exception {
+        return IOUtils.toString(getClass().getResourceAsStream("/views/config.template.html"), "UTF-8");
+    }
+
 
     public GoPluginApiResponse handle(GoPluginApiRequest goPluginApiRequest) {
         String requestName = goPluginApiRequest.requestName();
@@ -100,79 +110,16 @@ public class GoNotificationPlugin extends AbstractNotificationPlugin implements 
         return null;
     }
 
-    private GoPluginApiResponse handleValidateConfig(String requestBody) {
+    protected GoPluginApiResponse handleValidateConfig(String requestBody) {
         List<Object> response = Arrays.asList();
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
 
-
-    public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier(EXTENSION_TYPE, goSupportedVersions);
-    }
-
-
-    private GoPluginApiResponse handleRequestGetView() {
-        Map<String, Object> response = new HashMap<String, Object>();
-
-        try {
-            String template = IOUtils.toString(getClass().getResourceAsStream("/views/config.template.html"), "UTF-8");
-            response.put("template", template);
-        } catch (IOException e) {
-            response.put("error", "Can't load view template");
-            return renderJSON(INTERNAL_ERROR_RESPONSE_CODE, response);
-        }
-
-
-        return renderJSON(SUCCESS_RESPONSE_CODE, response);
-    }
-
     private GoPluginApiResponse handleRequestGetConfiguration() {
-        Map<String, Object> response = new HashMap<String, Object>();
+        Map<String, Object> response = new TreeMap<>();
         response.put("server-url-external", configField("External GoCD Server URL", "", "1", true, false));
         response.put("pipelineConfig", configField("Pipeline Notification Rules", "", "2", true, false));
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
-    }
-
-    private GoPluginApiResponse handleNotificationsInterestedIn() {
-        Map<String, Object> response = new HashMap<String, Object>();
-        response.put("notifications", Arrays.asList(REQUEST_STAGE_STATUS));
-        return renderJSON(SUCCESS_RESPONSE_CODE, response);
-    }
-
-    private GoPluginApiResponse handleStageNotification(GoPluginApiRequest goPluginApiRequest) {
-        GoNotificationMessage message = parseNotificationMessage(goPluginApiRequest);
-        int responseCode = SUCCESS_RESPONSE_CODE;
-
-        Map<String, Object> response = new HashMap<String, Object>();
-        List<String> messages = new ArrayList<String>();
-        try {
-            response.put("status", "success");
-            LOGGER.info(message.fullyQualifiedJobName() + " has " + message.getStageState() + "/" + message.getStageResult());
-            lock.readLock().lock();
-            rules.getPipelineListener().notify(message);
-        } catch (Exception e) {
-            LOGGER.info(message.fullyQualifiedJobName() + " failed with error", e);
-            responseCode = INTERNAL_ERROR_RESPONSE_CODE;
-            response.put("status", "failure");
-            if (!isEmpty(e.getMessage())) {
-                messages.add(e.getMessage());
-            }
-        } finally {
-            lock.readLock().unlock();
-        }
-
-        if (!messages.isEmpty()) {
-            response.put("messages", messages);
-        }
-        return renderJSON(responseCode, response);
-    }
-
-    private boolean isEmpty(String str) {
-        return str == null || str.trim().isEmpty();
-    }
-
-    private GoNotificationMessage parseNotificationMessage(GoPluginApiRequest goPluginApiRequest) {
-        return new GsonBuilder().create().fromJson(goPluginApiRequest.requestBody(), GoNotificationMessage.class);
     }
 
     private File findGoNotifyConfigPath() {

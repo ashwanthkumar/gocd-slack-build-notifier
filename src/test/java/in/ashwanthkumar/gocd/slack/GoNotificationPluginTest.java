@@ -22,7 +22,7 @@ public class GoNotificationPluginTest {
     public static final String USER_HOME = "user.home";
 
     public static final String NOTIFICATION_INTEREST_RESPONSE = "{\"notifications\":[\"stage-status\"]}";
-    public static final String GET_CONFIGURATION_RESPONSE = "{\"pipelineConfig\":{\"display-name\":\"Pipeline Notification Rules\",\"secure\":false,\"display-order\":\"2\",\"required\":true,\"display-value\":\"\"},\"server-url-external\":{\"display-name\":\"External GoCD Server URL\",\"secure\":false,\"display-order\":\"1\",\"required\":true,\"display-value\":\"\"}}";
+    public static final String GET_CONFIGURATION_RESPONSE = "{\"pipelineConfig\":{\"display-name\":\"Pipeline Notification Rules\",\"display-order\":\"2\",\"display-value\":\"\",\"required\":true,\"secure\":false},\"server-url-external\":{\"display-name\":\"External GoCD Server URL\",\"display-order\":\"1\",\"display-value\":\"\",\"required\":true,\"secure\":false}}";
     private static final String GET_CONFIG_VALIDATION_RESPONSE = "[]";
 
     @Test
