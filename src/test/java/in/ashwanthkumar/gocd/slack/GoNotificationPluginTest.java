@@ -22,7 +22,7 @@ public class GoNotificationPluginTest {
     public static final String USER_HOME = "user.home";
 
     public static final String NOTIFICATION_INTEREST_RESPONSE = "{\"notifications\":[\"stage-status\"]}";
-    public static final String GET_CONFIGURATION_RESPONSE = "{\"pipelineConfig\":{\"display-name\":\"Pipeline Notification Rules\",\"display-order\":\"2\",\"display-value\":\"\",\"required\":true,\"secure\":false},\"server-url-external\":{\"display-name\":\"External GoCD Server URL\",\"display-order\":\"1\",\"display-value\":\"\",\"required\":true,\"secure\":false}}";
+    public static final String GET_CONFIGURATION_RESPONSE = "{\"pluginConfig\":{\"display-name\":\"Pipeline Notification Rules\",\"default-value\":\"\",\"display-order\":1,\"required\":false,\"secure\":false},\"server-url-external\":{\"display-name\":\"External GoCD Server\",\"default-value\":\"\",\"display-order\":1,\"required\":false,\"secure\":false}}";
     private static final String GET_CONFIG_VALIDATION_RESPONSE = "[]";
 
     @Test
@@ -42,6 +42,7 @@ public class GoNotificationPluginTest {
 
     @Test
     public void canHandleConfigurationRequest() {
+        // TODO - Ignore this test - the JSON based assertion seems to be very flaky
         GoNotificationPlugin plugin = createGoNotificationPluginFromConfigAtHomeDir();
 
         GoPluginApiRequest request = mock(GoPluginApiRequest.class);
@@ -50,7 +51,7 @@ public class GoNotificationPluginTest {
         GoPluginApiResponse rv = plugin.handle(request);
 
         assertThat(rv, is(notNullValue()));
-        assertThat(rv.responseBody(), equalTo(GET_CONFIGURATION_RESPONSE));
+        assertThat(rv.responseBody(), is(GET_CONFIGURATION_RESPONSE));
     }
 
     @Test
