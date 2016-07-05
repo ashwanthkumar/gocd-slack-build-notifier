@@ -9,6 +9,7 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import in.ashwanthkumar.gocd.slack.GoNotificationMessage;
+import in.ashwanthkumar.gocd.slack.base.serializer.GsonFactory;
 import in.ashwanthkumar.utils.collections.Lists;
 import org.apache.commons.io.IOUtils;
 
@@ -123,18 +124,18 @@ abstract public class AbstractNotificationPlugin implements GoPlugin {
      * @return
      */
     protected Map<String, Object> configField(String displayName, String defaultValue, String displayOrder, boolean required, boolean secure) {
-        Map<String, Object> serverUrlParams = new TreeMap<>();
-        serverUrlParams.put("display-name", displayName);
-        serverUrlParams.put("display-value", defaultValue);
-        serverUrlParams.put("display-order", displayOrder);
-        serverUrlParams.put("required", required);
-        serverUrlParams.put("secure", secure);
-        return serverUrlParams;
+        return new Configuration()
+                .setDisplayName(displayName)
+                .setDefaultValue(defaultValue)
+                .setDisplayOrder(Integer.parseInt(displayOrder))
+                .setRequired(required)
+                .setSecure(secure)
+                .asMap();
     }
 
 
     protected GoPluginApiResponse renderJSON(final int responseCode, final Object response) {
-        final String json = response == null ? null : new GsonBuilder().disableHtmlEscaping().create().toJson(response);
+        final String json = response == null ? null : GsonFactory.getGson().toJson(response);
         DefaultGoPluginApiResponse pluginApiResponse = new DefaultGoPluginApiResponse(responseCode);
         pluginApiResponse.setResponseBody(json);
         return pluginApiResponse;
