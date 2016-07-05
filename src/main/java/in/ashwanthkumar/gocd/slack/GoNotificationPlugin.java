@@ -24,7 +24,6 @@ import static java.util.Arrays.asList;
 @Extension
 public class GoNotificationPlugin extends AbstractNotificationPlugin implements GoPlugin {
     public static final String CRUISE_SERVER_DIR = "CRUISE_SERVER_DIR";
-    private static Logger LOGGER = Logger.getLoggerFor(GoNotificationPlugin.class);
     private static final long CONFIG_REFRESH_INTERVAL = 10 * 1000; // 10 seconds
 
     public static final String EXTENSION_TYPE = "notification";

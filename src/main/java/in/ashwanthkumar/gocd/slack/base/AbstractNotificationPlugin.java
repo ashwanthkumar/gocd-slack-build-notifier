@@ -1,6 +1,7 @@
 package in.ashwanthkumar.gocd.slack.base;
 
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 abstract public class AbstractNotificationPlugin {
+    protected Logger LOGGER = Logger.getLoggerFor(this.getClass());
 
     /**
      * Create a configuration field for the plugin.
