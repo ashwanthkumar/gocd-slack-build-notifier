@@ -1,4 +1,4 @@
-package in.ashwanthkumar.gocd.slack.base;
+package in.ashwanthkumar.gocd.slack.base.config;
 
 import java.util.Iterator;
 import java.util.List;

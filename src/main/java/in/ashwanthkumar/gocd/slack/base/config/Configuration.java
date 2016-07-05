@@ -1,7 +1,6 @@
-package in.ashwanthkumar.gocd.slack.base;
+package in.ashwanthkumar.gocd.slack.base.config;
 
 import com.google.gson.annotations.SerializedName;
-import in.ashwanthkumar.utils.lang.StringUtils;
 
 import java.util.Map;
 import java.util.TreeMap;
