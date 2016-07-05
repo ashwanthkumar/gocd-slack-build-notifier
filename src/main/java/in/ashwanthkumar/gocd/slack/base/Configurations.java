@@ -14,4 +14,12 @@ public class Configurations implements Iterable<Configuration> {
     public Iterator<Configuration> iterator() {
         return configurations.iterator();
     }
+
+    public int size() {
+        return configurations.size();
+    }
+
+    public Configuration get(int index) {
+        return configurations.get(index);
+    }
 }

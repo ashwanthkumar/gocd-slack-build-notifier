@@ -9,14 +9,14 @@ import java.util.TreeMap;
 /**
  * Represents a plugin configuration
  */
-public class Configuration {
+public class Configuration implements Comparable<Configuration> {
     private transient String id;
 
     @SerializedName("display-name")
     private String displayName;
 
     @SerializedName("default-value")
-    private String defaultValue;
+    private String defaultValue = "";
 
     @SerializedName("display-order")
     private Integer displayOrder;
@@ -89,5 +89,49 @@ public class Configuration {
     public Configuration setSecure(boolean secure) {
         this.secure = secure;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Configuration{" +
+                "id='" + id + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", defaultValue='" + defaultValue + '\'' +
+                ", displayOrder=" + displayOrder +
+                ", required=" + required +
+                ", secure=" + secure +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Configuration that = (Configuration) o;
+
+        if (required != that.required) return false;
+        if (secure != that.secure) return false;
+        if (!id.equals(that.id)) return false;
+        if (!displayName.equals(that.displayName)) return false;
+        if (!defaultValue.equals(that.defaultValue)) return false;
+        return displayOrder.equals(that.displayOrder);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + displayName.hashCode();
+        result = 31 * result + defaultValue.hashCode();
+        result = 31 * result + displayOrder.hashCode();
+        result = 31 * result + (required ? 1 : 0);
+        result = 31 * result + (secure ? 1 : 0);
+        return result;
+    }
+
+    @Override
+    public int compareTo(Configuration o) {
+        return displayOrder.compareTo(o.displayOrder);
     }
 }
