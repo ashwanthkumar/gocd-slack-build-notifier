@@ -96,16 +96,17 @@ public class GoNotificationPlugin extends AbstractNotificationPlugin implements 
 
     public GoPluginApiResponse handle(GoPluginApiRequest goPluginApiRequest) {
         String requestName = goPluginApiRequest.requestName();
-        if (requestName.equals(REQUEST_NOTIFICATIONS_INTERESTED_IN)) {
-            return handleNotificationsInterestedIn();
-        } else if (requestName.equals(REQUEST_STAGE_STATUS)) {
-            return handleStageNotification(goPluginApiRequest);
-        } else if (requestName.equals(REQUEST_GET_VIEW)) {
-            return handleRequestGetView();
-        } else if (requestName.equals(REQUEST_VALIDATE_CONFIGURATION)) {
-            return handleValidateConfig(goPluginApiRequest.requestBody());
-        } else if (requestName.equals(REQUEST_GET_CONFIGURATION)) {
-            return handleRequestGetConfiguration();
+        switch (requestName) {
+            case REQUEST_NOTIFICATIONS_INTERESTED_IN:
+                return handleNotificationsInterestedIn();
+            case REQUEST_STAGE_STATUS:
+                return handleStageNotification(goPluginApiRequest);
+            case REQUEST_GET_VIEW:
+                return handleRequestGetView();
+            case REQUEST_VALIDATE_CONFIGURATION:
+                return handleValidateConfig(goPluginApiRequest.requestBody());
+            case REQUEST_GET_CONFIGURATION:
+                return handleRequestGetConfiguration();
         }
         return null;
     }
