@@ -19,7 +19,7 @@ public final class GsonFactory {
 
     private GsonFactory() {
         gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Configurations.class, new ConfigurationsSerializer());
+        gsonBuilder.registerTypeAdapter(Configurations.class, new ConfigurationsSerDe());
         gsonBuilder.disableHtmlEscaping();
     }
 }
