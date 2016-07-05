@@ -8,6 +8,7 @@ import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import in.ashwanthkumar.gocd.slack.base.AbstractNotificationPlugin;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 import in.ashwanthkumar.gocd.slack.ruleset.RulesReader;
 import in.ashwanthkumar.utils.lang.StringUtils;
@@ -21,7 +22,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import static java.util.Arrays.asList;
 
 @Extension
-public class GoNotificationPlugin implements GoPlugin {
+public class GoNotificationPlugin extends AbstractNotificationPlugin implements GoPlugin {
     public static final String CRUISE_SERVER_DIR = "CRUISE_SERVER_DIR";
     private static Logger LOGGER = Logger.getLoggerFor(GoNotificationPlugin.class);
     private static final long CONFIG_REFRESH_INTERVAL = 10 * 1000; // 10 seconds
@@ -128,11 +129,8 @@ public class GoNotificationPlugin implements GoPlugin {
 
     private GoPluginApiResponse handleRequestGetConfiguration() {
         Map<String, Object> response = new HashMap<String, Object>();
-        Map<String, Object> serverUrlParams = new HashMap<String, Object>();
-        serverUrlParams.put("display-name", "External GoCD Server URL");
-
-        response.put("server-url-external", serverUrlParams);
-
+        response.put("server-url-external", configField("External GoCD Server URL", "", "1", true, false));
+        response.put("pipelineConfig", configField("Pipeline Notification Rules", "", "2", true, false));
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
 
@@ -176,26 +174,6 @@ public class GoNotificationPlugin implements GoPlugin {
 
     private GoNotificationMessage parseNotificationMessage(GoPluginApiRequest goPluginApiRequest) {
         return new GsonBuilder().create().fromJson(goPluginApiRequest.requestBody(), GoNotificationMessage.class);
-    }
-
-    private GoPluginApiResponse renderJSON(final int responseCode, Object response) {
-        final String json = response == null ? null : new GsonBuilder().disableHtmlEscaping().create().toJson(response);
-        return new GoPluginApiResponse() {
-            @Override
-            public int responseCode() {
-                return responseCode;
-            }
-
-            @Override
-            public Map<String, String> responseHeaders() {
-                return null;
-            }
-
-            @Override
-            public String responseBody() {
-                return json;
-            }
-        };
     }
 
     private File findGoNotifyConfigPath() {
