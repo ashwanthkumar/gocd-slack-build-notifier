@@ -9,23 +9,32 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import in.ashwanthkumar.gocd.slack.GoNotificationMessage;
+import in.ashwanthkumar.gocd.slack.base.config.Configurations;
+import in.ashwanthkumar.gocd.slack.base.config.ConfigurationsParser;
 import in.ashwanthkumar.gocd.slack.base.serializer.GsonFactory;
 import in.ashwanthkumar.utils.collections.Lists;
-import org.apache.commons.io.IOUtils;
 
-import java.io.IOException;
 import java.util.*;
 
-import static in.ashwanthkumar.gocd.slack.GoNotificationPlugin.INTERNAL_ERROR_RESPONSE_CODE;
-import static in.ashwanthkumar.gocd.slack.GoNotificationPlugin.SUCCESS_RESPONSE_CODE;
 import static in.ashwanthkumar.utils.lang.StringUtils.isNotEmpty;
 
-abstract public class AbstractNotificationPlugin implements GoPlugin {
+abstract public class AbstractNotificationPlugin<T> implements GoPlugin {
     public static final String EXTENSION_TYPE = "notification";
+
+    public static final int SUCCESS_RESPONSE_CODE = 200;
+    public static final int INTERNAL_ERROR_RESPONSE_CODE = 500;
+
     public static final String REQUEST_STAGE_STATUS = "stage-status";
+    public static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
+    public static final String REQUEST_GET_CONFIGURATION = "go.plugin-settings.get-configuration";
+    public static final String REQUEST_GET_VIEW = "go.plugin-settings.get-view";
+    public static final String REQUEST_VALIDATE_CONFIGURATION = "go.plugin-settings.validate-configuration";
 
     protected Logger LOGGER = Logger.getLoggerFor(this.getClass());
     protected GoApplicationAccessor goApplicationAccessor;
+
+    private Configurations configurations;
+    protected T settings;
 
     /**
      * StageNotification handler of the plugin. For every notification from the server, we'll call this method.
@@ -41,7 +50,9 @@ abstract public class AbstractNotificationPlugin implements GoPlugin {
      * @return Entire HTML template as string
      * @throws Exception In case of any issues while trying to get the template from a local file / URL.
      */
-    abstract public String template() throws Exception;
+    public String template() throws Exception {
+        return null;
+    }
 
     public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
         this.goApplicationAccessor = goApplicationAccessor;
@@ -49,6 +60,23 @@ abstract public class AbstractNotificationPlugin implements GoPlugin {
 
     public GoPluginIdentifier pluginIdentifier() {
         return new GoPluginIdentifier(EXTENSION_TYPE, getGoSupportedVersions());
+    }
+
+    public GoPluginApiResponse handle(GoPluginApiRequest goPluginApiRequest) {
+        String requestName = goPluginApiRequest.requestName();
+        switch (requestName) {
+            case REQUEST_NOTIFICATIONS_INTERESTED_IN:
+                return handleNotificationsInterestedIn();
+            case REQUEST_STAGE_STATUS:
+                return handleStageNotification(goPluginApiRequest);
+            case REQUEST_GET_VIEW:
+                return handleRequestGetView();
+            case REQUEST_VALIDATE_CONFIGURATION:
+                return handleValidateConfig(goPluginApiRequest.requestBody());
+            case REQUEST_GET_CONFIGURATION:
+                return handleRequestGetConfiguration();
+        }
+        return null;
     }
 
     /**
@@ -65,8 +93,7 @@ abstract public class AbstractNotificationPlugin implements GoPlugin {
         return Lists.of(REQUEST_STAGE_STATUS);
     }
 
-    // TODO - Make me private
-    protected GoPluginApiResponse handleStageNotification(GoPluginApiRequest goPluginApiRequest) {
+    private GoPluginApiResponse handleStageNotification(GoPluginApiRequest goPluginApiRequest) {
         GoNotificationMessage message = parseNotificationMessage(goPluginApiRequest);
         int responseCode = SUCCESS_RESPONSE_CODE;
 
@@ -90,15 +117,13 @@ abstract public class AbstractNotificationPlugin implements GoPlugin {
         return renderJSON(responseCode, response);
     }
 
-    // TODO - Make me private
-    protected GoPluginApiResponse handleNotificationsInterestedIn() {
+    private GoPluginApiResponse handleNotificationsInterestedIn() {
         Map<String, Object> response = new HashMap<>();
         response.put("notifications", subscriptions());
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
 
-    // TODO - Make me private
-    protected GoPluginApiResponse handleRequestGetView() {
+    private GoPluginApiResponse handleRequestGetView() {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -112,28 +137,21 @@ abstract public class AbstractNotificationPlugin implements GoPlugin {
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
 
-
-    /**
-     * Create a configuration field for the plugin.
-     *
-     * @param displayName  Name of the configuration
-     * @param defaultValue Default value if none provided
-     * @param displayOrder Order in which it should be displayed
-     * @param required     If the field is mandatory.
-     * @param secure       If the data in the field should be stored encrypted.
-     * @return
-     */
-    protected Map<String, Object> configField(String displayName, String defaultValue, String displayOrder, boolean required, boolean secure) {
-        return new Configuration()
-                .setDisplayName(displayName)
-                .setDefaultValue(defaultValue)
-                .setDisplayOrder(Integer.parseInt(displayOrder))
-                .setRequired(required)
-                .setSecure(secure)
-                .asMap();
+    private GoPluginApiResponse handleRequestGetConfiguration() {
+        if(isSettingsConfigured()) {
+            lazyUpdateConfigurations();
+            return renderJSON(SUCCESS_RESPONSE_CODE, this.configurations);
+        }
+        return renderJSON(SUCCESS_RESPONSE_CODE, new HashMap<String, Object>());
     }
 
+    private GoPluginApiResponse handleValidateConfig(String requestBody) {
+        List<Object> response = Arrays.asList();
+        // TODO - Implement parsing Configurations back to settings
+        return renderJSON(SUCCESS_RESPONSE_CODE, response);
+    }
 
+    // TODO - Make private
     protected GoPluginApiResponse renderJSON(final int responseCode, final Object response) {
         final String json = response == null ? null : GsonFactory.getGson().toJson(response);
         DefaultGoPluginApiResponse pluginApiResponse = new DefaultGoPluginApiResponse(responseCode);
@@ -143,5 +161,15 @@ abstract public class AbstractNotificationPlugin implements GoPlugin {
 
     private GoNotificationMessage parseNotificationMessage(GoPluginApiRequest goPluginApiRequest) {
         return new GsonBuilder().create().fromJson(goPluginApiRequest.requestBody(), GoNotificationMessage.class);
+    }
+
+    private void lazyUpdateConfigurations() {
+        if (this.configurations == null) {
+            this.configurations = ConfigurationsParser.parseConfigurations(settings.getClass());
+        }
+    }
+
+    private boolean isSettingsConfigured() {
+        return settings != null;
     }
 }

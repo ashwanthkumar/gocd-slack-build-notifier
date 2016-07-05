@@ -21,9 +21,9 @@ public class ConfigurationsSerializerTest {
         ));
         Gson gson = GsonFactory.getGson();
         String configAsJson = gson.toJson(configurations);
-        Map<String, Map<String, Object>> expectedMap = new TreeMap<>();
+        Map<String, Configuration> expectedMap = new TreeMap<>();
         for (Configuration config : configurations) {
-            expectedMap.put(config.getId(), config.asMap());
+            expectedMap.put(config.getId(), config);
         }
         String expectedJson = gson.toJson(expectedMap);
 
