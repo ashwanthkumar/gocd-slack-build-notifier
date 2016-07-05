@@ -151,8 +151,7 @@ abstract public class AbstractNotificationPlugin<T> implements GoPlugin {
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
 
-    // TODO - Make private
-    protected GoPluginApiResponse renderJSON(final int responseCode, final Object response) {
+    private GoPluginApiResponse renderJSON(final int responseCode, final Object response) {
         final String json = response == null ? null : GsonFactory.getGson().toJson(response);
         DefaultGoPluginApiResponse pluginApiResponse = new DefaultGoPluginApiResponse(responseCode);
         pluginApiResponse.setResponseBody(json);
@@ -160,7 +159,7 @@ abstract public class AbstractNotificationPlugin<T> implements GoPlugin {
     }
 
     private GoNotificationMessage parseNotificationMessage(GoPluginApiRequest goPluginApiRequest) {
-        return new GsonBuilder().create().fromJson(goPluginApiRequest.requestBody(), GoNotificationMessage.class);
+        return GsonFactory.getGson().fromJson(goPluginApiRequest.requestBody(), GoNotificationMessage.class);
     }
 
     private void lazyUpdateConfigurations() {
