@@ -2,7 +2,7 @@ package in.ashwanthkumar.gocd.slack.base.serializer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import in.ashwanthkumar.gocd.slack.base.Configurations;
+import in.ashwanthkumar.gocd.slack.base.config.Configurations;
 
 public final class GsonFactory {
     private final GsonBuilder gsonBuilder;

@@ -1,8 +1,8 @@
 package in.ashwanthkumar.gocd.slack.base.serializer;
 
 import com.google.gson.Gson;
-import in.ashwanthkumar.gocd.slack.base.Configuration;
-import in.ashwanthkumar.gocd.slack.base.Configurations;
+import in.ashwanthkumar.gocd.slack.base.config.Configuration;
+import in.ashwanthkumar.gocd.slack.base.config.Configurations;
 import in.ashwanthkumar.utils.collections.Lists;
 import org.junit.Test;
 

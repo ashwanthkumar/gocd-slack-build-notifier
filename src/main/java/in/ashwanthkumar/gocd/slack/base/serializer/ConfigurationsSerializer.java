@@ -3,8 +3,8 @@ package in.ashwanthkumar.gocd.slack.base.serializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import in.ashwanthkumar.gocd.slack.base.Configuration;
-import in.ashwanthkumar.gocd.slack.base.Configurations;
+import in.ashwanthkumar.gocd.slack.base.config.Configuration;
+import in.ashwanthkumar.gocd.slack.base.config.Configurations;
 
 import java.lang.reflect.Type;
 import java.util.Map;

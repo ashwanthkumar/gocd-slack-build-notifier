@@ -1,7 +1,5 @@
 package in.ashwanthkumar.gocd.slack.base.config;
 
-import in.ashwanthkumar.gocd.slack.base.Configuration;
-import in.ashwanthkumar.gocd.slack.base.Configurations;
 import in.ashwanthkumar.gocd.slack.base.PluginConfig;
 import org.junit.Test;
 
