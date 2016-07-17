@@ -53,3 +53,8 @@ out/
 sample.db
 target/
 dist/
+
+# MKDocs
+########
+site/
+
