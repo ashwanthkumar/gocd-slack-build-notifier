@@ -3,7 +3,7 @@
 Slack based GoCD build notifier
 
 ## Setup
-Download jar from releases & place it in /plugins/external & restart Go Server.
+Download jar from [releases](https://github.com/ashwanthkumar/gocd-slack-build-notifier/releases) & place it in /plugins/external & restart Go Server.
 
 ## Configuration
 All configurations are in [HOCON](https://github.com/typesafehub/config) format. Plugin searches for the configuration file in the following order
@@ -80,5 +80,4 @@ gocd.slack {
 <img src="https://raw.githubusercontent.com/ashwanthkumar/gocd-slack-build-notifier/master/images/gocd-slack-notifier-demo.png" width="400"/>
 
 ## License
-
-http://www.apache.org/licenses/LICENSE-2.0
+[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
