@@ -1,0 +1,16 @@
+{
+  "plugin-settings": {
+    "go-server-url": {
+      "value": "http://localhost.com"
+    },
+    "username": {
+      "value": "user"
+    },
+    "pass": {
+      "value": "password"
+    },
+    "port": {
+      "value": "8080"
+    }
+  }
+}

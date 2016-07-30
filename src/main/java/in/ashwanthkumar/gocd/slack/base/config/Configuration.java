@@ -10,6 +10,7 @@ import java.util.TreeMap;
  */
 public class Configuration implements Comparable<Configuration> {
     private transient String id;
+    private transient String fieldName;
 
     @SerializedName("display-name")
     private String displayName;
@@ -90,10 +91,20 @@ public class Configuration implements Comparable<Configuration> {
         return this;
     }
 
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public Configuration setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Configuration{" +
                 "id='" + id + '\'' +
+                ", fieldName='" + fieldName + '\'' +
                 ", displayName='" + displayName + '\'' +
                 ", defaultValue='" + defaultValue + '\'' +
                 ", displayOrder=" + displayOrder +
@@ -111,19 +122,21 @@ public class Configuration implements Comparable<Configuration> {
 
         if (required != that.required) return false;
         if (secure != that.secure) return false;
-        if (!id.equals(that.id)) return false;
-        if (!displayName.equals(that.displayName)) return false;
-        if (!defaultValue.equals(that.defaultValue)) return false;
-        return displayOrder.equals(that.displayOrder);
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (fieldName != null ? !fieldName.equals(that.fieldName) : that.fieldName != null) return false;
+        if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
+        if (defaultValue != null ? !defaultValue.equals(that.defaultValue) : that.defaultValue != null) return false;
+        return !(displayOrder != null ? !displayOrder.equals(that.displayOrder) : that.displayOrder != null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + displayName.hashCode();
-        result = 31 * result + defaultValue.hashCode();
-        result = 31 * result + displayOrder.hashCode();
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (fieldName != null ? fieldName.hashCode() : 0);
+        result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
+        result = 31 * result + (defaultValue != null ? defaultValue.hashCode() : 0);
+        result = 31 * result + (displayOrder != null ? displayOrder.hashCode() : 0);
         result = 31 * result + (required ? 1 : 0);
         result = 31 * result + (secure ? 1 : 0);
         return result;

@@ -14,7 +14,7 @@ import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Extension
-public class GoNotificationPlugin extends AbstractNotificationPlugin<SlackPluginSettings> implements GoPlugin {
+public class GoNotificationPlugin extends AbstractNotificationPlugin<SlackPluginSettings> {
     public static final String CRUISE_SERVER_DIR = "CRUISE_SERVER_DIR";
     private static final long CONFIG_REFRESH_INTERVAL = 10 * 1000; // 10 seconds
 

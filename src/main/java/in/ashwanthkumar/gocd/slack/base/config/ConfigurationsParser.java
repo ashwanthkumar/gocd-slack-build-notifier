@@ -25,6 +25,7 @@ public class ConfigurationsParser {
                             String id = (StringUtils.isNotEmpty(annotation.id())) ? annotation.id() : field.getName();
                             return new Configuration()
                                     .setId(id)
+                                    .setFieldName(field.getName())
                                     .setDefaultValue(annotation.defaultValue())
                                     .setDisplayName(annotation.displayName())
                                     .setDisplayOrder(annotation.displayOrder())

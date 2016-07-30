@@ -1,5 +1,9 @@
 package in.ashwanthkumar.gocd.slack.base.config;
 
+import in.ashwanthkumar.utils.collections.Lists;
+import in.ashwanthkumar.utils.func.Predicate;
+import in.ashwanthkumar.utils.lang.option.Option;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,5 +25,14 @@ public class Configurations implements Iterable<Configuration> {
 
     public Configuration get(int index) {
         return configurations.get(index);
+    }
+
+    public Option<Configuration> findByName(final String name) {
+        return Lists.find(configurations, new Predicate<Configuration>() {
+            @Override
+            public Boolean apply(Configuration configuration) {
+                return configuration.getFieldName().equals(name);
+            }
+        });
     }
 }

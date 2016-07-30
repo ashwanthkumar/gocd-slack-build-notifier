@@ -1,8 +1,6 @@
 package in.ashwanthkumar.gocd.slack.base;
 
-import com.google.gson.GsonBuilder;
-import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
-import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.AbstractGoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
@@ -11,14 +9,17 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import in.ashwanthkumar.gocd.slack.GoNotificationMessage;
 import in.ashwanthkumar.gocd.slack.base.config.Configurations;
 import in.ashwanthkumar.gocd.slack.base.config.ConfigurationsParser;
+import in.ashwanthkumar.gocd.slack.base.config.ValidateConfig;
+import in.ashwanthkumar.gocd.slack.base.config.ValidationError;
 import in.ashwanthkumar.gocd.slack.base.serializer.GsonFactory;
 import in.ashwanthkumar.utils.collections.Lists;
+import in.ashwanthkumar.utils.collections.Maps;
 
 import java.util.*;
 
 import static in.ashwanthkumar.utils.lang.StringUtils.isNotEmpty;
 
-abstract public class AbstractNotificationPlugin<T> implements GoPlugin {
+abstract public class AbstractNotificationPlugin<T> extends AbstractGoPlugin {
     public static final String EXTENSION_TYPE = "notification";
 
     public static final int SUCCESS_RESPONSE_CODE = 200;
@@ -31,7 +32,6 @@ abstract public class AbstractNotificationPlugin<T> implements GoPlugin {
     public static final String REQUEST_VALIDATE_CONFIGURATION = "go.plugin-settings.validate-configuration";
 
     protected Logger LOGGER = Logger.getLoggerFor(this.getClass());
-    protected GoApplicationAccessor goApplicationAccessor;
 
     private Configurations configurations;
     protected T settings;
@@ -52,10 +52,6 @@ abstract public class AbstractNotificationPlugin<T> implements GoPlugin {
      */
     public String template() throws Exception {
         return null;
-    }
-
-    public void initializeGoApplicationAccessor(GoApplicationAccessor goApplicationAccessor) {
-        this.goApplicationAccessor = goApplicationAccessor;
     }
 
     public GoPluginIdentifier pluginIdentifier() {
@@ -146,9 +142,13 @@ abstract public class AbstractNotificationPlugin<T> implements GoPlugin {
     }
 
     private GoPluginApiResponse handleValidateConfig(String requestBody) {
-        List<Object> response = Arrays.asList();
-        // TODO - Implement parsing Configurations back to settings
-        return renderJSON(SUCCESS_RESPONSE_CODE, response);
+        ValidateConfig validateConfig = GsonFactory.GSON.fromJson(requestBody, ValidateConfig.class);
+        try {
+            List<ValidationError> validationErrors = validateConfig.validate(settings.getClass());
+            return renderJSON(SUCCESS_RESPONSE_CODE, validationErrors);
+        } catch (Exception e) {
+            return renderJSON(INTERNAL_ERROR_RESPONSE_CODE, errorResponse(e));
+        }
     }
 
     private GoPluginApiResponse renderJSON(final int responseCode, final Object response) {
@@ -170,5 +170,12 @@ abstract public class AbstractNotificationPlugin<T> implements GoPlugin {
 
     private boolean isSettingsConfigured() {
         return settings != null;
+    }
+
+    private Map<String, Object> errorResponse(Throwable e) {
+        return Maps.<String, Object>builder()
+                .put("status", "failure")
+                .put("message", e.getCause())
+                .value();
     }
 }

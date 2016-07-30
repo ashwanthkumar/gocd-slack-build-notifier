@@ -24,12 +24,12 @@ public class ConfigurationsParserTest {
         assertThat(2, is(configurations.size()));
 
         Configuration config1 = configurations.get(0);
-        Configuration expectedConfig1 = new Configuration().setId("server-url-external").setDisplayName("WebHook URL")
+        Configuration expectedConfig1 = new Configuration().setFieldName("externalServerUrl").setId("server-url-external").setDisplayName("WebHook URL")
                 .setDisplayOrder(1).setRequired(false).setSecure(false);
         assertThat(config1, is(expectedConfig1));
 
         Configuration config2 = configurations.get(1);
-        Configuration expectedConfig2 = new Configuration().setId("pluginConfig").setDisplayName("Plugin configurations")
+        Configuration expectedConfig2 = new Configuration().setFieldName("pipelineConfig").setId("pluginConfig").setDisplayName("Plugin configurations")
                 .setDisplayOrder(1).setRequired(false).setSecure(false);
         assertThat(config2, is(expectedConfig2));
     }

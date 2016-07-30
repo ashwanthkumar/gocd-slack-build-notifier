@@ -1,0 +1,16 @@
+{
+  "plugin-settings": {
+    "server_url": {
+      "value": "http://localhost.com"
+    },
+    "username": {
+      "value": "user"
+    },
+    "password": {
+      "value": "password"
+    },
+    "port": {
+      "value": "8080"
+    }
+  }
+}
