@@ -2,5 +2,5 @@
 rm -rf dist/
 mkdir dist
 
-mvn clean package
+mvn clean package -Pdist
 cp target/gocd-slack-notifier*.jar dist/
