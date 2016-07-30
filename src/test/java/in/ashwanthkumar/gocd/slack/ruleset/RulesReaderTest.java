@@ -80,7 +80,8 @@ public class RulesReaderTest {
                 .setNameRegex(".*")
                 .setStageRegex(".*")
                 .setChannel("#foo")
-                .setStatus(Sets.of(PipelineStatus.FAILED));
+                .setStatus(Sets.of(PipelineStatus.FAILED))
+                .setWebhookUrl("https://hooks.slack.com/services/for-pipeline");
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule));
 
         assertThat(rules.getPipelineListener(), notNullValue());
