@@ -31,7 +31,7 @@
         <dependency>
             <groupId>in.ashwanthkumar</groupId>
             <artifactId>my-java-utils</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.0</version>
         </dependency>
 
         <dependency>
