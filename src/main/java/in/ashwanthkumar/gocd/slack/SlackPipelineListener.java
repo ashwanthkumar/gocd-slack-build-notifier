@@ -18,6 +18,7 @@ import java.util.List;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import in.ashwanthkumar.utils.collections.Lists;
 import in.ashwanthkumar.utils.func.Function;
+import in.ashwanthkumar.utils.lang.StringUtils;
 
 import static in.ashwanthkumar.utils.lang.StringUtils.startsWith;
 
@@ -39,36 +40,42 @@ public class SlackPipelineListener extends PipelineListener {
     @Override
     public void onBuilding(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
+        updateWebhookUrl(rule.getWebhookUrl());
         slack.push(slackAttachment(rule, message, PipelineStatus.BUILDING));
     }
 
     @Override
     public void onPassed(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
+        updateWebhookUrl(rule.getWebhookUrl());
         slack.push(slackAttachment(rule, message, PipelineStatus.PASSED).color("good"));
     }
 
     @Override
     public void onFailed(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
+        updateWebhookUrl(rule.getWebhookUrl());
         slack.push(slackAttachment(rule, message, PipelineStatus.FAILED).color("danger"));
     }
 
     @Override
     public void onBroken(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
+        updateWebhookUrl(rule.getWebhookUrl());
         slack.push(slackAttachment(rule, message, PipelineStatus.BROKEN).color("danger"));
     }
 
     @Override
     public void onFixed(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
+        updateWebhookUrl(rule.getWebhookUrl());
         slack.push(slackAttachment(rule, message, PipelineStatus.FIXED).color("good"));
     }
 
     @Override
     public void onCancelled(PipelineRule rule, GoNotificationMessage message) throws Exception {
         updateSlackChannel(rule.getChannel());
+        updateWebhookUrl(rule.getWebhookUrl());
         slack.push(slackAttachment(rule, message, PipelineStatus.CANCELLED).color("warning"));
     }
 
@@ -161,7 +168,7 @@ public class SlackPipelineListener extends PipelineListener {
             URI link;
             // We should be linking to Console Tab when the status is building,
             // while all others will be the console.log artifact.
-            if(pipelineStatus == PipelineStatus.BUILDING) {
+            if (pipelineStatus == PipelineStatus.BUILDING) {
                 link = new URI(String.format("%s/go/tab/build/detail/%s/%d/%s/%d/%s#tab-console", host, pipeline.name, pipeline.counter, stage.name, stage.counter, job));
             } else {
                 link = new URI(String.format("%s/go/files/%s/%d/%s/%d/%s/cruise-output/console.log", host, pipeline.name, pipeline.counter, stage.name, stage.counter, job));
@@ -205,6 +212,14 @@ public class SlackPipelineListener extends PipelineListener {
             slack.sendToChannel(slackChannel.substring(1));
         } else if (startsWith(slackChannel, "@")) {
             slack.sendToUser(slackChannel.substring(1));
+        }
+    }
+
+    private void updateWebhookUrl(String webbookUrl) {
+        LOG.debug(String.format("Updating target webhookUrl to %s", webbookUrl));
+        // by default pick the global webhookUrl
+        if (StringUtils.isNotEmpty(webbookUrl)) {
+            slack.setWebhookUrl(webbookUrl);
         }
     }
 }

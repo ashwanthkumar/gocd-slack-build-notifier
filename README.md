@@ -58,6 +58,7 @@ gocd.slack {
     state = "failed|passed"
     channel = "#oss-build-group"
     owners = ["ashwanthkumar"]
+    webhookUrl = "https://hooks.slack.com/services/another-team-hook-id..."
   },
   {
     name = ".*"
@@ -72,6 +73,7 @@ gocd.slack {
 - `state` - State of the pipeline at which we should send a notification. You can provide multiple values separated by pipe (`|`) symbol. Valid values are passed, failed, cancelled, building, fixed, broken or all.
 - `channel` - (Optional) channel where we should send the slack notification. This setting for a rule overrides the global setting
 - `owners` - (Optional) list of slack user handles who must be tagged in the message upon notifications
+- `webhookUrl` - (Optional) Use this webhook url instead of the global one. Useful if you're using multiple slack teams.
 
 ## Screenshots
 <img src="https://raw.githubusercontent.com/ashwanthkumar/gocd-slack-build-notifier/master/images/gocd-slack-notifier-demo-with-changes.png" width="400"/>

@@ -23,6 +23,7 @@ public class PipelineRuleTest {
         assertThat(build.getStageRegex(), is(".*"));
         assertThat(build.getStatus(), hasItem(FAILED));
         assertThat(build.getChannel(), is("#gocd"));
+        assertThat(build.getWebhookUrl(), is("https://hooks.slack.com/services/"));
         assertThat(build.getOwners(), is(Sets.of("ashwanthkumar", "gobot")));
     }
 

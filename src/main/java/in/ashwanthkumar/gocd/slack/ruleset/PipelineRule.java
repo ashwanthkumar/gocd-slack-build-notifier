@@ -15,6 +15,7 @@ public class PipelineRule {
     private String nameRegex;
     private String stageRegex;
     private String channel;
+    private String webhookUrl;
     private Set<String> owners = new HashSet<>();
     private Set<PipelineStatus> status = new HashSet<>();
 
@@ -27,6 +28,7 @@ public class PipelineRule {
         this.channel = copy.channel;
         this.status = copy.status;
         this.owners = copy.owners;
+        this.webhookUrl = copy.webhookUrl;
     }
 
     public PipelineRule(String nameRegex, String stageRegex) {
@@ -79,6 +81,15 @@ public class PipelineRule {
         return this;
     }
 
+    public String getWebhookUrl() {
+        return webhookUrl;
+    }
+
+    public PipelineRule setWebhookUrl(String webhookUrl) {
+        this.webhookUrl = webhookUrl;
+        return this;
+    }
+
     public boolean matches(String pipeline, String stage, final String pipelineState) {
         return pipeline.matches(nameRegex) && stage.matches(stageRegex) && Iterables.exists(status, hasStateMatching(pipelineState));
     }
@@ -104,6 +115,7 @@ public class PipelineRule {
         if (stageRegex != null ? !stageRegex.equals(that.stageRegex) : that.stageRegex != null) return false;
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
         if (owners != null ? !owners.equals(that.owners) : that.owners != null) return false;
+        if (webhookUrl != null ? !webhookUrl.equals(that.webhookUrl) : that.webhookUrl != null) return false;
 
         return true;
     }
@@ -115,6 +127,7 @@ public class PipelineRule {
         result = 31 * result + (channel != null ? channel.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + (owners != null ? owners.hashCode() : 0);
+        result = 31 * result + (webhookUrl != null ? webhookUrl.hashCode() : 0);
         return result;
     }
 
@@ -126,6 +139,7 @@ public class PipelineRule {
                 ", channel='" + channel + '\'' +
                 ", status=" + status +
                 ", owners=" + owners +
+                ", webhookUrl=" + webhookUrl +
                 '}';
     }
 
@@ -146,6 +160,9 @@ public class PipelineRule {
         }
         if (config.hasPath("channel")) {
             pipelineRule.setChannel(config.getString("channel"));
+        }
+        if(config.hasPath("webhookUrl")) {
+            pipelineRule.setWebhookUrl(config.getString("webhookUrl"));
         }
         if (config.hasPath("owners")) {
             List<String> nonEmptyOwners = Lists.filter(config.getStringList("owners"), new Predicate<String>() {
@@ -179,6 +196,10 @@ public class PipelineRule {
 
         if (isEmpty(pipelineRule.getChannel())) {
             ruleToReturn.setChannel(defaultRule.getChannel());
+        }
+
+        if (isEmpty(pipelineRule.getWebhookUrl())) {
+            ruleToReturn.setWebhookUrl(defaultRule.getWebhookUrl());
         }
 
         if (pipelineRule.getStatus().isEmpty()) {
