@@ -58,6 +58,7 @@ gocd.slack {
     state = "failed|passed"
     channel = "#oss-build-group"
     owners = ["ashwanthkumar"]
+    webhookUrl = "https://hooks.slack.com/services/another-team-hook-id..."
   },
   {
     name = ".*"
@@ -67,17 +68,16 @@ gocd.slack {
 }
 ```
 `gocd.slack.pipelines` contains all the rules for the go-server. It is a list of rules (see below for what the parameters mean) for various pipelines. The plugin will pick the first matching pipeline rule from the pipelines collection above, so your most specific rule should be first, with the most generic rule at the bottom.
-
 - `name` - Regex to match the pipeline name
 - `stage` - Regex to match the stage name
 - `state` - State of the pipeline at which we should send a notification. You can provide multiple values separated by pipe (`|`) symbol. Valid values are passed, failed, cancelled, building, fixed, broken or all.
 - `channel` - (Optional) channel where we should send the slack notification. This setting for a rule overrides the global setting
 - `owners` - (Optional) list of slack user handles who must be tagged in the message upon notifications
+- `webhookUrl` - (Optional) Use this webhook url instead of the global one. Useful if you're using multiple slack teams.
 
 ## Screenshots
 <img src="https://raw.githubusercontent.com/ashwanthkumar/gocd-slack-build-notifier/master/images/gocd-slack-notifier-demo-with-changes.png" width="400"/>
 <img src="https://raw.githubusercontent.com/ashwanthkumar/gocd-slack-build-notifier/master/images/gocd-slack-notifier-demo.png" width="400"/>
 
 ## License
-
 [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
