@@ -30,6 +30,7 @@ public class Rules {
     private String goLogin;
     private String goPassword;
     private boolean displayMaterialChanges;
+    private boolean processAllRules;
 
     private Proxy proxy;
 
@@ -139,6 +140,15 @@ public class Rules {
         return this;
     }
 
+    public boolean getProcessAllRules() {
+        return processAllRules;
+    }
+
+    public Rules setProcessAllRules(boolean processAllRules) {
+        this.processAllRules = processAllRules;
+        return this;
+    }
+
     public Proxy getProxy() {
         return proxy;
     }
@@ -152,12 +162,23 @@ public class Rules {
         return pipelineListener;
     }
 
-    public Option<PipelineRule> find(final String pipeline, final String stage, final String pipelineStatus) {
-        return Lists.find(pipelineRules, new Predicate<PipelineRule>() {
+    public List<PipelineRule> find(final String pipeline, final String stage, final String pipelineStatus) {
+        Predicate<PipelineRule> predicate = new Predicate<PipelineRule>() {
             public Boolean apply(PipelineRule input) {
                 return input.matches(pipeline, stage, pipelineStatus);
             }
-        });
+        };
+
+        if(processAllRules) {
+            return Lists.filter(pipelineRules, predicate);
+        } else {
+            List<PipelineRule> found = new ArrayList<PipelineRule>();
+            Option<PipelineRule> match = Lists.find(pipelineRules, predicate);
+            if(match.isDefined()) {
+                found.add(match.get());
+            }
+            return found;
+        }
     }
 
     public static Rules fromConfig(Config config) {
@@ -199,6 +220,11 @@ public class Rules {
             displayMaterialChanges = config.getBoolean("displayMaterialChanges");
         }
 
+        boolean processAllRules = false;
+        if (config.hasPath("processAllRules")) {
+            processAllRules = config.getBoolean("processAllRules");
+        }
+
         Proxy proxy = null;
         if (config.hasPath("proxy")) {
             Config proxyConfig = config.getConfig("proxy");
@@ -231,6 +257,7 @@ public class Rules {
                 .setGoLogin(login)
                 .setGoPassword(password)
                 .setDisplayMaterialChanges(displayMaterialChanges)
+                .setProcessAllRules(processAllRules)
                 .setProxy(proxy);
         try {
             rules.pipelineListener = Class.forName(config.getString("listener")).asSubclass(PipelineListener.class).getConstructor(Rules.class).newInstance(rules);

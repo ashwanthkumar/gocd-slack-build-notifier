@@ -6,6 +6,8 @@ import in.ashwanthkumar.gocd.slack.ruleset.PipelineStatus;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 import in.ashwanthkumar.utils.lang.option.Option;
 
+import java.util.List;
+
 abstract public class PipelineListener {
     private Logger LOG = Logger.getLoggerFor(PipelineListener.class);
     protected Rules rules;
@@ -17,11 +19,15 @@ abstract public class PipelineListener {
     public void notify(GoNotificationMessage message) throws Exception {
         message.tryToFixStageResult(rules);
         LOG.debug(String.format("Finding rules with state %s", message.getStageResult()));
-        Option<PipelineRule> ruleOption = rules.find(message.getPipelineName(), message.getStageName(), message.getStageResult());
-        if (ruleOption.isDefined()) {
-            PipelineRule pipelineRule = ruleOption.get();
-            LOG.debug(String.format("Matching rule is %s", pipelineRule));
-            handlePipelineStatus(pipelineRule, PipelineStatus.valueOf(message.getStageResult().toUpperCase()), message);
+        List<PipelineRule> foundRules = rules.find(message.getPipelineName(), message.getStageName(), message.getStageResult());
+        if (foundRules.size() > 0) {
+            for (PipelineRule pipelineRule : foundRules) {
+                LOG.debug(String.format("Matching rule is %s", pipelineRule));
+                handlePipelineStatus(pipelineRule, PipelineStatus.valueOf(message.getStageResult().toUpperCase()), message);
+                if (! rules.getProcessAllRules()) {
+                    break;
+                }
+            }
         } else {
             LOG.warn(String.format("Couldn't find any matching rule for %s/%s with status=%s", message.getPipelineName(), message.getStageName(), message.getStageResult()));
         }
