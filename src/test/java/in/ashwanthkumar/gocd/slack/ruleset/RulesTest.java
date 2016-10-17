@@ -70,6 +70,28 @@ public class RulesTest {
         List<PipelineRule> foundRules4 = rules.find("pipeline1", "stage1", Status.Passed.getStatus());
         assertThat(foundRules4.size(), is(0));
     }
+    @Test
+    public void shouldFindAllMatchesIfProcessAllRules() {
+        Rules rules = new Rules();
+        rules.setProcessAllRules(true);
+
+        rules.setPipelineRules(Arrays.asList(
+                pipelineRule("[a-z]*", "stage\\d+", "ch1", statuses(PipelineStatus.BUILDING)),
+                pipelineRule("[a-z]*", "stage2", "ch2", statuses(PipelineStatus.BUILDING))
+        ));
+
+        List<PipelineRule> foundRules1 = rules.find("abc", "stage1", Status.Building.getStatus());
+        assertThat(foundRules1.size(), is(1));
+        assertThat(foundRules1.get(0).getChannel(), is("ch1"));
+
+        List<PipelineRule> foundRules2 = rules.find("abc", "stage2", Status.Building.getStatus());
+        assertThat(foundRules2.size(), is(2));
+        assertThat(foundRules2.get(0).getChannel(), is("ch1"));
+        assertThat(foundRules2.get(1).getChannel(), is("ch2"));
+
+        List<PipelineRule> foundRules3 = rules.find("abc1", "stage2", Status.Building.getStatus());
+        assertThat(foundRules3.size(), is(0));
+    }
 
     @Test
     public void shouldFindMatchAll() {
