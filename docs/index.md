@@ -26,6 +26,7 @@ gocd.slack {
   slackDisplayName = "gocd-slack-bot"
   slackUserIconURL = "http://example.com/slack-bot.png"
   displayMaterialChanges = true
+  process-all-rules = true
   proxy {
     hostname = "localhost"
     port = "5555"
@@ -40,6 +41,7 @@ gocd.slack {
 - `webhookUrl` - Slack Webhook URL
 - `channel` - Override the default channel where we should send the notifications in slack. You can also give a value starting with `@` to send it to any specific user.
 - `displayMaterialChanges` - Display material changes in the notification (git revisions for example). Defaults to true, set to false if you want to hide.
+- `process-all-rules` - If true, all matching rules are applied instead of just the first.
 - `proxy` - Specify proxy related settings for the plugin.
   - `proxy.hostname` - Proxy Host
   - `proxy.port` - Proxy Port
@@ -67,7 +69,7 @@ gocd.slack {
   }]
 }
 ```
-`gocd.slack.pipelines` contains all the rules for the go-server. It is a list of rules (see below for what the parameters mean) for various pipelines. The plugin will pick the first matching pipeline rule from the pipelines collection above, so your most specific rule should be first, with the most generic rule at the bottom.
+`gocd.slack.pipelines` contains all the rules for the go-server. It is a list of rules (see below for what the parameters mean) for various pipelines. The plugin will pick the first matching pipeline rule from the pipelines collection above, so your most specific rule should be first, with the most generic rule at the bottom.  Alternatively, set the `process-all-rules` option to `true` and all matching rules will be applied.
 - `name` - Regex to match the pipeline name
 - `stage` - Regex to match the stage name
 - `state` - State of the pipeline at which we should send a notification. You can provide multiple values separated by pipe (`|`) symbol. Valid values are passed, failed, cancelled, building, fixed, broken or all.
