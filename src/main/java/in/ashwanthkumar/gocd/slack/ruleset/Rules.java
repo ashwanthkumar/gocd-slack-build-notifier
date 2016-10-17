@@ -221,8 +221,8 @@ public class Rules {
         }
 
         boolean processAllRules = false;
-        if (config.hasPath("processAllRules")) {
-            processAllRules = config.getBoolean("processAllRules");
+        if (config.hasPath("process-all-rules")) {
+            processAllRules = config.getBoolean("process-all-rules");
         }
 
         Proxy proxy = null;
