@@ -97,7 +97,9 @@ public class SlackPipelineListener extends PipelineListener {
                 buildAttachment.addField(new SlackAttachment.Field("Reason", details.buildCause.triggerMessage, true));
             }
             buildAttachment.addField(new SlackAttachment.Field("Label", details.label, true));
-            consoleLogLinks = createConsoleLogLinks(rules.getGoServerHost(), details, stage, pipelineStatus);
+            if (rules.getDisplayConsoleLogLinks()) {
+                consoleLogLinks = createConsoleLogLinks(rules.getGoServerHost(), details, stage, pipelineStatus);
+            }
         } catch (Exception e) {
             buildAttachment.text("(Couldn't fetch build details; see server log.) ");
             LOG.warn("Couldn't fetch build details", e);
@@ -143,7 +145,6 @@ public class SlackPipelineListener extends PipelineListener {
                 LOG.warn("Couldn't fetch changes", e);
             }
         }
-
 
         if (!consoleLogLinks.isEmpty()) {
             String logLinks = Lists.mkString(consoleLogLinks, "", "", "\n");
