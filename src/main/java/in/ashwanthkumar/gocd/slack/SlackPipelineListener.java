@@ -97,7 +97,7 @@ public class SlackPipelineListener extends PipelineListener {
                 buildAttachment.addField(new SlackAttachment.Field("Reason", details.buildCause.triggerMessage, true));
             }
             buildAttachment.addField(new SlackAttachment.Field("Label", details.label, true));
-            if (rules.getDisplayConsoleLogs()) {
+            if (rules.getDisplayConsoleLogLinks()) {
                 consoleLogLinks = createConsoleLogLinks(rules.getGoServerHost(), details, stage, pipelineStatus);
             }
         } catch (Exception e) {

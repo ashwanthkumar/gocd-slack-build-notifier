@@ -29,7 +29,7 @@ public class Rules {
     private String goAPIServerHost;
     private String goLogin;
     private String goPassword;
-    private boolean displayConsoleLogs;
+    private boolean displayConsoleLogLinks;
     private boolean displayMaterialChanges;
     private boolean processAllRules;
 
@@ -132,12 +132,12 @@ public class Rules {
         return this;
     }
 
-    public boolean getDisplayConsoleLogs() {
-        return displayConsoleLogs;
+    public boolean getDisplayConsoleLogLinks() {
+        return displayConsoleLogLinks;
     }
 
-    public Rules setDisplayConsoleLogs(boolean displayConsoleLogs) {
-        this.displayConsoleLogs = displayConsoleLogs;
+    public Rules setDisplayConsoleLogLinks(boolean displayConsoleLogLinks) {
+        this.displayConsoleLogLinks = displayConsoleLogLinks;
         return this;
     }
 
@@ -224,9 +224,9 @@ public class Rules {
             password = config.getString("password");
         }
 
-        boolean displayConsoleLogs = true;
-        if (config.hasPath("display-console-logs")) {
-            displayConsoleLogs = config.getBoolean("display-console-logs");
+        boolean displayConsoleLogLinks = true;
+        if (config.hasPath("display-console-log-links")) {
+            displayConsoleLogLinks = config.getBoolean("display-console-log-links");
         }
 
         // TODO - Next major release - change this to - separated config
@@ -271,7 +271,7 @@ public class Rules {
                 .setGoAPIServerHost(apiServerHost)
                 .setGoLogin(login)
                 .setGoPassword(password)
-                .setDisplayConsoleLogs(displayConsoleLogs)
+                .setDisplayConsoleLogLinks(displayConsoleLogLinks)
                 .setDisplayMaterialChanges(displayMaterialChanges)
                 .setProcessAllRules(processAllRules)
                 .setProxy(proxy);
