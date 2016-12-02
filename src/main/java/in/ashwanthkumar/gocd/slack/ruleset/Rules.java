@@ -32,6 +32,7 @@ public class Rules {
     private boolean displayConsoleLogLinks;
     private boolean displayMaterialChanges;
     private boolean processAllRules;
+    private boolean truncateChanges;
 
     private Proxy proxy;
 
@@ -159,6 +160,15 @@ public class Rules {
         return this;
     }
 
+    public boolean isTruncateChanges() {
+        return truncateChanges;
+    }
+
+    public Rules setTruncateChanges(boolean truncateChanges) {
+        this.truncateChanges = truncateChanges;
+        return this;
+    }
+
     public Proxy getProxy() {
         return proxy;
     }
@@ -240,6 +250,11 @@ public class Rules {
             processAllRules = config.getBoolean("process-all-rules");
         }
 
+        boolean truncateChanges = true;
+        if(config.hasPath("truncate-changes")) {
+            truncateChanges = config.getBoolean("truncate-changes");
+        }
+
         Proxy proxy = null;
         if (config.hasPath("proxy")) {
             Config proxyConfig = config.getConfig("proxy");
@@ -274,6 +289,7 @@ public class Rules {
                 .setDisplayConsoleLogLinks(displayConsoleLogLinks)
                 .setDisplayMaterialChanges(displayMaterialChanges)
                 .setProcessAllRules(processAllRules)
+                .setTruncateChanges(truncateChanges)
                 .setProxy(proxy);
         try {
             rules.pipelineListener = Class.forName(config.getString("listener")).asSubclass(PipelineListener.class).getConstructor(Rules.class).newInstance(rules);
