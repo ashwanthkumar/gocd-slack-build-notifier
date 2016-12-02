@@ -23,7 +23,7 @@ import in.ashwanthkumar.utils.lang.StringUtils;
 import static in.ashwanthkumar.utils.lang.StringUtils.startsWith;
 
 public class SlackPipelineListener extends PipelineListener {
-    public static final int MAX_CHANGES_PER_MATERIAL_IN_SLACK = 5;
+    public static final int DEFAULT_MAX_CHANGES_PER_MATERIAL_IN_SLACK = 5;
     private Logger LOG = Logger.getLoggerFor(SlackPipelineListener.class);
 
     private final Slack slack;
@@ -113,8 +113,8 @@ public class SlackPipelineListener extends PipelineListener {
                 StringBuilder sb = new StringBuilder();
                 for (MaterialRevision change : changes) {
                     boolean isTruncated = false;
-                    if (change.modifications.size() > MAX_CHANGES_PER_MATERIAL_IN_SLACK) {
-                        change.modifications = Lists.take(change.modifications, MAX_CHANGES_PER_MATERIAL_IN_SLACK);
+                    if (rules.isTruncateChanges() && change.modifications.size() > DEFAULT_MAX_CHANGES_PER_MATERIAL_IN_SLACK) {
+                        change.modifications = Lists.take(change.modifications, DEFAULT_MAX_CHANGES_PER_MATERIAL_IN_SLACK);
                         isTruncated = true;
                     }
                     for (Modification mod : change.modifications) {
@@ -136,7 +136,7 @@ public class SlackPipelineListener extends PipelineListener {
                         }
                         sb.append("\n");
                     }
-                    String fieldNamePrefix = (isTruncated) ? String.format("Latest %d", MAX_CHANGES_PER_MATERIAL_IN_SLACK) : "All";
+                    String fieldNamePrefix = (isTruncated) ? String.format("Latest %d", DEFAULT_MAX_CHANGES_PER_MATERIAL_IN_SLACK) : "All";
                     String fieldName = String.format("%s changes for %s", fieldNamePrefix, change.material.description);
                     buildAttachment.addField(new SlackAttachment.Field(fieldName, sb.toString(), false));
                 }

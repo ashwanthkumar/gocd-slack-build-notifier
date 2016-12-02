@@ -44,6 +44,7 @@ gocd.slack {
 - `display-console-log-links` - Display console log links in the notification. Defaults to true, set to false if you want to hide.
 - `displayMaterialChanges` - Display material changes in the notification (git revisions for example). Defaults to true, set to false if you want to hide.
 - `process-all-rules` - If true, all matching rules are applied instead of just the first.
+- `truncate-changes` - If true, displays only the latest 5 changes for all the materials. (Default: true)
 - `proxy` - Specify proxy related settings for the plugin.
   - `proxy.hostname` - Proxy Host
   - `proxy.port` - Proxy Port
