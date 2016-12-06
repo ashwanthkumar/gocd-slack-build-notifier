@@ -65,6 +65,9 @@ public class GoNotificationMessage {
         @SerializedName("counter")
         String counter;
 
+        @SerializedName("group")
+        String group;
+
         @SerializedName("stage")
         StageInfo stage;
 
@@ -118,6 +121,10 @@ public class GoNotificationMessage {
 
     public String getLastTransitionTime() {
         return pipeline.stage.lastTransitionTime;
+    }
+
+    public String getPipelineGroup() {
+        return pipeline.group;
     }
 
     /**

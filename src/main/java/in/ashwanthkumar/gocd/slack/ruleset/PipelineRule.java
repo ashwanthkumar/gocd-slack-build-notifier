@@ -14,6 +14,7 @@ import static in.ashwanthkumar.utils.lang.StringUtils.isEmpty;
 public class PipelineRule {
     private String nameRegex;
     private String stageRegex;
+    private String groupRegex;
     private String channel;
     private String webhookUrl;
     private Set<String> owners = new HashSet<>();
@@ -25,6 +26,7 @@ public class PipelineRule {
     public PipelineRule(PipelineRule copy) {
         this.nameRegex = copy.nameRegex;
         this.stageRegex = copy.stageRegex;
+        this.groupRegex = copy.groupRegex;
         this.channel = copy.channel;
         this.status = copy.status;
         this.owners = copy.owners;
@@ -42,6 +44,15 @@ public class PipelineRule {
 
     public PipelineRule setNameRegex(String nameRegex) {
         this.nameRegex = nameRegex;
+        return this;
+    }
+
+    public String getGroupRegex() {
+        return groupRegex;
+    }
+
+    public PipelineRule setGroupRegex(String groupRegex) {
+        this.groupRegex = groupRegex;
         return this;
     }
 
@@ -90,8 +101,15 @@ public class PipelineRule {
         return this;
     }
 
-    public boolean matches(String pipeline, String stage, final String pipelineState) {
-        return pipeline.matches(nameRegex) && stage.matches(stageRegex) && Iterables.exists(status, hasStateMatching(pipelineState));
+    public boolean matches(String pipeline, String stage, String group, final String pipelineState) {
+        return pipeline.matches(nameRegex)
+                && stage.matches(stageRegex)
+                && matchesGroup(group)
+                && Iterables.exists(status, hasStateMatching(pipelineState));
+    }
+
+    private boolean matchesGroup(String group) {
+        return StringUtils.isEmpty(groupRegex) || group.matches(groupRegex);
     }
 
     private Predicate<PipelineStatus> hasStateMatching(final String pipelineState) {
@@ -112,6 +130,7 @@ public class PipelineRule {
 
         if (channel != null ? !channel.equals(that.channel) : that.channel != null) return false;
         if (nameRegex != null ? !nameRegex.equals(that.nameRegex) : that.nameRegex != null) return false;
+        if (groupRegex != null ? !groupRegex.equals(that.groupRegex) : that.groupRegex != null) return false;
         if (stageRegex != null ? !stageRegex.equals(that.stageRegex) : that.stageRegex != null) return false;
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
         if (owners != null ? !owners.equals(that.owners) : that.owners != null) return false;
@@ -123,6 +142,7 @@ public class PipelineRule {
     @Override
     public int hashCode() {
         int result = nameRegex != null ? nameRegex.hashCode() : 0;
+        result = 31 * result + (groupRegex != null ? groupRegex.hashCode() : 0);
         result = 31 * result + (stageRegex != null ? stageRegex.hashCode() : 0);
         result = 31 * result + (channel != null ? channel.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
@@ -135,6 +155,7 @@ public class PipelineRule {
     public String toString() {
         return "PipelineRule{" +
                 "nameRegex='" + nameRegex + '\'' +
+                ", groupRegex='" + groupRegex + '\'' +
                 ", stageRegex='" + stageRegex + '\'' +
                 ", channel='" + channel + '\'' +
                 ", status=" + status +
@@ -146,6 +167,9 @@ public class PipelineRule {
     public static PipelineRule fromConfig(Config config) {
         PipelineRule pipelineRule = new PipelineRule();
         pipelineRule.setNameRegex(config.getString("name"));
+        if (config.hasPath("group")) {
+            pipelineRule.setGroupRegex(config.getString("group"));
+        }
         if (config.hasPath("stage")) {
             pipelineRule.setStageRegex(config.getString("stage"));
         }
@@ -161,7 +185,7 @@ public class PipelineRule {
         if (config.hasPath("channel")) {
             pipelineRule.setChannel(config.getString("channel"));
         }
-        if(config.hasPath("webhookUrl")) {
+        if (config.hasPath("webhookUrl")) {
             pipelineRule.setWebhookUrl(config.getString("webhookUrl"));
         }
         if (config.hasPath("owners")) {
@@ -190,6 +214,11 @@ public class PipelineRule {
         if (isEmpty(pipelineRule.getNameRegex())) {
             ruleToReturn.setNameRegex(defaultRule.getNameRegex());
         }
+
+        if (isEmpty(pipelineRule.getGroupRegex())) {
+            ruleToReturn.setGroupRegex(defaultRule.getGroupRegex());
+        }
+
         if (isEmpty(pipelineRule.getStageRegex())) {
             ruleToReturn.setStageRegex(defaultRule.getStageRegex());
         }
@@ -208,7 +237,7 @@ public class PipelineRule {
             ruleToReturn.getStatus().addAll(pipelineRule.getStatus());
         }
 
-        if(pipelineRule.getOwners().isEmpty()) {
+        if (pipelineRule.getOwners().isEmpty()) {
             ruleToReturn.setOwners(defaultRule.getOwners());
         } else {
             ruleToReturn.getOwners().addAll(pipelineRule.getOwners());

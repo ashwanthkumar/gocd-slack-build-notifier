@@ -3,7 +3,7 @@
     <about>
         <name>Slack Notification Plugin</name>
         <version>1.4.0-RC10</version>
-        <target-go-version>16.1.0</target-go-version>
+        <target-go-version>16.3.0</target-go-version>
         <description>Plugin to send build notifications to slack</description>
         <vendor>
             <name>Ashwanth Kumar</name>
