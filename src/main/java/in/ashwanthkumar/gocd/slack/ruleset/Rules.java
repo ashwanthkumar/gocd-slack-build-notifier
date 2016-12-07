@@ -182,10 +182,10 @@ public class Rules {
         return pipelineListener;
     }
 
-    public List<PipelineRule> find(final String pipeline, final String stage, final String pipelineStatus) {
+    public List<PipelineRule> find(final String pipeline, final String stage, final String group, final String pipelineStatus) {
         Predicate<PipelineRule> predicate = new Predicate<PipelineRule>() {
             public Boolean apply(PipelineRule input) {
-                return input.matches(pipeline, stage, pipelineStatus);
+                return input.matches(pipeline, stage, group, pipelineStatus);
             }
         };
 

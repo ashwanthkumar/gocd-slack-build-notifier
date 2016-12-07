@@ -21,6 +21,7 @@ public class PipelineRuleTest {
         PipelineRule build = PipelineRule.fromConfig(config);
         assertThat(build.getNameRegex(), is(".*"));
         assertThat(build.getStageRegex(), is(".*"));
+        assertThat(build.getGroupRegex(), is(".*"));
         assertThat(build.getStatus(), hasItem(FAILED));
         assertThat(build.getChannel(), is("#gocd"));
         assertThat(build.getWebhookUrl(), is("https://hooks.slack.com/services/"));
@@ -37,6 +38,7 @@ public class PipelineRuleTest {
 
         PipelineRule mergedRule = PipelineRule.merge(build, defaultRule);
         assertThat(mergedRule.getNameRegex(), is("gocd-slack-build-notifier"));
+        assertThat(mergedRule.getGroupRegex(), is("ci"));
         assertThat(mergedRule.getStageRegex(), is("build"));
         assertThat(mergedRule.getStatus(), hasItem(FAILED));
         assertThat(mergedRule.getChannel(), is("#gocd"));
@@ -45,12 +47,12 @@ public class PipelineRuleTest {
 
     @Test
     public void shouldMatchThePipelineAndStageAgainstRegex() {
-        PipelineRule pipelineRule = new PipelineRule("gocd-.*", ".*").setStatus(Sets.of(FAILED, PASSED));
-        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "build", "failed"));
-        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "package", "passed"));
-        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "publish", "passed"));
+        PipelineRule pipelineRule = new PipelineRule("gocd-.*", ".*").setGroupRegex("ci").setStatus(Sets.of(FAILED, PASSED));
+        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "build", "ci", "failed"));
+        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "package", "ci", "passed"));
+        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "publish", "ci", "passed"));
 
-        assertFalse(pipelineRule.matches("gocd", "publish", "failed"));
+        assertFalse(pipelineRule.matches("gocd", "publish", "ci", "failed"));
     }
 
 

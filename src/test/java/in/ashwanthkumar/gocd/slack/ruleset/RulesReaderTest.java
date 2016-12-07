@@ -25,6 +25,7 @@ public class RulesReaderTest {
         PipelineRule pipelineRule1 = new PipelineRule()
                 .setNameRegex("gocd-slack-build-notifier")
                 .setStageRegex(".*")
+                .setGroupRegex(".*")
                 .setChannel("#gocd")
                 .setStatus(Sets.of(PipelineStatus.FAILED));
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule1));
@@ -32,6 +33,7 @@ public class RulesReaderTest {
         PipelineRule pipelineRule2 = new PipelineRule()
                 .setNameRegex("my-java-utils")
                 .setStageRegex("build")
+                .setGroupRegex("ci")
                 .setChannel("#gocd-build")
                 .setStatus(Sets.of(PipelineStatus.FAILED));
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule2));
@@ -62,6 +64,7 @@ public class RulesReaderTest {
         PipelineRule pipelineRule = new PipelineRule()
                 .setNameRegex(".*")
                 .setStageRegex(".*")
+                .setGroupRegex(".*")
                 .setChannel("#build")
                 .setStatus(Sets.of(PipelineStatus.CANCELLED, PipelineStatus.BROKEN, PipelineStatus.FAILED, PipelineStatus.FIXED));
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule));
@@ -81,6 +84,7 @@ public class RulesReaderTest {
         PipelineRule pipelineRule = new PipelineRule()
                 .setNameRegex(".*")
                 .setStageRegex(".*")
+                .setGroupRegex(".*")
                 .setChannel("#foo")
                 .setStatus(Sets.of(PipelineStatus.FAILED))
                 .setWebhookUrl("https://hooks.slack.com/services/for-pipeline");
@@ -102,6 +106,7 @@ public class RulesReaderTest {
         PipelineRule pipelineRule = new PipelineRule()
                 .setNameRegex(".*")
                 .setStageRegex(".*")
+                .setGroupRegex(".*")
                 .setChannel("#foo")
                 .setStatus(Sets.of(PipelineStatus.FAILED));
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule));
