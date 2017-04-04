@@ -160,6 +160,7 @@ public class SlackPipelineListener extends PipelineListener {
             });
             buildAttachment.addField(new SlackAttachment.Field("Owners", Lists.mkString(slackOwners, ","), true));
         }
+        LOG.info("Pushing " + title + " notification to Slack");
         return buildAttachment;
     }
 
