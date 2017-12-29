@@ -48,7 +48,7 @@ public class GoNotificationPlugin extends AbstractNotificationPlugin implements 
     private Rules rules;
 
     private final Timer timer = new Timer();
-    private long configLastModified = 0l;
+    private long configLastModified = 0L;
     private File pluginConfig;
 
     public GoNotificationPlugin() {
@@ -57,7 +57,7 @@ public class GoNotificationPlugin extends AbstractNotificationPlugin implements 
             @Override
             public void run() {
                 if (pluginConfig.lastModified() != configLastModified) {
-                    if (configLastModified == 0l) {
+                    if (configLastModified == 0L) {
                         LOGGER.info("Loading configuration file");
                     } else {
                         LOGGER.info("Reloading configuration file since some modifications were found");
