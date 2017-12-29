@@ -1,4 +1,4 @@
-[![Build Status](https://snap-ci.com/ashwanthkumar/gocd-slack-build-notifier/branch/master/build_image)](https://snap-ci.com/ashwanthkumar/gocd-slack-build-notifier/branch/master)
+[![Build Status](https://travis-ci.org/ashwanthkumar/gocd-slack-build-notifier.svg?branch=master)](https://travis-ci.org/ashwanthkumar/gocd-slack-build-notifier)
 # gocd-slack-build-notifier
 Slack based GoCD build notifier
 
