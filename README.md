@@ -12,6 +12,8 @@ All configurations are in [HOCON](https://github.com/typesafehub/config) format.
 2. `go_notify.conf` at the user's home directory. Typically it's the `go` user's home directory (`/var/go`).
 3. `go_notify.conf` present at the `CRUISE_SERVER_DIR` environment variable location.
 
+You can find the details on where / how to setup environment variables for GoCD at the [documentation](https://docs.gocd.org/current/installation/install/server/linux.html#location-of-gocd-server-files).
+
 Minimalistic configuration would be something like
 ```hocon
 gocd.slack {
