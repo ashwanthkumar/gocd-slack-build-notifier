@@ -6,7 +6,7 @@
 
     <groupId>in.ashwanthkumar</groupId>
     <artifactId>gocd-slack-notifier</artifactId>
-    <version>1.4.0-RC11</version>
+    <version>1.4.0-RC12</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -44,6 +44,12 @@
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
             <version>1.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.0</version>
         </dependency>
 
 
