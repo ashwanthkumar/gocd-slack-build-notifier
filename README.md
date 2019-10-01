@@ -84,6 +84,59 @@ gocd.slack {
 - `owners` - (Optional) list of slack user handles who must be tagged in the message upon notifications
 - `webhookUrl` - (Optional) Use this webhook url instead of the global one. Useful if you're using multiple slack teams.
 
+##Configuring the plugin for GoCD on Kubernetes using Helm
+
+###Creating a Kubernetes secret to store the config file
+
+- Create a file that has the config values, for example `go_notify.conf`
+- Then create a Kubernetes secret using this file in the proper namespace 
+
+```
+kubectl create secret generic slack-config \
+--from-file=go_notify.conf=go_notify.conf \
+--namespace=gocd
+```
+
+
+###Adding the plugin
+- In order to add this plugin, you have to use a local values.yaml file that will override the default [values.yaml](https://github.com/helm/charts/blob/master/stable/gocd/values.yaml) present in the official GoCD helm chart repo.
+- Add the .jar file link from the releases section to the `env.extraEnvVars` section as a new environment variable.
+- The environment variable name must have `GOCD_PLUGIN_INSTALL` prefixed to it.
+- Example
+
+```
+env:
+  extraEnvVars:
+    - name: GOCD_PLUGIN_INSTALL_slack-notification-plugin
+      value: https://github.com/ashwanthkumar/gocd-slack-build-notifier/releases/download/v1.3.1/gocd-slack-notifier-1.3.1.jar
+    - name: GO_NOTIFY_CONF
+      value: /tmp/slack/go_notify.conf
+```
+- Make sure to add the link of the release you want to use.
+- If you want to specify a custom path for the `go_notify.conf` file you can use the `GO_NOTIFY_CONF` environment variable as given above.
+
+
+###Mounting the config file
+
+- Mount the previously secret to a path by adding the following configuration to the local values.yaml
+
+```
+persistence:
+  extraVolumes:
+    - name: slack-config
+      secret:
+        secretName: slack-config
+        defaultMode: 0744
+
+  extraVolumeMounts:
+    - name: slack-config
+      mountPath: /tmp/slack
+      readOnly: true
+```
+- If you want to use a custom config location by specifying `GO_NOTIFY_CONF`, then you can use the above `mountPath`. If not, change the `mountPath` to `/var/go` as it is the default `go` user's home directory.
+- Then applying the local values.yaml that has these values added to it will result in a new Go Server pod being created that has the plugin installed and running.
+
+
 ## Screenshots
 <img src="https://raw.githubusercontent.com/ashwanthkumar/gocd-slack-build-notifier/master/images/gocd-slack-notifier-demo-with-changes.png" width="400"/>
 <img src="https://raw.githubusercontent.com/ashwanthkumar/gocd-slack-build-notifier/master/images/gocd-slack-notifier-demo.png" width="400"/>
