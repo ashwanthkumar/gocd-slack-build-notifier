@@ -84,9 +84,9 @@ gocd.slack {
 - `owners` - (Optional) list of slack user handles who must be tagged in the message upon notifications
 - `webhookUrl` - (Optional) Use this webhook url instead of the global one. Useful if you're using multiple slack teams.
 
-##Configuring the plugin for GoCD on Kubernetes using Helm
+## Configuring the plugin for GoCD on Kubernetes using Helm
 
-###Creating a Kubernetes secret to store the config file
+### Creating a Kubernetes secret to store the config file
 
 - Create a file that has the config values, for example `go_notify.conf`
 - Then create a Kubernetes secret using this file in the proper namespace 
@@ -98,7 +98,7 @@ kubectl create secret generic slack-config \
 ```
 
 
-###Adding the plugin
+### Adding the plugin
 - In order to add this plugin, you have to use a local values.yaml file that will override the default [values.yaml](https://github.com/helm/charts/blob/master/stable/gocd/values.yaml) present in the official GoCD helm chart repo.
 - Add the .jar file link from the releases section to the `env.extraEnvVars` section as a new environment variable.
 - The environment variable name must have `GOCD_PLUGIN_INSTALL` prefixed to it.
@@ -116,7 +116,7 @@ env:
 - If you want to specify a custom path for the `go_notify.conf` file you can use the `GO_NOTIFY_CONF` environment variable as given above.
 
 
-###Mounting the config file
+### Mounting the config file
 
 - Mount the previously secret to a path by adding the following configuration to the local values.yaml
 
