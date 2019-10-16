@@ -19,6 +19,7 @@ Minimalistic configuration would be something like
 gocd.slack {
   login = "someuser"
   password = "somepassword"
+  api-token = "a-valid-token-from-gocd-server"
   server-host = "http://localhost:8153/"
   api-server-host = "http://localhost:8153/"
   webhookUrl = "https://hooks.slack.com/services/...."
@@ -39,6 +40,7 @@ gocd.slack {
 ```
 - `login` - Login for a Go user who is authorized to access the REST API.
 - `password` - Password for the user specified above. You might want to create a less privileged user for this plugin.
+- `api-token` - Valid GoCD access token. Available starting from v19.2.0 (https://api.gocd.org/current/#bearer-token-authentication). If both login/password and api-token are present, api-token takes precedence.
 - `server-host` - FQDN of the Go Server. All links on the slack channel will be relative to this host.
 - `api-server-host` - This is an optional attribute. Set this field to localhost so server will use this endpoint to get `PipelineHistory` and `PipelineInstance`  
 - `webhookUrl` - Slack Webhook URL

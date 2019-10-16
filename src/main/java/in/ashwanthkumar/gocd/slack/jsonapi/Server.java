@@ -48,8 +48,13 @@ public class Server {
 
         HttpURLConnection request = httpConnectionUtil.getConnection(normalizedUrl);
 
-        // Add in our HTTP authorization credentials if we have them.
-        if (isNotEmpty(mRules.getGoLogin()) && isNotEmpty(mRules.getGoPassword())) {
+        // Add in our HTTP authorization credentials if we have them. Favor the API Token
+        // over username/password
+        if (isNotEmpty(mRules.getGoAPIToken())) {
+            String bearerToken = "Bearer "
+                    + DatatypeConverter.printBase64Binary(mRules.getGoAPIToken().getBytes());
+            request.setRequestProperty("Authorization", bearerToken);
+        } else if (isNotEmpty(mRules.getGoLogin()) && isNotEmpty(mRules.getGoPassword())) {
             String userpass = mRules.getGoLogin() + ":" + mRules.getGoPassword();
             String basicAuth = "Basic "
                     + DatatypeConverter.printBase64Binary(userpass.getBytes());

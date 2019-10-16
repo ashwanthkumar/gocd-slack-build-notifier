@@ -123,6 +123,14 @@ public class RulesTest {
         assertThat(rules.getGoAPIServerHost(), is("http://localhost"));
     }
 
+    @Test
+    public void shouldGetAPIToken() {
+        Rules rules = new Rules();
+
+        rules.setGoAPIToken("a-valid-token-from-gocd-server");
+        assertThat(rules.getGoAPIToken(), is("a-valid-token-from-gocd-server"));
+    }
+
     private static PipelineRule pipelineRule(String pipeline, String stage, String channel, Set<PipelineStatus> statuses) {
         PipelineRule pipelineRule = new PipelineRule(pipeline, stage);
         pipelineRule.setStatus(statuses);

@@ -29,6 +29,7 @@ public class Rules {
     private String goAPIServerHost;
     private String goLogin;
     private String goPassword;
+    private String goAPIToken;
     private boolean displayConsoleLogLinks;
     private boolean displayMaterialChanges;
     private boolean processAllRules;
@@ -133,6 +134,15 @@ public class Rules {
         return this;
     }
 
+    public String getGoAPIToken() {
+        return goAPIToken;
+    }
+
+    public Rules setGoAPIToken(String goAPIToken) {
+        this.goAPIToken = goAPIToken;
+        return this;
+    }
+
     public boolean getDisplayConsoleLogLinks() {
         return displayConsoleLogLinks;
     }
@@ -234,6 +244,11 @@ public class Rules {
             password = config.getString("password");
         }
 
+        String apiToken = null;
+        if (config.hasPath("api-token")) {
+            apiToken = config.getString("api-token");
+        }
+
         boolean displayConsoleLogLinks = true;
         if (config.hasPath("display-console-log-links")) {
             displayConsoleLogLinks = config.getBoolean("display-console-log-links");
@@ -286,6 +301,7 @@ public class Rules {
                 .setGoAPIServerHost(apiServerHost)
                 .setGoLogin(login)
                 .setGoPassword(password)
+                .setGoAPIToken(apiToken)
                 .setDisplayConsoleLogLinks(displayConsoleLogLinks)
                 .setDisplayMaterialChanges(displayMaterialChanges)
                 .setProcessAllRules(processAllRules)

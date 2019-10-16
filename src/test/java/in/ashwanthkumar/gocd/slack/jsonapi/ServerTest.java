@@ -68,7 +68,23 @@ public class ServerTest {
     }
 
     @Test
-    public void shouldConnectWithCredentials() throws IOException {
+    public void shouldConnectWithAPIToken() throws IOException {
+        HttpConnectionUtil httpConnectionUtil = mockConnection();
+        Rules rules = new Rules();
+        Server server = new Server(rules, httpConnectionUtil);
+        rules.setGoAPIToken("a-valid-token-from-gocd-server");
+
+        HttpURLConnection conn = mock(HttpURLConnection.class);
+        when(httpConnectionUtil.getConnection(any(URL.class))).thenReturn(conn);
+        when(conn.getContent()).thenReturn(new Object());
+
+        server.getUrl(new URL("http://exmaple.org/"));
+
+        verify(conn).setRequestProperty("Authorization", "Bearer YS12YWxpZC10b2tlbi1mcm9tLWdvY2Qtc2VydmVy");
+    }
+
+    @Test
+    public void shouldConnectWithUserPassCredentials() throws IOException {
         HttpConnectionUtil httpConnectionUtil = mockConnection();
         Rules rules = new Rules();
         Server server = new Server(rules, httpConnectionUtil);
@@ -84,6 +100,23 @@ public class ServerTest {
         verify(conn).setRequestProperty("Authorization", "Basic bG9naW46cGFzcw==");
     }
 
+    @Test
+    public void shouldConnectWithAPITokenFavoringOverUserPassCredential() throws IOException {
+        HttpConnectionUtil httpConnectionUtil = mockConnection();
+        Rules rules = new Rules();
+        Server server = new Server(rules, httpConnectionUtil);
+        rules.setGoAPIToken("a-valid-token-from-gocd-server");
+        rules.setGoLogin("login");
+        rules.setGoPassword("pass");
+
+        HttpURLConnection conn = mock(HttpURLConnection.class);
+        when(httpConnectionUtil.getConnection(any(URL.class))).thenReturn(conn);
+        when(conn.getContent()).thenReturn(new Object());
+
+        server.getUrl(new URL("http://exmaple.org/"));
+
+        verify(conn).setRequestProperty("Authorization", "Bearer YS12YWxpZC10b2tlbi1mcm9tLWdvY2Qtc2VydmVy");
+    }
     @Test
     public void shouldNotConnectWithoutCredentials() throws IOException {
         HttpConnectionUtil httpConnectionUtil = mockConnection();

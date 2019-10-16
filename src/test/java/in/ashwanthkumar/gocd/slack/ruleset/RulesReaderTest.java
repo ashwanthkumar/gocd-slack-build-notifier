@@ -49,6 +49,7 @@ public class RulesReaderTest {
 
         assertThat(rules.getGoLogin(), is("someuser"));
         assertThat(rules.getGoPassword(), is("somepassword"));
+        assertThat(rules.getGoAPIToken(), is("a-valid-token-from-gocd-server"));
         assertThat(rules.getGoServerHost(), is("http://localhost:8153/"));
         assertThat(rules.getWebHookUrl(), is("https://hooks.slack.com/services/"));
 
