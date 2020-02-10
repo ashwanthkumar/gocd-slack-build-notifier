@@ -48,17 +48,21 @@ public class Server {
 
         HttpURLConnection request = httpConnectionUtil.getConnection(normalizedUrl);
 
-        // Add in our HTTP authorization credentials if we have them. Favor the API Token
-        // over username/password
+        // Add in our HTTP authorization credentials if we have them.
+        // Favor the API Token over username/password
+        String authHeader = null;
         if (isNotEmpty(mRules.getGoAPIToken())) {
             String bearerToken = "Bearer "
                     + DatatypeConverter.printBase64Binary(mRules.getGoAPIToken().getBytes());
             request.setRequestProperty("Authorization", bearerToken);
         } else if (isNotEmpty(mRules.getGoLogin()) && isNotEmpty(mRules.getGoPassword())) {
             String userpass = mRules.getGoLogin() + ":" + mRules.getGoPassword();
-            String basicAuth = "Basic "
+            authHeader = "Basic "
                     + DatatypeConverter.printBase64Binary(userpass.getBytes());
-            request.setRequestProperty("Authorization", basicAuth);
+        }
+        if (authHeader != null) {
+            request.setRequestProperty("Authorization", authHeader);
+            request.setRequestProperty("Accept", "application/vnd.go.cd.v1+json");
         }
 
         request.connect();
