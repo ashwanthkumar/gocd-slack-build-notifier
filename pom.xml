@@ -6,12 +6,12 @@
 
     <groupId>in.ashwanthkumar</groupId>
     <artifactId>gocd-slack-notifier</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
     <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <go.version>16.3.0</go.version>
+        <go.version>20.1.0</go.version>
     </properties>
 
     <dependencies>
