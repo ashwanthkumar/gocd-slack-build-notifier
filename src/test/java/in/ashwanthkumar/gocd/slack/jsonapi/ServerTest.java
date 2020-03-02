@@ -80,7 +80,7 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
-        verify(conn).setRequestProperty("Authorization", "Bearer YS12YWxpZC10b2tlbi1mcm9tLWdvY2Qtc2VydmVy");
+        verify(conn).setRequestProperty("Authorization", "Bearer a-valid-token-from-gocd-server");
     }
 
     @Test
@@ -115,7 +115,7 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
-        verify(conn).setRequestProperty("Authorization", "Bearer YS12YWxpZC10b2tlbi1mcm9tLWdvY2Qtc2VydmVy");
+        verify(conn).setRequestProperty("Authorization", "Bearer a-valid-token-from-gocd-server");
     }
     @Test
     public void shouldNotConnectWithoutCredentials() throws IOException {

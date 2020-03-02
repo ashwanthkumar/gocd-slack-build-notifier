@@ -52,12 +52,10 @@ public class Server {
         // Favor the API Token over username/password
         String authHeader = null;
         if (isNotEmpty(mRules.getGoAPIToken())) {
-            authHeader = "Bearer "
-                    + DatatypeConverter.printBase64Binary(mRules.getGoAPIToken().getBytes());
+            authHeader = "Bearer " + mRules.getGoAPIToken();
         } else if (isNotEmpty(mRules.getGoLogin()) && isNotEmpty(mRules.getGoPassword())) {
             String userpass = mRules.getGoLogin() + ":" + mRules.getGoPassword();
-            authHeader = "Basic "
-                    + DatatypeConverter.printBase64Binary(userpass.getBytes());
+            authHeader = "Basic " + DatatypeConverter.printBase64Binary(userpass.getBytes());
         }
         if (authHeader != null) {
             request.setRequestProperty("Authorization", authHeader);
