@@ -1,5 +1,6 @@
 package in.ashwanthkumar.gocd.slack;
 
+import com.thoughtworks.go.plugin.api.logging.Logger;
 import in.ashwanthkumar.gocd.slack.jsonapi.MaterialRevision;
 import in.ashwanthkumar.gocd.slack.jsonapi.Modification;
 import in.ashwanthkumar.gocd.slack.jsonapi.Pipeline;
@@ -9,16 +10,14 @@ import in.ashwanthkumar.gocd.slack.ruleset.PipelineStatus;
 import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 import in.ashwanthkumar.slack.webhook.Slack;
 import in.ashwanthkumar.slack.webhook.SlackAttachment;
+import in.ashwanthkumar.utils.collections.Lists;
+import in.ashwanthkumar.utils.func.Function;
+import in.ashwanthkumar.utils.lang.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.go.plugin.api.logging.Logger;
-import in.ashwanthkumar.utils.collections.Lists;
-import in.ashwanthkumar.utils.func.Function;
-import in.ashwanthkumar.utils.lang.StringUtils;
 
 import static in.ashwanthkumar.utils.lang.StringUtils.startsWith;
 
@@ -110,8 +109,8 @@ public class SlackPipelineListener extends PipelineListener {
         if (rules.getDisplayMaterialChanges()) {
             try {
                 List<MaterialRevision> changes = message.fetchChanges(rules);
-                StringBuilder sb = new StringBuilder();
                 for (MaterialRevision change : changes) {
+                    StringBuilder sb = new StringBuilder();
                     boolean isTruncated = false;
                     if (rules.isTruncateChanges() && change.modifications.size() > DEFAULT_MAX_CHANGES_PER_MATERIAL_IN_SLACK) {
                         change.modifications = Lists.take(change.modifications, DEFAULT_MAX_CHANGES_PER_MATERIAL_IN_SLACK);
