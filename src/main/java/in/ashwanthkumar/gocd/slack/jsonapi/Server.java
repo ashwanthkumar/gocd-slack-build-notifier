@@ -47,6 +47,7 @@ public class Server {
         LOG.info("Fetching " + normalizedUrl.toString());
 
         HttpURLConnection request = httpConnectionUtil.getConnection(normalizedUrl);
+        // @since 20.1.0
         request.setRequestProperty("Accept", "application/vnd.go.cd.v1+json");
 
         // Add in our HTTP authorization credentials if we have them.

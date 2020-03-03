@@ -8,11 +8,15 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ServerTest {
 
@@ -118,7 +122,7 @@ public class ServerTest {
         verify(conn).setRequestProperty("Authorization", "Bearer a-valid-token-from-gocd-server");
     }
     @Test
-    public void shouldNotConnectWithoutCredentials() throws IOException {
+    public void shouldNotSetAuthorizationHeaderWithoutCredentials() throws IOException {
         HttpConnectionUtil httpConnectionUtil = mockConnection();
         Rules rules = new Rules();
         Server server = new Server(rules, httpConnectionUtil);
@@ -129,11 +133,15 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
-        verify(conn, never()).setRequestProperty(anyString(), anyString());
+        ArgumentCaptor<String> valueCaptor = ArgumentCaptor.forClass(String.class);
+        verify(conn).setRequestProperty(anyString(), valueCaptor.capture());
+        for (String value : valueCaptor.getAllValues()) {
+            assertThat(value, not(startsWith("Authorization")));
+        }
     }
 
     @Test
-    public void shouldNotConnectWithEmptyPassword() throws IOException {
+    public void shouldNotSetAuthorizationHeaderWithEmptyPassword() throws IOException {
         HttpConnectionUtil httpConnectionUtil = mockConnection();
         Rules rules = new Rules();
         rules.setGoLogin("login");
@@ -146,11 +154,15 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
-        verify(conn, never()).setRequestProperty(anyString(), anyString());
+        ArgumentCaptor<String> valueCaptor = ArgumentCaptor.forClass(String.class);
+        verify(conn).setRequestProperty(anyString(), valueCaptor.capture());
+        for (String value : valueCaptor.getAllValues()) {
+            assertThat(value, not(startsWith("Authorization")));
+        }
     }
 
     @Test
-    public void shouldNotConnectWithEmptyLoginName() throws IOException {
+    public void shouldNotSetAuthorizationHeaderWithEmptyLoginName() throws IOException {
         HttpConnectionUtil httpConnectionUtil = mockConnection();
         Rules rules = new Rules();
         rules.setGoLogin(null);
@@ -163,11 +175,15 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
-        verify(conn, never()).setRequestProperty(anyString(), anyString());
+        ArgumentCaptor<String> valueCaptor = ArgumentCaptor.forClass(String.class);
+        verify(conn).setRequestProperty(anyString(), valueCaptor.capture());
+        for (String value : valueCaptor.getAllValues()) {
+            assertThat(value, not(startsWith("Authorization")));
+        }
     }
 
     @Test
-    public void shouldNotConnectWithEmptyPasswordCredentials() throws IOException {
+    public void shouldNotSetAuthorizationHeaderWithEmptyPasswordCredentials() throws IOException {
         HttpConnectionUtil httpConnectionUtil = mockConnection();
         Rules rules = new Rules();
         rules.setGoLogin("");
@@ -180,7 +196,11 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
-        verify(conn, never()).setRequestProperty(anyString(), anyString());
+        ArgumentCaptor<String> valueCaptor = ArgumentCaptor.forClass(String.class);
+        verify(conn).setRequestProperty(anyString(), valueCaptor.capture());
+        for (String value : valueCaptor.getAllValues()) {
+            assertThat(value, not(startsWith("Authorization")));
+        }
     }
 
     private HttpConnectionUtil mockConnection() throws IOException {
