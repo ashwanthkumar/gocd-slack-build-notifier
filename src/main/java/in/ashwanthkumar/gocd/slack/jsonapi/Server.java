@@ -47,6 +47,7 @@ public class Server {
         LOG.info("Fetching " + normalizedUrl.toString());
 
         HttpURLConnection request = httpConnectionUtil.getConnection(normalizedUrl);
+        request.setRequestProperty("Accept", "application/vnd.go.cd.v1+json");
 
         // Add in our HTTP authorization credentials if we have them.
         // Favor the API Token over username/password
@@ -59,7 +60,6 @@ public class Server {
         }
         if (authHeader != null) {
             request.setRequestProperty("Authorization", authHeader);
-            request.setRequestProperty("Accept", "application/vnd.go.cd.v1+json");
         }
 
         request.connect();
