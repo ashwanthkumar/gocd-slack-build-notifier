@@ -49,6 +49,7 @@ public class Server {
         HttpURLConnection request = httpConnectionUtil.getConnection(normalizedUrl);
         // @since 20.1.0
         request.setRequestProperty("Accept", "application/vnd.go.cd.v1+json");
+        request.setRequestProperty("User-Agent", "plugin/slack.notifier");
 
         // Add in our HTTP authorization credentials if we have them.
         // Favor the API Token over username/password
