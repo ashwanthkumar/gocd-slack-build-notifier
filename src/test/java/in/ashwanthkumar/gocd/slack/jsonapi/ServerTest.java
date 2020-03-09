@@ -64,7 +64,7 @@ public class ServerTest {
         verify(httpConnectionUtil).getConnection(
                 url.capture()
         );
-        assertThat(url.getValue().toString(), is("https://example.org/go/api/pipelines/pipeline-test/instance/42"));
+        assertThat(url.getValue().toString(), is("https://example.org/go/api/pipelines/pipeline-test/42"));
     }
 
     @Test

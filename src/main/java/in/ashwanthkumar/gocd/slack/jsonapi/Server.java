@@ -85,7 +85,7 @@ public class Server {
      */
     public Pipeline getPipelineInstance(String pipelineName, int pipelineCounter)
             throws MalformedURLException, IOException {
-        URL url = new URL(String.format("%s/go/api/pipelines/%s/instance/%d",
+        URL url = new URL(String.format("%s/go/api/pipelines/%s/%d",
                 mRules.getGoAPIServerHost(), pipelineName, pipelineCounter));
         JsonElement json = getUrl(url);
         return httpConnectionUtil.convertResponse(json, Pipeline.class);
