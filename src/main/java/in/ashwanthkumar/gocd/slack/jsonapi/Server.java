@@ -49,6 +49,7 @@ public class Server {
         HttpURLConnection request = httpConnectionUtil.getConnection(normalizedUrl);
         // @since 20.1.0
         request.setRequestProperty("Accept", "application/vnd.go.cd.v1+json");
+        request.setRequestProperty("User-Agent", "plugin/slack.notifier");
 
         // Add in our HTTP authorization credentials if we have them.
         // Favor the API Token over username/password
@@ -84,7 +85,7 @@ public class Server {
      */
     public Pipeline getPipelineInstance(String pipelineName, int pipelineCounter)
             throws MalformedURLException, IOException {
-        URL url = new URL(String.format("%s/go/api/pipelines/%s/instance/%d",
+        URL url = new URL(String.format("%s/go/api/pipelines/%s/%d",
                 mRules.getGoAPIServerHost(), pipelineName, pipelineCounter));
         JsonElement json = getUrl(url);
         return httpConnectionUtil.convertResponse(json, Pipeline.class);

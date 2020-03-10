@@ -8,15 +8,11 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ServerTest {
 
@@ -68,7 +64,7 @@ public class ServerTest {
         verify(httpConnectionUtil).getConnection(
                 url.capture()
         );
-        assertThat(url.getValue().toString(), is("https://example.org/go/api/pipelines/pipeline-test/instance/42"));
+        assertThat(url.getValue().toString(), is("https://example.org/go/api/pipelines/pipeline-test/42"));
     }
 
     @Test
@@ -84,6 +80,7 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
+        verify(conn).setRequestProperty(eq("User-Agent"), anyString());
         verify(conn).setRequestProperty("Authorization", "Bearer a-valid-token-from-gocd-server");
     }
 
@@ -101,6 +98,7 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
+        verify(conn).setRequestProperty(eq("User-Agent"), anyString());
         verify(conn).setRequestProperty("Authorization", "Basic bG9naW46cGFzcw==");
     }
 
@@ -119,8 +117,10 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
+        verify(conn).setRequestProperty(eq("User-Agent"), anyString());
         verify(conn).setRequestProperty("Authorization", "Bearer a-valid-token-from-gocd-server");
     }
+
     @Test
     public void shouldNotSetAuthorizationHeaderWithoutCredentials() throws IOException {
         HttpConnectionUtil httpConnectionUtil = mockConnection();
@@ -133,11 +133,8 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
-        ArgumentCaptor<String> valueCaptor = ArgumentCaptor.forClass(String.class);
-        verify(conn).setRequestProperty(anyString(), valueCaptor.capture());
-        for (String value : valueCaptor.getAllValues()) {
-            assertThat(value, not(startsWith("Authorization")));
-        }
+        verify(conn).setRequestProperty(eq("User-Agent"), anyString());
+        verify(conn, never()).setRequestProperty(eq("Authorization"), anyString());
     }
 
     @Test
@@ -154,11 +151,8 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
-        ArgumentCaptor<String> valueCaptor = ArgumentCaptor.forClass(String.class);
-        verify(conn).setRequestProperty(anyString(), valueCaptor.capture());
-        for (String value : valueCaptor.getAllValues()) {
-            assertThat(value, not(startsWith("Authorization")));
-        }
+        verify(conn).setRequestProperty(eq("User-Agent"), anyString());
+        verify(conn, never()).setRequestProperty(eq("Authorization"), anyString());
     }
 
     @Test
@@ -175,11 +169,8 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
-        ArgumentCaptor<String> valueCaptor = ArgumentCaptor.forClass(String.class);
-        verify(conn).setRequestProperty(anyString(), valueCaptor.capture());
-        for (String value : valueCaptor.getAllValues()) {
-            assertThat(value, not(startsWith("Authorization")));
-        }
+        verify(conn).setRequestProperty(eq("User-Agent"), anyString());
+        verify(conn, never()).setRequestProperty(eq("Authorization"), anyString());
     }
 
     @Test
@@ -196,11 +187,8 @@ public class ServerTest {
 
         server.getUrl(new URL("http://exmaple.org/"));
 
-        ArgumentCaptor<String> valueCaptor = ArgumentCaptor.forClass(String.class);
-        verify(conn).setRequestProperty(anyString(), valueCaptor.capture());
-        for (String value : valueCaptor.getAllValues()) {
-            assertThat(value, not(startsWith("Authorization")));
-        }
+        verify(conn).setRequestProperty(eq("User-Agent"), anyString());
+        verify(conn, never()).setRequestProperty(eq("Authorization"), anyString());
     }
 
     private HttpConnectionUtil mockConnection() throws IOException {
