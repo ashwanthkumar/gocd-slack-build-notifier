@@ -6,7 +6,7 @@
 
     <groupId>in.ashwanthkumar</groupId>
     <artifactId>gocd-slack-notifier</artifactId>
-    <version>2.0.2-RC2</version>
+    <version>2.0.2</version>
     <packaging>jar</packaging>
 
     <properties>
