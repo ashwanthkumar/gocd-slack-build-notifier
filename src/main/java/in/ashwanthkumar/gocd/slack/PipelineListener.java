@@ -9,7 +9,7 @@ import in.ashwanthkumar.utils.lang.option.Option;
 import java.util.List;
 
 abstract public class PipelineListener {
-    private Logger LOG = Logger.getLoggerFor(PipelineListener.class);
+    private static final Logger LOG = Logger.getLoggerFor(PipelineListener.class);
     protected Rules rules;
 
     public PipelineListener(Rules rules) {
