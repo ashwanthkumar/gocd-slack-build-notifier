@@ -88,7 +88,7 @@ public class SlackPipelineListener extends PipelineListener {
         // Describe the build.
         try {
             Pipeline details = message.fetchDetails(rules);
-            Stage stage = pickCurrentStage(details.stages, message);
+            Stage stage = message.pickCurrentStage(details.stages);
             buildAttachment.addField(new SlackAttachment.Field("Triggered by", stage.approvedBy, true));
             if (details.buildCause.triggerForced) {
                 buildAttachment.addField(new SlackAttachment.Field("Reason", "Manual Trigger", true));
@@ -178,16 +178,6 @@ public class SlackPipelineListener extends PipelineListener {
             consoleLinks.add("<" + link.normalize().toASCIIString() + "| View " + job + " logs>");
         }
         return consoleLinks;
-    }
-
-    private Stage pickCurrentStage(Stage[] stages, GoNotificationMessage message) {
-        for (Stage stage : stages) {
-            if (message.getStageName().equals(stage.name)) {
-                return stage;
-            }
-        }
-
-        throw new IllegalArgumentException("The list of stages from the pipeline (" + message.getPipelineName() + ") doesn't have the active stage (" + message.getStageName() + ") for which we got the notification.");
     }
 
     private void updateSlackChannel(String slackChannel) {
