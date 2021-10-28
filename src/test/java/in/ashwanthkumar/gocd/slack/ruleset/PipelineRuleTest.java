@@ -2,7 +2,6 @@ package in.ashwanthkumar.gocd.slack.ruleset;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import in.ashwanthkumar.utils.collections.Lists;
 import in.ashwanthkumar.utils.collections.Sets;
 import org.junit.Test;
 
