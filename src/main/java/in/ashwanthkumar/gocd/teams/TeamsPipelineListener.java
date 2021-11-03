@@ -37,7 +37,7 @@ public class TeamsPipelineListener extends PipelineListener {
     }
 
     private void sendMessage(PipelineRule rule, GoNotificationMessage message, PipelineStatus status)
-            throws GoNotificationMessage.BuildDetailsNotFoundException, URISyntaxException, IOException {
+            throws URISyntaxException, IOException {
         final TeamsCard card = new TeamsCard();
         card.setColor(MessageCardSchema.Color.findColor(status));
         card.addLinkAction("Details", message.goServerUrl(rules.getGoServerHost()));
@@ -47,12 +47,16 @@ public class TeamsPipelineListener extends PipelineListener {
                         status)
                 .replaceAll("\\s+", " "));
 
-        Pipeline details = message.fetchDetails(rules);
-        Stage stage = message.pickCurrentStage(details.stages);
-
-        card.addFact("Triggered by", stage.approvedBy);
-        card.addFact("Reason", details.buildCause.triggerMessage);
-        card.addFact("Label", details.label);
+        try {
+            Pipeline details = message.fetchDetails(rules);
+            Stage stage = message.pickCurrentStage(details.stages);
+            card.addFact("Triggered by", stage.approvedBy);
+            card.addFact("Reason", details.buildCause.triggerMessage);
+            card.addFact("Label", details.label);
+        } catch (Exception ex) {
+            card.addFact("Internal Error", "Problem with build details; see server log");
+            LOG.warn("Problem with build details", ex);
+        }
 
         teams.send(getWebhook(rule), card);
     }
