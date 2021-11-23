@@ -1,5 +1,8 @@
 package in.ashwanthkumar.gocd.teams;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import in.ashwanthkumar.gocd.slack.ruleset.Rules;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,5 +42,18 @@ public class TeamsTest {
                 .replace('\'', '"');
 
         Assert.assertEquals(expected, result);
+    }
+
+    @Test
+    public void testTeamsListener() {
+        Config config = ConfigFactory.parseResources("configs/test-config-teams.conf")
+                .withFallback(ConfigFactory.load(getClass().getClassLoader()))
+                .getConfig("gocd.slack");
+        Rules rules = Rules.fromConfig(config);
+
+        Assert.assertEquals(TeamsPipelineListener.class, rules.getPipelineListener().getClass());
+        Assert.assertEquals("https://example.com/default", rules.getWebHookUrl());
+        Assert.assertEquals("https://example.com/pipeline-override",
+                rules.getPipelineRules().get(0).getWebhookUrl());
     }
 }
