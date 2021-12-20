@@ -81,6 +81,22 @@ public enum PipelineStatus {
         }
     };
 
+    public String verb() {
+        switch (this) {
+            case BROKEN:
+            case FIXED:
+            case BUILDING:
+                return "is";
+            case FAILED:
+            case PASSED:
+                return "has";
+            case CANCELLED:
+                return "was";
+            default:
+                return "";
+        }
+    }
+
     public boolean matches(String state) {
         return this == ALL || this == PipelineStatus.valueOf(state.toUpperCase());
     }

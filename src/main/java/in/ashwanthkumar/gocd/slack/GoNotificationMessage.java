@@ -221,4 +221,18 @@ public class GoNotificationMessage {
             server.getPipelineInstance(pipeline.name, Integer.parseInt(pipeline.counter));
         return pipelineInstance.rootChanges(server);
     }
+
+    public Stage pickCurrentStage(Stage[] stages) {
+        for (Stage stage : stages) {
+            if (getStageName().equals(stage.name)) {
+                return stage;
+            }
+        }
+        throw new IllegalArgumentException("The list of stages from the pipeline ("
+                + getPipelineName()
+                + ") doesn't have the active stage ("
+                + getStageName()
+                + ") for which we got the notification.");
+    }
+
 }

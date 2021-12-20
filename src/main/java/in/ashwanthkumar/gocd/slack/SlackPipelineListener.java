@@ -23,7 +23,7 @@ import static in.ashwanthkumar.utils.lang.StringUtils.startsWith;
 
 public class SlackPipelineListener extends PipelineListener {
     public static final int DEFAULT_MAX_CHANGES_PER_MATERIAL_IN_SLACK = 5;
-    private Logger LOG = Logger.getLoggerFor(SlackPipelineListener.class);
+    private static final Logger LOG = Logger.getLoggerFor(SlackPipelineListener.class);
 
     private final Slack slack;
 
@@ -79,7 +79,7 @@ public class SlackPipelineListener extends PipelineListener {
     }
 
     private SlackAttachment slackAttachment(PipelineRule rule, GoNotificationMessage message, PipelineStatus pipelineStatus) throws URISyntaxException {
-        String title = String.format("Stage [%s] %s %s", message.fullyQualifiedJobName(), verbFor(pipelineStatus), pipelineStatus).replaceAll("\\s+", " ");
+        String title = String.format("Stage [%s] %s %s", message.fullyQualifiedJobName(), pipelineStatus.verb(), pipelineStatus).replaceAll("\\s+", " ");
         SlackAttachment buildAttachment = new SlackAttachment("")
                 .fallback(title)
                 .title(title, message.goServerUrl(rules.getGoServerHost()));
@@ -88,7 +88,7 @@ public class SlackPipelineListener extends PipelineListener {
         // Describe the build.
         try {
             Pipeline details = message.fetchDetails(rules);
-            Stage stage = pickCurrentStage(details.stages, message);
+            Stage stage = message.pickCurrentStage(details.stages);
             buildAttachment.addField(new SlackAttachment.Field("Triggered by", stage.approvedBy, true));
             if (details.buildCause.triggerForced) {
                 buildAttachment.addField(new SlackAttachment.Field("Reason", "Manual Trigger", true));
@@ -178,32 +178,6 @@ public class SlackPipelineListener extends PipelineListener {
             consoleLinks.add("<" + link.normalize().toASCIIString() + "| View " + job + " logs>");
         }
         return consoleLinks;
-    }
-
-    private Stage pickCurrentStage(Stage[] stages, GoNotificationMessage message) {
-        for (Stage stage : stages) {
-            if (message.getStageName().equals(stage.name)) {
-                return stage;
-            }
-        }
-
-        throw new IllegalArgumentException("The list of stages from the pipeline (" + message.getPipelineName() + ") doesn't have the active stage (" + message.getStageName() + ") for which we got the notification.");
-    }
-
-    private String verbFor(PipelineStatus pipelineStatus) {
-        switch (pipelineStatus) {
-            case BROKEN:
-            case FIXED:
-            case BUILDING:
-                return "is";
-            case FAILED:
-            case PASSED:
-                return "has";
-            case CANCELLED:
-                return "was";
-            default:
-                return "";
-        }
     }
 
     private void updateSlackChannel(String slackChannel) {

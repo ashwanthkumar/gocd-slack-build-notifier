@@ -54,6 +54,33 @@ gocd.slack {
   - `proxy.port` - Proxy Port
   - `proxy.type` - `socks` or `http` are the only accepted values.
 
+### Teams Configuration
+
+To send notifications to Microsoft Teams instead of Slack you need to configure the `listener` setting as shown in the example below.
+The other difference is that the channel setting is not used,
+instead with Teams you create an incoming webhook for each channel you want to send messages to.
+
+```hocon
+gocd.slack {
+  # Tell the plugin you are using Microsoft Teams instead of Slack.
+  listener = "in.ashwanthkumar.gocd.teams.TeamsPipelineListener"
+  
+  # Determines the Team and Channel to send notifications to unless overridden by a pipeline rule.
+  webhookUrl = "https://xxx.webhook.office.com/webhookb2/xxx/IncomingWebhook/xxx/xxx"
+  
+  # The channel setting is not used, only the webhookUrl.
+  
+  pipelines = [{
+    # The channel setting is ignored.
+    
+    # Optionally override the default webhook to send notifications to a different channel.
+    webhookUrl = "https://example.com"
+    
+    # The rest of the configuration functions the same.
+  },
+}
+```
+
 ## Pipeline Rules
 By default the plugin pushes a note about all failed stages across all pipelines to Slack. You have fine grain control over this operation.
 ```hocon
