@@ -92,6 +92,7 @@ gocd.slack {
     name = "gocd-slack-build"
     stage = "build"
     group = ".*"
+    label = ".*"
     state = "failed|passed"
     channel = "#oss-build-group"
     owners = ["ashwanthkumar"]
@@ -108,6 +109,7 @@ gocd.slack {
 - `name` - Regex to match the pipeline name
 - `stage` - Regex to match the stage name
 - `group` - Regex to match the pipeline group name
+- `label` - Regex to match the pipeline label name
 - `state` - State of the pipeline at which we should send a notification. You can provide multiple values separated by pipe (`|`) symbol. Valid values are passed, failed, cancelled, building, fixed, broken or all.
 - `channel` - (Optional) channel where we should send the slack notification. This setting for a rule overrides the global setting
 - `owners` - (Optional) list of slack user handles who must be tagged in the message upon notifications
