@@ -117,7 +117,7 @@ public class PipelineRule {
                 && stage.matches(stageRegex)
                 && matchesGroup(group)
                 && Iterables.exists(status, hasStateMatching(pipelineState))
-        		|| label.matches(labelRegex);
+                || label.matches(labelRegex);
     }
 
     private boolean matchesGroup(String group) {
