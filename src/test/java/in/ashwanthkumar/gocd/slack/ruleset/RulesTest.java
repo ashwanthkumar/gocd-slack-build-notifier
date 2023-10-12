@@ -18,9 +18,9 @@ public class RulesTest {
         Rules rules = new Rules();
 
         rules.setPipelineRules(Arrays.asList(
-                pipelineRule("pipeline1", "stage1", "ch1", ".*", statuses(PipelineStatus.BUILDING, PipelineStatus.FAILED)),
-                pipelineRule("pipeline1", "stage2", "ch2", ".*", statuses(PipelineStatus.FIXED, PipelineStatus.PASSED)),
-                pipelineRule("pipeline2", "stage2", "ch3", ".*", statuses(PipelineStatus.CANCELLED, PipelineStatus.BROKEN))
+                pipelineRule("pipeline1", "stage1", "ch1", statuses(PipelineStatus.BUILDING, PipelineStatus.FAILED)),
+                pipelineRule("pipeline1", "stage2", "ch2", statuses(PipelineStatus.FIXED, PipelineStatus.PASSED)),
+                pipelineRule("pipeline2", "stage2", "ch3", statuses(PipelineStatus.CANCELLED, PipelineStatus.BROKEN))
         ));
 
         List<PipelineRule> foundRules1 = rules.find("pipeline1", "stage1", "ci", ".*", Status.Building.getStatus());
@@ -42,10 +42,10 @@ public class RulesTest {
         Rules rules = new Rules();
 
         rules.setPipelineRules(Arrays.asList(
-                pipelineRule("[a-z]*", "[a-z]*", "ch1", ".*", statuses(PipelineStatus.BUILDING)),
-                pipelineRule("\\d*", "\\d*", "ch2", ".*", statuses(PipelineStatus.BUILDING)),
-                pipelineRule("\\d*", "\\d*", "ch3", ".*", statuses(PipelineStatus.PASSED)),
-                pipelineRule("\\d*", "[a-z]*", "ch4", ".*", statuses(PipelineStatus.BUILDING))
+                pipelineRule("[a-z]*", "[a-z]*", "ch1", statuses(PipelineStatus.BUILDING)),
+                pipelineRule("\\d*", "\\d*", "ch2", statuses(PipelineStatus.BUILDING)),
+                pipelineRule("\\d*", "\\d*", "ch3", statuses(PipelineStatus.PASSED)),
+                pipelineRule("\\d*", "[a-z]*", "ch4", statuses(PipelineStatus.BUILDING))
         ));
 
         List<PipelineRule> foundRules1 = rules.find("abc", "efg", "ci", ".*", Status.Building.getStatus());
@@ -76,8 +76,8 @@ public class RulesTest {
         rules.setProcessAllRules(true);
 
         rules.setPipelineRules(Arrays.asList(
-                pipelineRule("[a-z]*", "stage\\d+", "ch1", ".*", statuses(PipelineStatus.BUILDING)),
-                pipelineRule("[a-z]*", "stage2", "ch2", ".*", statuses(PipelineStatus.BUILDING))
+                pipelineRule("[a-z]*", "stage\\d+", "ch1", statuses(PipelineStatus.BUILDING)),
+                pipelineRule("[a-z]*", "stage2", "ch2", statuses(PipelineStatus.BUILDING))
         ));
 
         List<PipelineRule> foundRules1 = rules.find("abc", "stage1", "ci", ".*", Status.Building.getStatus());
@@ -98,7 +98,7 @@ public class RulesTest {
         Rules rules = new Rules();
 
         rules.setPipelineRules(Arrays.asList(
-                pipelineRule("p1", "s1", "ch1", "", statuses(PipelineStatus.ALL))
+                pipelineRule("p1", "s1", "ch1", statuses(PipelineStatus.ALL))
         ));
 
         assertThat(rules.find("p1", "s1", "ci", ".*", Status.Building.getStatus()).size(), is(1));
@@ -130,8 +130,8 @@ public class RulesTest {
         assertThat(rules.getGoAPIToken(), is("a-valid-token-from-gocd-server"));
     }
 
-    private static PipelineRule pipelineRule(String pipeline, String stage, String channel, String label, Set<PipelineStatus> statuses) {
-        PipelineRule pipelineRule = new PipelineRule(pipeline, stage, label);
+    private static PipelineRule pipelineRule(String pipeline, String stage, String channel, Set<PipelineStatus> statuses) {
+        PipelineRule pipelineRule = new PipelineRule(pipeline, stage);
         pipelineRule.setStatus(statuses);
         pipelineRule.setChannel(channel);
         return pipelineRule;

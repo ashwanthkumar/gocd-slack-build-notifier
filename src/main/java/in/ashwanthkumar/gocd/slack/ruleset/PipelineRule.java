@@ -35,10 +35,9 @@ public class PipelineRule {
         this.webhookUrl = copy.webhookUrl;
     }
 
-    public PipelineRule(String nameRegex, String stageRegex, String labelRegex) {
+    public PipelineRule(String nameRegex, String stageRegex) {
         this.nameRegex = nameRegex;
         this.stageRegex = stageRegex;
-        this.labelRegex = labelRegex;
     }
 
     public String getNameRegex() {
@@ -116,9 +115,9 @@ public class PipelineRule {
     public boolean matches(String pipeline, String stage, String group, String label, final String pipelineState) {
         return pipeline.matches(nameRegex)
                 && stage.matches(stageRegex)
-                && label.matches(labelRegex)
                 && matchesGroup(group)
-                && Iterables.exists(status, hasStateMatching(pipelineState));
+                && Iterables.exists(status, hasStateMatching(pipelineState))
+        		|| label.matches(labelRegex);
     }
 
     private boolean matchesGroup(String group) {

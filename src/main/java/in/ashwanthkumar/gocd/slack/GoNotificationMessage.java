@@ -195,8 +195,8 @@ public class GoNotificationMessage {
                                              Integer.parseInt(pipeline.stage.counter));
         if (previous == null || StringUtils.isEmpty(previous.result)) {
             LOG.info("Couldn't find any previous run of " +
-                     pipeline.name + "/" + pipeline.label + "/" + pipeline.counter + "/" +
-                     pipeline.stage.name + "/" + pipeline.stage.counter);
+                     pipeline.name + "/" + pipeline.counter + "/" +
+                     pipeline.stage.name + "/" + pipeline.stage.counter + "(.." + pipeline.label + "..)");
             return;
         }
         String previousResult = previous.result.toUpperCase();
