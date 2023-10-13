@@ -196,7 +196,7 @@ public class GoNotificationMessage {
         if (previous == null || StringUtils.isEmpty(previous.result)) {
             LOG.info("Couldn't find any previous run of " +
                      pipeline.name + "/" + pipeline.counter + "/" +
-                     pipeline.stage.name + "/" + pipeline.stage.counter + "(.." + pipeline.label + "..)");
+                     pipeline.stage.name + "/" + pipeline.stage.counter + "(" + pipeline.label + ")");
             return;
         }
         String previousResult = previous.result.toUpperCase();
