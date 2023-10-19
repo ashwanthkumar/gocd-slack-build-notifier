@@ -33,7 +33,7 @@ public class RulesTest {
         assertThat(foundRules2.get(0).getNameRegex(), is("pipeline2"));
         assertThat(foundRules2.get(0).getStageRegex(), is("stage2"));
 
-        List<PipelineRule> foundRules3 = rules.find("pipeline2", "stage2", "ci", "", Status.Passed.getStatus());
+        List<PipelineRule> foundRules3 = rules.find("pipeline2", "stage2", "ci", ".*", Status.Passed.getStatus());
         assertThat(foundRules3.size(), is(0));
     }
 
