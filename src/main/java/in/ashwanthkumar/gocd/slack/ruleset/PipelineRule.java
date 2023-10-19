@@ -3,7 +3,6 @@ package in.ashwanthkumar.gocd.slack.ruleset;
 import com.typesafe.config.Config;
 import in.ashwanthkumar.utils.collections.Iterables;
 import in.ashwanthkumar.utils.collections.Lists;
-import in.ashwanthkumar.utils.collections.Sets;
 import in.ashwanthkumar.utils.func.Predicate;
 import in.ashwanthkumar.utils.lang.StringUtils;
 
@@ -117,7 +116,7 @@ public class PipelineRule {
                 && stage.matches(stageRegex)
                 && matchesGroup(group)
                 && Iterables.exists(status, hasStateMatching(pipelineState))
-                || label.matches(labelRegex);
+                && (StringUtils.isNotEmpty(labelRegex) ? label.matches(labelRegex) : true);
     }
 
     private boolean matchesGroup(String group) {
