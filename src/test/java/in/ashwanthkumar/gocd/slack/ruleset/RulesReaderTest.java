@@ -26,6 +26,7 @@ public class RulesReaderTest {
                 .setNameRegex("gocd-slack-build-notifier")
                 .setStageRegex(".*")
                 .setGroupRegex(".*")
+                .setLabelRegex(".*")
                 .setChannel("#gocd")
                 .setStatus(Sets.of(PipelineStatus.FAILED));
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule1));
@@ -34,6 +35,7 @@ public class RulesReaderTest {
                 .setNameRegex("my-java-utils")
                 .setStageRegex("build")
                 .setGroupRegex("ci")
+                .setLabelRegex(".*")
                 .setChannel("#gocd-build")
                 .setStatus(Sets.of(PipelineStatus.FAILED));
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule2));
@@ -66,6 +68,7 @@ public class RulesReaderTest {
                 .setNameRegex(".*")
                 .setStageRegex(".*")
                 .setGroupRegex(".*")
+                .setLabelRegex(".*")
                 .setChannel("#build")
                 .setStatus(Sets.of(PipelineStatus.CANCELLED, PipelineStatus.BROKEN, PipelineStatus.FAILED, PipelineStatus.FIXED));
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule));
@@ -86,6 +89,7 @@ public class RulesReaderTest {
                 .setNameRegex(".*")
                 .setStageRegex(".*")
                 .setGroupRegex(".*")
+                .setLabelRegex(".*")
                 .setChannel("#foo")
                 .setStatus(Sets.of(PipelineStatus.FAILED))
                 .setWebhookUrl("https://hooks.slack.com/services/for-pipeline");
@@ -108,6 +112,7 @@ public class RulesReaderTest {
                 .setNameRegex(".*")
                 .setStageRegex(".*")
                 .setGroupRegex(".*")
+                .setLabelRegex(".*")
                 .setChannel("#foo")
                 .setStatus(Sets.of(PipelineStatus.FAILED));
         assertThat(rules.getPipelineRules(), hasItem(pipelineRule));

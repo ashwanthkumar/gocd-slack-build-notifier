@@ -67,6 +67,9 @@ public class GoNotificationMessage {
 
         @SerializedName("group")
         String group;
+        
+        @SerializedName("label")
+        String label;
 
         @SerializedName("stage")
         StageInfo stage;
@@ -97,6 +100,10 @@ public class GoNotificationMessage {
 
     public String getPipelineCounter() {
         return pipeline.counter;
+    }
+    
+    public String getPipelineLabel() {
+        return pipeline.label;
     }
 
     public String getStageName() {
@@ -188,7 +195,7 @@ public class GoNotificationMessage {
                                              Integer.parseInt(pipeline.stage.counter));
         if (previous == null || StringUtils.isEmpty(previous.result)) {
             LOG.info("Couldn't find any previous run of " +
-                     pipeline.name + "/" + pipeline.counter + "/" +
+                     pipeline.name + "(" + pipeline.label + ")" +  "/" + pipeline.counter + "/" +
                      pipeline.stage.name + "/" + pipeline.stage.counter);
             return;
         }

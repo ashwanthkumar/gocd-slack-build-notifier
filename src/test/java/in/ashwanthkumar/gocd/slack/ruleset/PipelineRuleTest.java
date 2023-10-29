@@ -47,11 +47,11 @@ public class PipelineRuleTest {
     @Test
     public void shouldMatchThePipelineAndStageAgainstRegex() {
         PipelineRule pipelineRule = new PipelineRule("gocd-.*", ".*").setGroupRegex("ci").setStatus(Sets.of(FAILED, PASSED));
-        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "build", "ci", "failed"));
-        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "package", "ci", "passed"));
-        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "publish", "ci", "passed"));
+        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "build", "ci", ".*", "failed"));
+        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "package", "ci", ".*", "passed"));
+        assertTrue(pipelineRule.matches("gocd-slack-build-notifier", "publish", "ci", ".*", "passed"));
 
-        assertFalse(pipelineRule.matches("gocd", "publish", "ci", "failed"));
+        assertFalse(pipelineRule.matches("gocd", "publish", "ci", ".*", "failed"));
     }
 
 

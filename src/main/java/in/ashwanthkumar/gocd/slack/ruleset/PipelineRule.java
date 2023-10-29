@@ -3,7 +3,6 @@ package in.ashwanthkumar.gocd.slack.ruleset;
 import com.typesafe.config.Config;
 import in.ashwanthkumar.utils.collections.Iterables;
 import in.ashwanthkumar.utils.collections.Lists;
-import in.ashwanthkumar.utils.collections.Sets;
 import in.ashwanthkumar.utils.func.Predicate;
 import in.ashwanthkumar.utils.lang.StringUtils;
 
@@ -15,6 +14,7 @@ public class PipelineRule {
     private String nameRegex;
     private String stageRegex;
     private String groupRegex;
+    private String labelRegex;
     private String channel;
     private String webhookUrl;
     private Set<String> owners = new HashSet<>();
@@ -27,6 +27,7 @@ public class PipelineRule {
         this.nameRegex = copy.nameRegex;
         this.stageRegex = copy.stageRegex;
         this.groupRegex = copy.groupRegex;
+        this.labelRegex = copy.labelRegex;
         this.channel = copy.channel;
         this.status = copy.status;
         this.owners = copy.owners;
@@ -55,13 +56,22 @@ public class PipelineRule {
         this.groupRegex = groupRegex;
         return this;
     }
-
+    
     public String getStageRegex() {
         return stageRegex;
     }
 
     public PipelineRule setStageRegex(String stageRegex) {
         this.stageRegex = stageRegex;
+        return this;
+    }
+    
+    public String getLabelRegex() {
+        return labelRegex;
+    }
+
+    public PipelineRule setLabelRegex(String labelRegex) {
+        this.labelRegex = labelRegex;
         return this;
     }
 
@@ -101,11 +111,12 @@ public class PipelineRule {
         return this;
     }
 
-    public boolean matches(String pipeline, String stage, String group, final String pipelineState) {
+    public boolean matches(String pipeline, String stage, String group, String label, final String pipelineState) {
         return pipeline.matches(nameRegex)
                 && stage.matches(stageRegex)
                 && matchesGroup(group)
-                && Iterables.exists(status, hasStateMatching(pipelineState));
+                && Iterables.exists(status, hasStateMatching(pipelineState))
+                && label.matches(labelRegex);
     }
 
     private boolean matchesGroup(String group) {
@@ -131,6 +142,7 @@ public class PipelineRule {
         if (channel != null ? !channel.equals(that.channel) : that.channel != null) return false;
         if (nameRegex != null ? !nameRegex.equals(that.nameRegex) : that.nameRegex != null) return false;
         if (groupRegex != null ? !groupRegex.equals(that.groupRegex) : that.groupRegex != null) return false;
+        if (labelRegex != null ? !labelRegex.equals(that.labelRegex) : that.labelRegex != null) return false;
         if (stageRegex != null ? !stageRegex.equals(that.stageRegex) : that.stageRegex != null) return false;
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
         if (owners != null ? !owners.equals(that.owners) : that.owners != null) return false;
@@ -144,6 +156,7 @@ public class PipelineRule {
         int result = nameRegex != null ? nameRegex.hashCode() : 0;
         result = 31 * result + (groupRegex != null ? groupRegex.hashCode() : 0);
         result = 31 * result + (stageRegex != null ? stageRegex.hashCode() : 0);
+        result = 31 * result + (labelRegex != null ? labelRegex.hashCode() : 0);
         result = 31 * result + (channel != null ? channel.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + (owners != null ? owners.hashCode() : 0);
@@ -157,6 +170,7 @@ public class PipelineRule {
                 "nameRegex='" + nameRegex + '\'' +
                 ", groupRegex='" + groupRegex + '\'' +
                 ", stageRegex='" + stageRegex + '\'' +
+                ", labelRegex='" + labelRegex + '\'' +
                 ", channel='" + channel + '\'' +
                 ", status=" + status +
                 ", owners=" + owners +
@@ -172,6 +186,9 @@ public class PipelineRule {
         }
         if (config.hasPath("stage")) {
             pipelineRule.setStageRegex(config.getString("stage"));
+        }
+        if (config.hasPath("label")) {
+            pipelineRule.setLabelRegex(config.getString("label"));
         }
         if (config.hasPath("state")) {
             String stateT = config.getString("state");
@@ -221,6 +238,10 @@ public class PipelineRule {
 
         if (isEmpty(pipelineRule.getStageRegex())) {
             ruleToReturn.setStageRegex(defaultRule.getStageRegex());
+        }
+        
+        if (isEmpty(pipelineRule.getLabelRegex())) {
+            ruleToReturn.setLabelRegex(defaultRule.getLabelRegex());
         }
 
         if (isEmpty(pipelineRule.getChannel())) {
