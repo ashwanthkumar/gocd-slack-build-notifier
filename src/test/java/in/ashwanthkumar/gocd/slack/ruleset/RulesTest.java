@@ -134,6 +134,7 @@ public class RulesTest {
         PipelineRule pipelineRule = new PipelineRule(pipeline, stage);
         pipelineRule.setStatus(statuses);
         pipelineRule.setChannel(channel);
+        pipelineRule.setLabelRegex(".*");
         return pipelineRule;
     }
 
